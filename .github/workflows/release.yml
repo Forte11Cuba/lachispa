@@ -1,4 +1,4 @@
-name: Build and Release
+name: Build and Release Android
 
 on:
   push:
@@ -35,125 +35,16 @@ jobs:
           name: android-apk
           path: build/app/outputs/flutter-apk/app-release.apk
 
-  build-linux:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      
-      - name: Setup Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          flutter-version: '3.24.0'
-          channel: 'stable'
-          
-      - name: Install Linux dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev
-          
-      - name: Install dependencies
-        run: flutter pub get
-        
-      - name: Enable Linux desktop
-        run: flutter config --enable-linux-desktop
-        
-      - name: Build Linux
-        run: flutter build linux --release
-        
-      - name: Download linuxdeploy
-        run: |
-          wget https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage
-          chmod +x linuxdeploy-x86_64.AppImage
-          
-      - name: Create AppImage
-        run: |
-          ./linuxdeploy-x86_64.AppImage --appdir AppDir --executable build/linux/x64/release/bundle/lachispa --desktop-file AppDir/lachispa.desktop --icon-file AppDir/lachispa.png --output appimage
-          
-      - name: Upload AppImage artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: linux-appimage
-          path: lachispa-*.AppImage
-
-  build-windows:
-    runs-on: windows-latest
-    steps:
-      - uses: actions/checkout@v4
-      
-      - name: Setup Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          flutter-version: '3.24.0'
-          channel: 'stable'
-          
-      - name: Install dependencies
-        run: flutter pub get
-        
-      - name: Enable Windows desktop
-        run: flutter config --enable-windows-desktop
-        
-      - name: Build Windows
-        run: flutter build windows --release
-        
-      - name: Create installer
-        run: |
-          Compress-Archive -Path "build/windows/x64/runner/Release/*" -DestinationPath "lachispa-windows.zip"
-          
-      - name: Upload Windows artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: windows-zip
-          path: lachispa-windows.zip
-
-  build-macos:
-    runs-on: macos-latest
-    steps:
-      - uses: actions/checkout@v4
-      
-      - name: Setup Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          flutter-version: '3.24.0'
-          channel: 'stable'
-          
-      - name: Install dependencies
-        run: flutter pub get
-        
-      - name: Enable macOS desktop
-        run: flutter config --enable-macos-desktop
-        
-      - name: Build macOS
-        run: flutter build macos --release
-        
-      - name: Create DMG
-        run: |
-          brew install create-dmg
-          create-dmg \
-            --volname "LaChispa" \
-            --volicon "Logo/chispabordesredondos.png" \
-            --window-pos 200 120 \
-            --window-size 600 300 \
-            --icon-size 100 \
-            --icon "lachispa.app" 175 120 \
-            --hide-extension "lachispa.app" \
-            --app-drop-link 425 120 \
-            "lachispa-macos.dmg" \
-            "build/macos/Build/Products/Release/"
-            
-      - name: Upload macOS artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: macos-dmg
-          path: lachispa-macos.dmg
-
   release:
-    needs: [build-android, build-linux, build-windows, build-macos]
+    needs: [build-android]
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       
-      - name: Download all artifacts
+      - name: Download APK artifact
         uses: actions/download-artifact@v4
+        with:
+          name: android-apk
         
       - name: Get tag version
         id: tag
@@ -167,23 +58,14 @@ jobs:
           body: |
             ## LaChispa ${{ steps.tag.outputs.VERSION }}
             
-            ### Descargas disponibles:
+            ### Descarga disponible:
             - **Android**: `app-release.apk`
-            - **Linux**: `lachispa-*.AppImage`
-            - **Windows**: `lachispa-windows.zip`
-            - **macOS**: `lachispa-macos.dmg`
             
             ### Instalación:
-            - **Android**: Instalar APK directamente
-            - **Linux**: Dar permisos de ejecución al AppImage
-            - **Windows**: Extraer ZIP y ejecutar
-            - **macOS**: Montar DMG y arrastrar a Aplicaciones
+            - Descargar APK e instalar en Android
             
           files: |
-            android-apk/app-release.apk
-            linux-appimage/lachispa-*.AppImage
-            windows-zip/lachispa-windows.zip
-            macos-dmg/lachispa-macos.dmg
+            app-release.apk
           draft: false
           prerelease: false
         env:
