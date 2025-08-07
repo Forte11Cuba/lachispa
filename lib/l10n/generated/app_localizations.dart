@@ -862,6 +862,12 @@ abstract class AppLocalizations {
   /// **'Pagar'**
   String get pay_button_confirm;
 
+  /// No description provided for @confirm_button.
+  ///
+  /// In es, this message translates to:
+  /// **'Confirmar'**
+  String get confirm_button;
+
   /// No description provided for @expired_button_text.
   ///
   /// In es, this message translates to:

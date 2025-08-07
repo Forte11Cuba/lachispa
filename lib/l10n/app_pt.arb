@@ -140,6 +140,7 @@
   "recipient_label": "Destinatário",
   "cancel_button_confirm": "Cancelar",
   "pay_button_confirm": "Pagar",
+  "confirm_button": "Confirmar",
   "expired_button_text": "Expirada",
   "sending_button": "Enviando...",
   "invoice_expired_error": "A fatura expirou e não pode ser paga",

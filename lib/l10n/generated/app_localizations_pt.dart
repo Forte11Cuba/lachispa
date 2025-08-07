@@ -403,6 +403,9 @@ class AppLocalizationsPt extends AppLocalizations {
   String get pay_button_confirm => 'Pagar';
 
   @override
+  String get confirm_button => 'Confirmar';
+
+  @override
   String get expired_button_text => 'Expirada';
 
   @override
