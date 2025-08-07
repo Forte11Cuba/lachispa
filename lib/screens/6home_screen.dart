@@ -4,8 +4,10 @@ import 'dart:async';
 import 'dart:math' as math;
 import '../providers/auth_provider.dart';
 import '../providers/wallet_provider.dart';
+import '../providers/language_provider.dart';
 import '../services/transaction_detector.dart';
 import '../services/yadio_service.dart';
+import '../l10n/generated/app_localizations.dart';
 import '7history_screen.dart';
 import '7ln_address_screen.dart';
 import '9receive_screen.dart';
@@ -359,7 +361,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver, Ti
                 children: [
                   const Icon(Icons.check_circle, color: Colors.green),
                   const SizedBox(width: 8),
-                  Text('Deposit received! +$difference sats'),
+                  Text('${AppLocalizations.of(context)!.received_label}! +$difference sats'),
                 ],
               ),
               backgroundColor: Colors.green.withValues(alpha: 0.9),
@@ -448,7 +450,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver, Ti
       return currency == 'USD' ? '\$$value' : '$value $currency';
     }
     
-    return 'Calculando...';
+    return AppLocalizations.of(context)!.calculating_text;
   }
 
   // Format secondary balance (sats) to show below when not in sats
@@ -971,7 +973,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver, Ti
                 ),
               ] else if (walletProvider.isLoading) ...[
                 const SizedBox(height: 4),
-                const Row(
+                Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     SizedBox(
@@ -984,7 +986,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver, Ti
                     ),
                     SizedBox(width: 8),
                     Text(
-                      'Cargando billeteras...',
+                      AppLocalizations.of(context)!.loading_text,
                       style: TextStyle(
                         fontFamily: 'Inter',
                         fontSize: 12,
@@ -1043,7 +1045,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver, Ti
                 child: Column(
                   children: [
                     Text(
-                      'Saldo disponible',
+                      AppLocalizations.of(context)!.balance_label,
                       style: TextStyle(
                         fontFamily: 'Inter',
                         fontSize: 16,
@@ -1072,7 +1074,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver, Ti
                                         final mainBalance = walletProvider.primaryWallet != null
                                             ? _formatMainBalanceSync(balance)
                                             : walletProvider.isLoading
-                                                ? 'Cargando...'
+                                                ? AppLocalizations.of(context)!.loading_text
                                                 : '0 sats';
                                         
                                         // Activate conversions if necessary
@@ -1204,11 +1206,11 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver, Ti
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(16),
                     ),
-                    child: const Row(
+                    child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(
-                          'Enviar',
+                          AppLocalizations.of(context)!.send_button,
                           style: TextStyle(
                             fontFamily: 'Inter',
                             fontSize: 16,
@@ -1266,7 +1268,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver, Ti
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(16),
                     ),
-                    child: const Row(
+                    child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Icon(
@@ -1276,7 +1278,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver, Ti
                         ),
                         SizedBox(width: 8),
                         Text(
-                          'Recibir',
+                          AppLocalizations.of(context)!.receive_button,
                           style: TextStyle(
                             fontFamily: 'Inter',
                             fontSize: 16,
@@ -1328,8 +1330,8 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver, Ti
                       size: 24,
                     ),
                     const SizedBox(width: 12),
-                    const Text(
-                      'Seleccionar Billetera',
+                    Text(
+                      AppLocalizations.of(context)!.wallet_title,
                       style: TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.w600,
@@ -1418,7 +1420,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver, Ti
                           // Show feedback
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
-                              content: Text('Billetera "${wallet.name}" seleccionada'),
+                              content: Text('${AppLocalizations.of(context)!.wallet_title} "${wallet.name}" seleccionada'),
                               backgroundColor: const Color(0xFF2D3FE7),
                               duration: const Duration(seconds: 2),
                             ),
@@ -1452,8 +1454,8 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver, Ti
                           size: 16,
                         ),
                         const SizedBox(width: 8),
-                        const Text(
-                          'Crear nueva billetera',
+                        Text(
+                          AppLocalizations.of(context)!.create_new_wallet_title,
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 14,
@@ -1463,9 +1465,9 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver, Ti
                       ],
                     ),
                     const SizedBox(height: 8),
-                    const Text(
-                      'Para crear una nueva billetera, accede a tu panel LNBits desde el navegador y usa la opción "Crear billetera".',
-                      style: TextStyle(
+                    Text(
+                      AppLocalizations.of(context)!.create_wallet_short_description,
+                      style: const TextStyle(
                         color: Colors.white70,
                         fontSize: 12,
                       ),
@@ -1486,8 +1488,8 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver, Ti
                           ),
                           padding: const EdgeInsets.symmetric(vertical: 8),
                         ),
-                        child: const Text(
-                          'Más información',
+                        child: Text(
+                          AppLocalizations.of(context)!.server_settings_title,
                           style: TextStyle(fontSize: 12),
                         ),
                       ),
@@ -1507,7 +1509,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver, Ti
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: const Color(0xFF1A1D47),
-        title: const Row(
+        title: Row(
           children: [
             Icon(
               Icons.add_circle_outline,
@@ -1515,21 +1517,14 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver, Ti
             ),
             SizedBox(width: 8),
             Text(
-              'Crear nueva billetera',
+              AppLocalizations.of(context)!.create_new_wallet_title,
               style: TextStyle(color: Colors.white),
             ),
           ],
         ),
-        content: const Text(
-          'Para crear una nueva billetera:\n\n'
-          '1. Abre tu navegador web\n'
-          '2. Accede a tu servidor LNBits\n'
-          '3. Inicia sesión con tu cuenta\n'
-          '4. Busca el botón "Crear billetera"\n'
-          '5. Asigna un nombre a tu nueva billetera\n'
-          '6. Regresa a LaChispa y actualiza tus billeteras\n\n'
-          'La nueva billetera aparecerá automáticamente en tu lista.',
-          style: TextStyle(
+        content: Text(
+          AppLocalizations.of(context)!.create_wallet_detailed_instructions,
+          style: const TextStyle(
             color: Colors.white70,
             fontSize: 14,
           ),
@@ -1537,8 +1532,8 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver, Ti
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text(
-              'Entendido',
+            child: Text(
+              AppLocalizations.of(context)!.cancel_button,
               style: TextStyle(color: Color(0xFF5B73FF)),
             ),
           ),
@@ -1583,7 +1578,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver, Ti
                 ),
                 const SizedBox(width: 12),
                 Text(
-                  'Historial',
+                  AppLocalizations.of(context)!.history_title,
                   style: TextStyle(
                     fontFamily: 'Inter',
                     fontSize: 16,
@@ -1727,7 +1722,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver, Ti
                     
                     _buildDrawerItem(
                       icon: Icons.alternate_email,
-                      title: 'Lightning Address',
+                      title: AppLocalizations.of(context)!.lightning_address_title,
                       onTap: () {
                         Navigator.pop(context);
                         Navigator.push(
@@ -1739,9 +1734,24 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver, Ti
                       },
                     ),
                     
+                    // Language selector
+                    Consumer<LanguageProvider>(
+                      builder: (context, languageProvider, child) {
+                        return _buildDrawerItem(
+                          icon: Icons.language,
+                          title: AppLocalizations.of(context)!.language_selector_title,
+                          subtitle: languageProvider.getCurrentLanguageDisplay(),
+                          onTap: () {
+                            Navigator.pop(context);
+                            _showLanguageSelector(languageProvider);
+                          },
+                        );
+                      },
+                    ),
+                    
                     _buildDrawerItem(
                       icon: Icons.info_outline,
-                      title: 'Acerca de',
+                      title: AppLocalizations.of(context)!.settings_title,
                       onTap: () {
                         Navigator.pop(context);
                         _showAboutDialog();
@@ -1778,8 +1788,8 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver, Ti
                           padding: const EdgeInsets.symmetric(vertical: 16),
                         ),
                         icon: const Icon(Icons.logout, size: 18),
-                        label: const Text(
-                          'Cerrar sesión',
+                        label: Text(
+                          AppLocalizations.of(context)!.logout_option,
                           style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.w600,
@@ -1800,6 +1810,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver, Ti
   Widget _buildDrawerItem({
     required IconData icon,
     required String title,
+    String? subtitle,
     required VoidCallback onTap,
   }) {
     return Container(
@@ -1826,6 +1837,15 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver, Ti
             color: Colors.white,
           ),
         ),
+        subtitle: subtitle != null 
+          ? Text(
+              subtitle,
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.white.withValues(alpha: 0.7),
+              ),
+            )
+          : null,
         onTap: onTap,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
@@ -1836,6 +1856,27 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver, Ti
   }
 
   void _showAboutDialog() {
+    final languageProvider = Provider.of<LanguageProvider>(context, listen: false);
+    final currentLanguage = languageProvider.currentLocale.languageCode;
+    
+    String subtitle;
+    String description;
+    
+    switch (currentLanguage) {
+      case 'en':
+        subtitle = 'Lightning Wallet';
+        description = 'A mobile application to manage Bitcoin through Lightning Network using LNBits as backend.';
+        break;
+      case 'pt':
+        subtitle = 'Carteira Lightning';
+        description = 'Uma aplicação móvel para gerir Bitcoin através da Lightning Network usando LNBits como backend.';
+        break;
+      default: // es
+        subtitle = 'Billetera Lightning';
+        description = 'Una aplicación móvil para gestionar Bitcoin a través de Lightning Network usando LNBits como backend.';
+        break;
+    }
+    
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -1869,18 +1910,18 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver, Ti
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Billetera Lightning',
-              style: TextStyle(
+            Text(
+              subtitle,
+              style: const TextStyle(
                 color: Colors.white,
                 fontSize: 16,
                 fontWeight: FontWeight.w600,
               ),
             ),
             const SizedBox(height: 8),
-            const Text(
-              'Una aplicación móvil para gestionar Bitcoin a través de Lightning Network usando LNBits como backend.',
-              style: TextStyle(
+            Text(
+              description,
+              style: const TextStyle(
                 color: Colors.white70,
                 fontSize: 14,
               ),
@@ -1916,8 +1957,8 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver, Ti
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text(
-              'Cerrar',
+            child: Text(
+              AppLocalizations.of(context)!.cancel_button,
               style: TextStyle(color: Color(0xFF5B73FF)),
             ),
           ),
@@ -1931,19 +1972,19 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver, Ti
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: const Color(0xFF1A1D47),
-        title: const Text(
-          'Cerrar sesión',
+        title: Text(
+          AppLocalizations.of(context)!.logout_option,
           style: TextStyle(color: Colors.white),
         ),
-        content: const Text(
-          '¿Estás seguro de que quieres cerrar sesión?',
+        content: Text(
+          AppLocalizations.of(context)!.confirm_logout_message,
           style: TextStyle(color: Colors.white70),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text(
-              'Cancelar',
+            child: Text(
+              AppLocalizations.of(context)!.cancel_button,
               style: TextStyle(color: Colors.white54),
             ),
           ),
@@ -1962,12 +2003,110 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver, Ti
                 );
               }
             },
-            child: const Text(
-              'Cerrar sesión',
+            child: Text(
+              AppLocalizations.of(context)!.logout_option,
               style: TextStyle(color: Colors.red),
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  void _showLanguageSelector(LanguageProvider languageProvider) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Color(0xFF1A1A2E),
+              Color(0xFF16213E),
+              Color(0xFF0F0F23),
+            ],
+          ),
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(20),
+            topRight: Radius.circular(20),
+          ),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Handle
+            Container(
+              margin: const EdgeInsets.only(top: 8),
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.3),
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            
+            // Title
+            Padding(
+              padding: const EdgeInsets.all(20),
+              child: Text(
+                AppLocalizations.of(context)!.select_language,
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+            
+            // Language options
+            ...languageProvider.getAvailableLanguages().map((language) {
+              final isSelected = languageProvider.currentLocale.languageCode == language['code'];
+              return Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  onTap: () async {
+                    await languageProvider.changeLanguage(Locale(language['code']!));
+                    if (mounted) {
+                      Navigator.pop(context);
+                    }
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                    child: Row(
+                      children: [
+                        Text(
+                          language['flag']!,
+                          style: const TextStyle(fontSize: 24),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Text(
+                            language['name']!,
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                              color: isSelected ? const Color(0xFF4C63F7) : Colors.white,
+                            ),
+                          ),
+                        ),
+                        if (isSelected)
+                          const Icon(
+                            Icons.check_circle,
+                            color: Color(0xFF4C63F7),
+                            size: 24,
+                          ),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            }).toList(),
+            
+            const SizedBox(height: 20),
+          ],
+        ),
       ),
     );
   }

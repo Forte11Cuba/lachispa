@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 import 'providers/server_provider.dart';
 import 'providers/auth_provider.dart';
 import 'providers/wallet_provider.dart';
 import 'providers/ln_address_provider.dart';
+import 'providers/language_provider.dart';
 import 'services/wallet_service.dart';
 import 'services/ln_address_service.dart';
 import 'screens/1welcome_screen.dart';
+import 'l10n/generated/app_localizations.dart';
 
 void main() {
   runApp(const LaChispaApp());
@@ -19,6 +22,7 @@ class LaChispaApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
+        ChangeNotifierProvider(create: (_) => LanguageProvider()),
         ChangeNotifierProvider(create: (_) => ServerProvider()),
         ChangeNotifierProvider(create: (_) => AuthProviderFactory.create()),
         
@@ -53,14 +57,30 @@ class LaChispaApp extends StatelessWidget {
             _setupWalletLNAddressConnection(context);
           });
           
-          return MaterialApp(
-            title: 'LaChispa',
-            theme: ThemeData(
-              fontFamily: 'Inter',
-              useMaterial3: true,
-            ),
-            home: const WelcomeScreen(),
-            debugShowCheckedModeBanner: false,
+          return Consumer<LanguageProvider>(
+            builder: (context, languageProvider, child) {
+              return MaterialApp(
+                title: 'LaChispa',
+                theme: ThemeData(
+                  fontFamily: 'Inter',
+                  useMaterial3: true,
+                ),
+                locale: languageProvider.currentLocale,
+                localizationsDelegates: const [
+                  AppLocalizations.delegate,
+                  GlobalMaterialLocalizations.delegate,
+                  GlobalWidgetsLocalizations.delegate,
+                  GlobalCupertinoLocalizations.delegate,
+                ],
+                supportedLocales: const [
+                  Locale('es', ''),
+                  Locale('en', ''),
+                  Locale('pt', ''),
+                ],
+                home: const WelcomeScreen(),
+                debugShowCheckedModeBanner: false,
+              );
+            },
           );
         },
       ),

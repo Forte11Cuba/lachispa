@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'dart:math' as math;
 import 'dart:async';
 import '../providers/server_provider.dart';
+import '../l10n/generated/app_localizations.dart';
 
 class ServerSettingsScreen extends StatefulWidget {
   const ServerSettingsScreen({super.key});
@@ -111,7 +112,7 @@ class _ServerSettingsScreenState extends State<ServerSettingsScreen>
         : _selectedServer;
 
     if (serverToSave.isEmpty) {
-      _showMessage('Selecciona un servidor', isError: true);
+      _showMessage(AppLocalizations.of(context)!.server_url_label, isError: true);
       setState(() {
         _isSaving = false;
       });
@@ -122,7 +123,7 @@ class _ServerSettingsScreenState extends State<ServerSettingsScreen>
       await serverProvider.selectServer(serverToSave);
       
       if (mounted) {
-        _showMessage('Servidor actualizado: ${serverProvider.serverDisplayName}', isError: false);
+        _showMessage('${AppLocalizations.of(context)!.server_settings_title}: ${serverProvider.serverDisplayName}', isError: false);
         
         // Wait a moment for the user to see the message
         await Future.delayed(const Duration(seconds: 1));
@@ -133,7 +134,7 @@ class _ServerSettingsScreenState extends State<ServerSettingsScreen>
         }
       }
     } catch (e) {
-      _showMessage('Error: ${e.toString()}', isError: true);
+      _showMessage('${AppLocalizations.of(context)!.connection_error_prefix}${e.toString()}', isError: true);
     } finally {
       if (mounted) {
         setState(() {
@@ -212,7 +213,7 @@ class _ServerSettingsScreenState extends State<ServerSettingsScreen>
                           
                           // Title
                           Text(
-                            'Selecciona tu servidor',
+                            AppLocalizations.of(context)!.server_settings_title,
                             style: TextStyle(
                               fontFamily: 'Inter',
                               fontSize: 24,
@@ -223,7 +224,7 @@ class _ServerSettingsScreenState extends State<ServerSettingsScreen>
                           const SizedBox(height: 8),
                           
                           Text(
-                            'Conéctate a tu servidor LNBits preferido',
+                            AppLocalizations.of(context)!.server_url_label,
                             style: TextStyle(
                               fontFamily: 'Inter',
                               fontSize: 16,
@@ -287,7 +288,7 @@ class _ServerSettingsScreenState extends State<ServerSettingsScreen>
           ),
           const SizedBox(width: 16),
           Text(
-            'Configurar Servidor',
+            AppLocalizations.of(context)!.server_settings_title,
             style: TextStyle(
               fontFamily: 'Inter',
               fontSize: 20,
@@ -409,7 +410,7 @@ class _ServerSettingsScreenState extends State<ServerSettingsScreen>
                 ),
                 const SizedBox(width: 16),
                 Text(
-                  'Servidor personalizado',
+                  AppLocalizations.of(context)!.server_url_label,
                   style: TextStyle(
                     fontFamily: 'Inter',
                     fontSize: 16,
@@ -433,7 +434,7 @@ class _ServerSettingsScreenState extends State<ServerSettingsScreen>
               color: Colors.white,
             ),
             decoration: InputDecoration(
-              hintText: 'tu-servidor.com',
+              hintText: AppLocalizations.of(context)!.server_url_placeholder,
               hintStyle: TextStyle(
                 fontFamily: 'Inter',
                 fontSize: 16,
@@ -464,7 +465,7 @@ class _ServerSettingsScreenState extends State<ServerSettingsScreen>
           ),
           const SizedBox(height: 8),
           Text(
-            'Ingresa la URL de tu servidor LNBits',
+            AppLocalizations.of(context)!.server_url_label,
             style: TextStyle(
               fontFamily: 'Inter',
               fontSize: 12,
@@ -517,8 +518,8 @@ class _ServerSettingsScreenState extends State<ServerSettingsScreen>
                   strokeWidth: 2,
                 ),
               )
-            : const Text(
-                'Guardar',
+            : Text(
+                AppLocalizations.of(context)!.connect_button,
                 style: TextStyle(
                   fontFamily: 'Inter',
                   fontSize: 16,

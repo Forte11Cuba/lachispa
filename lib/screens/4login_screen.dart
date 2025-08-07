@@ -4,6 +4,7 @@ import '../providers/auth_provider.dart';
 import '../providers/server_provider.dart';
 import '../services/user_credentials_service.dart';
 import '../models/saved_user.dart';
+import '../l10n/generated/app_localizations.dart';
 import '5signup_screen.dart';
 import '6home_screen.dart';
 
@@ -376,7 +377,7 @@ class _LoginScreenState extends State<LoginScreen>
             // Show feedback to user
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: const Text('Credentials found - password will be remembered'),
+                content: Text(AppLocalizations.of(context)!.credentials_found_message),
                 backgroundColor: Colors.green,
                 duration: const Duration(seconds: 2),
               ),
@@ -421,7 +422,7 @@ class _LoginScreenState extends State<LoginScreen>
     if (newValue) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: const Text('Password will be remembered after login'),
+          content: Text(AppLocalizations.of(context)!.password_will_be_remembered),
           backgroundColor: Colors.green,
           duration: const Duration(seconds: 2),
         ),
@@ -435,33 +436,33 @@ class _LoginScreenState extends State<LoginScreen>
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: const Color(0xFF1A1D47),
-        title: const Row(
+        title: Row(
           children: [
-            Icon(Icons.warning, color: Colors.orange),
-            SizedBox(width: 8),
+            const Icon(Icons.warning, color: Colors.orange),
+            const SizedBox(width: 8),
             Text(
-              'Eliminar credenciales',
-              style: TextStyle(color: Colors.white),
+              AppLocalizations.of(context)!.delete_credentials_title,
+              style: const TextStyle(color: Colors.white),
             ),
           ],
         ),
-        content: const Text(
-          'Al desmarcar esta opción, las credenciales guardadas para este usuario serán eliminadas.\n\n¿Estás seguro de que quieres continuar?',
-          style: TextStyle(color: Colors.white70),
+        content: Text(
+          AppLocalizations.of(context)!.delete_credentials_message,
+          style: const TextStyle(color: Colors.white70),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text(
-              'Cancelar',
-              style: TextStyle(color: Colors.white54),
+            child: Text(
+              AppLocalizations.of(context)!.delete_credentials_cancel,
+              style: const TextStyle(color: Colors.white54),
             ),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text(
-              'Eliminar',
-              style: TextStyle(color: Colors.red),
+            child: Text(
+              AppLocalizations.of(context)!.delete_credentials_confirm,
+              style: const TextStyle(color: Colors.red),
             ),
           ),
         ],
@@ -536,8 +537,8 @@ class _LoginScreenState extends State<LoginScreen>
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
                   content: Text(result 
-                    ? 'Password saved successfully' 
-                    : 'Could not save password'),
+                    ? AppLocalizations.of(context)!.password_saved_successfully
+                    : AppLocalizations.of(context)!.password_save_failed),
                   backgroundColor: const Color(0xFF2D3FE7),
                   duration: const Duration(seconds: 2),
                 ),
@@ -578,7 +579,8 @@ class _LoginScreenState extends State<LoginScreen>
         final authProvider = Provider.of<AuthProvider>(context, listen: false);
         if (authProvider.errorMessage != null) {
           print('[LoginScreen] Mostrando error: ${authProvider.errorMessage}');
-          _showErrorDialog(context, authProvider.errorMessage!);
+          final errorMessage = AppLocalizations.of(context)!.login_error_prefix + authProvider.errorMessage!;
+          _showErrorDialog(context, errorMessage);
         }
       } else if (_hasNavigated) {
         print('[LoginScreen] Successful login, state not updated (navigation completed)');
@@ -649,7 +651,7 @@ class _LoginScreenState extends State<LoginScreen>
                 ],
               ),
               child: Text(
-                'Iniciar Sesión',
+                AppLocalizations.of(context)!.login_title,
                 style: TextStyle(
                   fontSize: 32,
                   fontWeight: FontWeight.w700,
@@ -668,7 +670,7 @@ class _LoginScreenState extends State<LoginScreen>
         ),
         const SizedBox(height: 12),
         Text(
-          'Ingresa tus credenciales para acceder a tu billetera',
+          AppLocalizations.of(context)!.login_subtitle,
           textAlign: TextAlign.center,
           style: TextStyle(
             fontSize: 16,
@@ -716,16 +718,16 @@ class _LoginScreenState extends State<LoginScreen>
           focusNode: _usernameFocusNode,
           validator: (value) {
             if (value == null || value.trim().isEmpty) {
-              return 'El nombre de usuario es requerido';
+              return AppLocalizations.of(context)!.username_required_error;
             }
             if (value.trim().length < 3) {
-              return 'El nombre de usuario debe tener al menos 3 caracteres';
+              return AppLocalizations.of(context)!.username_length_error;
             }
             return null;
           },
           decoration: InputDecoration(
-            labelText: 'Nombre de usuario',
-            hintText: 'Ingresa tu nombre de usuario',
+            labelText: AppLocalizations.of(context)!.username_label,
+            hintText: AppLocalizations.of(context)!.username_placeholder,
             labelStyle: TextStyle(color: Colors.white.withValues(alpha: 0.7)),
             hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.5)),
             prefixIcon: Icon(Icons.person, color: Colors.white.withValues(alpha: 0.7)),
@@ -799,7 +801,7 @@ class _LoginScreenState extends State<LoginScreen>
                       ),
                       const SizedBox(width: 8),
                       Text(
-                        'Usuarios guardados',
+                        AppLocalizations.of(context)!.saved_users_header,
                         style: TextStyle(
                           color: Colors.white.withValues(alpha: 0.8),
                           fontSize: 14,
@@ -869,7 +871,7 @@ class _LoginScreenState extends State<LoginScreen>
                                     ),
                                   ),
                                   Text(
-                                    'Toca para autocompletar contraseña',
+                                    AppLocalizations.of(context)!.tap_to_autocomplete_hint,
                                     style: TextStyle(
                                       color: Colors.white.withValues(alpha: 0.6),
                                       fontSize: 12,
@@ -901,17 +903,17 @@ class _LoginScreenState extends State<LoginScreen>
       controller: _passwordController,
       validator: (value) {
         if (value == null || value.isEmpty) {
-          return 'La contraseña es requerida';
+          return AppLocalizations.of(context)!.password_required_error;
         }
         if (value.length < 6) {
-          return 'La contraseña debe tener al menos 6 caracteres';
+          return AppLocalizations.of(context)!.password_length_error;
         }
         return null;
       },
       obscureText: !_isPasswordVisible,
       decoration: InputDecoration(
-        labelText: 'Contraseña',
-        hintText: 'Ingresa tu contraseña',
+        labelText: AppLocalizations.of(context)!.password_label,
+        hintText: AppLocalizations.of(context)!.password_placeholder,
         labelStyle: TextStyle(color: Colors.white.withValues(alpha: 0.7)),
         hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.5)),
         prefixIcon: Icon(Icons.lock, color: Colors.white.withValues(alpha: 0.7)),
@@ -968,7 +970,7 @@ class _LoginScreenState extends State<LoginScreen>
             _handleRememberPasswordChange(!_rememberPassword);
           },
           child: Text(
-            'Recordar contraseña',
+            AppLocalizations.of(context)!.remember_password_label,
             style: TextStyle(
               color: Colors.white.withValues(alpha: 0.8),
               fontSize: 16,
@@ -1002,17 +1004,31 @@ class _LoginScreenState extends State<LoginScreen>
               ),
             ),
             child: (_isLoading || authProvider.isLoading)
-                ? const SizedBox(
-                    height: 20,
-                    width: 20,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                    ),
+                ? Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const SizedBox(
+                        height: 20,
+                        width: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Text(
+                        AppLocalizations.of(context)!.logging_in_button,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ],
                   )
-                : const Text(
-                    'Iniciar Sesión',
-                    style: TextStyle(
+                : Text(
+                    AppLocalizations.of(context)!.login_button,
+                    style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
                       color: Colors.white,
@@ -1057,7 +1073,7 @@ class _LoginScreenState extends State<LoginScreen>
               ),
               const SizedBox(width: 8),
               Text(
-                'Servidor: ',
+                AppLocalizations.of(context)!.server_prefix,
                 style: TextStyle(
                   fontSize: 14,
                   color: Colors.white.withValues(alpha: 0.7),
@@ -1094,7 +1110,7 @@ class _LoginScreenState extends State<LoginScreen>
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(
-            '¿No tienes una cuenta? ',
+            AppLocalizations.of(context)!.no_account_question,
             style: TextStyle(
               fontSize: 16,
               color: Colors.white.withValues(alpha: 0.7),
@@ -1107,9 +1123,9 @@ class _LoginScreenState extends State<LoginScreen>
                 MaterialPageRoute(builder: (context) => const SignupScreen()),
               );
             },
-            child: const Text(
-              'Crea una aquí',
-              style: TextStyle(
+            child: Text(
+              AppLocalizations.of(context)!.register_link,
+              style: const TextStyle(
                 fontSize: 16,
                 color: Colors.white,
                 fontWeight: FontWeight.w600,
@@ -1162,9 +1178,9 @@ void _showErrorDialog(BuildContext context, String error) {
     context: context,
     builder: (context) => AlertDialog(
       backgroundColor: const Color(0xFF1A1D47),
-      title: const Text(
-        'Error de Autenticación',
-        style: TextStyle(color: Colors.white),
+      title: Text(
+        AppLocalizations.of(context)!.login_error_prefix.replaceAll(': ', ''),
+        style: const TextStyle(color: Colors.white),
       ),
       content: Text(
         error,
@@ -1173,9 +1189,9 @@ void _showErrorDialog(BuildContext context, String error) {
       actions: [
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text(
-            'Cerrar',
-            style: TextStyle(color: Color(0xFF2D3FE7)),
+          child: Text(
+            AppLocalizations.of(context)!.close_dialog,
+            style: const TextStyle(color: Color(0xFF2D3FE7)),
           ),
         ),
       ],

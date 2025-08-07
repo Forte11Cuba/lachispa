@@ -5,6 +5,7 @@ import '../services/yadio_service.dart';
 import '../services/invoice_service.dart';
 import '../providers/auth_provider.dart';
 import '../providers/wallet_provider.dart';
+import '../l10n/generated/app_localizations.dart';
 
 class AmountScreen extends StatefulWidget {
   final String destination;
@@ -65,7 +66,7 @@ class _AmountScreenState extends State<AmountScreen> {
         _exchangeRates = rates;
       });
     } catch (e) {
-      _showErrorSnackBar('Error cargando tipos de cambio');
+      _showErrorSnackBar(AppLocalizations.of(context)!.conversion_rate_error);
     } finally {
       setState(() {
         _isLoadingRates = false;
@@ -206,7 +207,7 @@ class _AmountScreenState extends State<AmountScreen> {
     }
     
     if (_isConverting) {
-      return ' / calculando...';
+      return ' / ${AppLocalizations.of(context)!.calculating_text}...';
     }
     
     if (_cachedSatsAmount > 0) {
@@ -226,7 +227,7 @@ class _AmountScreenState extends State<AmountScreen> {
     }
     
     if (satsAmount <= 0) {
-      _showErrorSnackBar('Por favor ingresa un monto válido');
+      _showErrorSnackBar(AppLocalizations.of(context)!.invalid_amount_error);
       return;
     }
 
@@ -242,7 +243,7 @@ class _AmountScreenState extends State<AmountScreen> {
         await _processLightningAddressPayment(satsAmount.round());
       }
     } catch (e) {
-      _showErrorSnackBar('Error procesando pago: $e');
+      _showErrorSnackBar('${AppLocalizations.of(context)!.send_error_prefix}$e');
     } finally {
       setState(() {
         _isProcessingPayment = false;
@@ -260,17 +261,17 @@ class _AmountScreenState extends State<AmountScreen> {
       final walletProvider = context.read<WalletProvider>();
       
       if (authProvider.sessionData == null) {
-        throw Exception('Sin sesión activa');
+        throw Exception(AppLocalizations.of(context)!.invalid_session_error);
       }
       
       if (walletProvider.primaryWallet == null) {
-        throw Exception('Sin billetera principal disponible');
+        throw Exception(AppLocalizations.of(context)!.no_wallet_error);
       }
       
       final session = authProvider.sessionData!;
       final wallet = walletProvider.primaryWallet!;
       
-      _showSuccessSnackBar('Enviando pago LNURL...');
+      _showSuccessSnackBar(AppLocalizations.of(context)!.send_title);
       
       // Send payment directly to LNURL using LNBits
       final paymentResult = await _invoiceService.sendPaymentToLNURL(
@@ -289,9 +290,9 @@ class _AmountScreenState extends State<AmountScreen> {
       final isSuccess = paymentStatus == 'complete' || paymentStatus == 'settled' || paymentStatus == 'paid';
 
       if (isPending) {
-        _showPendingSnackBar('Pago LNURL pendiente - Factura Hold detectada');
+        _showPendingSnackBar(AppLocalizations.of(context)!.pending_label);
       } else if (isSuccess) {
-        _showSuccessSnackBar('Pago LNURL completado exitosamente!');
+        _showSuccessSnackBar(AppLocalizations.of(context)!.payment_success);
       } else {
         _showSuccessSnackBar('Pago LNURL enviado! Estado: $paymentStatus');
       }
@@ -338,17 +339,17 @@ class _AmountScreenState extends State<AmountScreen> {
       final walletProvider = context.read<WalletProvider>();
       
       if (authProvider.sessionData == null) {
-        throw Exception('Sin sesión activa');
+        throw Exception(AppLocalizations.of(context)!.invalid_session_error);
       }
       
       if (walletProvider.primaryWallet == null) {
-        throw Exception('Sin billetera principal disponible');
+        throw Exception(AppLocalizations.of(context)!.no_wallet_error);
       }
       
       final session = authProvider.sessionData!;
       final wallet = walletProvider.primaryWallet!;
       
-      _showSuccessSnackBar('Sending Lightning Address payment...');
+      _showSuccessSnackBar(AppLocalizations.of(context)!.send_title);
       
       // Send payment directly to Lightning Address using LNBits
       final paymentResult = await _invoiceService.sendPaymentToLightningAddress(
@@ -367,9 +368,9 @@ class _AmountScreenState extends State<AmountScreen> {
       final isSuccess = paymentStatus == 'complete' || paymentStatus == 'settled' || paymentStatus == 'paid';
 
       if (isPending) {
-        _showPendingSnackBar('Pago Lightning Address pendiente - Factura Hold detectada');
+        _showPendingSnackBar(AppLocalizations.of(context)!.pending_label);
       } else if (isSuccess) {
-        _showSuccessSnackBar('Pago Lightning Address completado exitosamente!');
+        _showSuccessSnackBar(AppLocalizations.of(context)!.payment_success);
       } else {
         _showSuccessSnackBar('Pago Lightning Address enviado! Estado: $paymentStatus');
       }
@@ -590,7 +591,7 @@ class _AmountScreenState extends State<AmountScreen> {
                         Column(
                           children: [
                             Text(
-                              'Enviar a',
+                              AppLocalizations.of(context)!.send_to_title,
                               style: TextStyle(
                                 fontFamily: 'Inter',
                                 fontSize: isMobile ? 40 : 48,
@@ -788,8 +789,8 @@ class _AmountScreenState extends State<AmountScreen> {
                                           ),
                                         ),
                                         const SizedBox(width: 12),
-                                        const Text(
-                                          'PROCESANDO...',
+                                        Text(
+                                          AppLocalizations.of(context)!.processing_text.toUpperCase(),
                                           style: TextStyle(
                                             fontSize: 16,
                                             fontWeight: FontWeight.w700,
@@ -833,7 +834,7 @@ class _AmountScreenState extends State<AmountScreen> {
                                 ),
                                 const SizedBox(width: 6),
                                 Text(
-                                  'Loading rates...',
+                                  AppLocalizations.of(context)!.loading_text,
                                   style: TextStyle(
                                     color: Colors.white.withValues(alpha: 0.6),
                                     fontSize: 12,
