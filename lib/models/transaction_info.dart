@@ -69,9 +69,11 @@ class TransactionInfo {
       
       // Determinar status
       TransactionStatus status = TransactionStatus.completed;
-      if (json['pending'] == true) {
+      
+      // Check both 'pending' boolean field and 'status' string field
+      if (json['pending'] == true || json['status'] == 'pending') {
         status = TransactionStatus.pending;
-      } else if (json['failed'] == true) {
+      } else if (json['failed'] == true || json['status'] == 'failed') {
         status = TransactionStatus.failed;
       }
 

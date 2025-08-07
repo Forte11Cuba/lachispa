@@ -186,6 +186,9 @@ class AppLocalizationsPt extends AppLocalizations {
   String get pending_label => 'Pendente';
 
   @override
+  String get failed_label => 'Falhada';
+
+  @override
   String get loading_transactions_error_prefix =>
       'Erro ao carregar transações: ';
 
