@@ -65,6 +65,7 @@
   "sent_label": "Enviado",
   "received_label": "Recibido",
   "pending_label": "Pendiente",
+  "failed_label": "Fallida",
   "loading_transactions_error_prefix": "Error cargando transacciones: ",
   
   "lightning_address_title": "Dirección Lightning",

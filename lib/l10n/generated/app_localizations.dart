@@ -448,6 +448,12 @@ abstract class AppLocalizations {
   /// **'Pendiente'**
   String get pending_label;
 
+  /// No description provided for @failed_label.
+  ///
+  /// In es, this message translates to:
+  /// **'Fallida'**
+  String get failed_label;
+
   /// No description provided for @loading_transactions_error_prefix.
   ///
   /// In es, this message translates to:

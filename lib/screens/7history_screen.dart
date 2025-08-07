@@ -142,8 +142,6 @@ class _HistoryScreenState extends State<HistoryScreen> with TickerProviderStateM
         return _transactions.where((tx) => tx.isIncoming).toList();
       case TransactionFilter.outgoing:
         return _transactions.where((tx) => tx.isOutgoing).toList();
-      case TransactionFilter.pending:
-        return _transactions.where((tx) => tx.isPending).toList();
       case TransactionFilter.all:
       default:
         return _transactions;
@@ -401,8 +399,6 @@ class _HistoryScreenState extends State<HistoryScreen> with TickerProviderStateM
         return Icons.arrow_downward;
       case TransactionFilter.outgoing:
         return Icons.arrow_upward;
-      case TransactionFilter.pending:
-        return Icons.access_time;
     }
   }
 
@@ -414,16 +410,14 @@ class _HistoryScreenState extends State<HistoryScreen> with TickerProviderStateM
         return AppLocalizations.of(context)!.received_label;
       case TransactionFilter.outgoing:
         return AppLocalizations.of(context)!.sent_label;
-      case TransactionFilter.pending:
-        return AppLocalizations.of(context)!.pending_label;
     }
   }
 
   /// Determine appropriate icon for transaction based on status and type
   IconData _getTransactionIcon(TransactionInfo transaction) {
-    // Show clock icon for pending transactions regardless of type
+    // Show pending icon for pending transactions regardless of type
     if (transaction.isPending) {
-      return Icons.schedule;
+      return Icons.access_time;
     }
     
     // Show error icon for failed transactions
@@ -437,6 +431,35 @@ class _HistoryScreenState extends State<HistoryScreen> with TickerProviderStateM
     } else {
       return Icons.arrow_upward_rounded;
     }
+  }
+
+  /// Get transaction status label based on status and type
+  String _getTransactionStatusLabel(TransactionInfo transaction) {
+    if (transaction.isPending) {
+      return AppLocalizations.of(context)!.pending_label;
+    }
+    
+    if (transaction.isFailed) {
+      return AppLocalizations.of(context)!.failed_label;
+    }
+    
+    // For completed transactions, show direction
+    return transaction.isIncoming 
+        ? AppLocalizations.of(context)!.received_label 
+        : AppLocalizations.of(context)!.sent_label;
+  }
+
+  /// Get transaction status for details modal
+  String _getTransactionStatus(TransactionInfo transaction) {
+    if (transaction.isPending) {
+      return AppLocalizations.of(context)!.pending_label;
+    }
+    
+    if (transaction.isFailed) {
+      return AppLocalizations.of(context)!.failed_label;
+    }
+    
+    return AppLocalizations.of(context)!.valid_status;
   }
 
   /// Determine appropriate color for transaction based on status and type
@@ -455,7 +478,7 @@ class _HistoryScreenState extends State<HistoryScreen> with TickerProviderStateM
     if (transaction.isIncoming) {
       return Colors.green;
     } else {
-      return Colors.orange;
+      return Colors.red;
     }
   }
 
@@ -702,7 +725,7 @@ class _HistoryScreenState extends State<HistoryScreen> with TickerProviderStateM
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        transaction.isIncoming ? AppLocalizations.of(context)!.received_label : AppLocalizations.of(context)!.sent_label,
+                        _getTransactionStatusLabel(transaction),
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 18,
@@ -712,7 +735,7 @@ class _HistoryScreenState extends State<HistoryScreen> with TickerProviderStateM
                       Text(
                         transaction.displayAmount,
                         style: TextStyle(
-                          color: transaction.isIncoming ? Colors.green : Colors.orange,
+                          color: _getTransactionIconColor(transaction),
                           fontSize: 24,
                           fontWeight: FontWeight.w700,
                         ),
@@ -731,7 +754,7 @@ class _HistoryScreenState extends State<HistoryScreen> with TickerProviderStateM
               _buildDetailRow('Hash', transaction.paymentHash!, copyable: true),
             if (transaction.fee != null)
               _buildDetailRow('Fee', '${transaction.fee} msat'),
-            _buildDetailRow(AppLocalizations.of(context)!.invoice_status_label, transaction.isPending ? AppLocalizations.of(context)!.pending_label : AppLocalizations.of(context)!.valid_status),
+            _buildDetailRow(AppLocalizations.of(context)!.invoice_status_label, _getTransactionStatus(transaction)),
             
             const SizedBox(height: 16),
             
@@ -802,5 +825,4 @@ enum TransactionFilter {
   all,
   incoming,
   outgoing,
-  pending,
 }
