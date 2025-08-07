@@ -1,7 +1,0 @@
-[Desktop Entry]
-Type=Application
-Name=LaChispa
-Comment=Lightning Network wallet using LNBits backend
-Exec=lachispa
-Icon=lachispa
-Categories=Finance;

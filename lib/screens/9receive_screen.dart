@@ -12,6 +12,7 @@ import '../services/yadio_service.dart';
 import '../services/transaction_detector.dart';
 import '../models/lightning_invoice.dart';
 import '../models/wallet_info.dart';
+import '../l10n/generated/app_localizations.dart';
 import '7ln_address_screen.dart';
 
 class ReceiveScreen extends StatefulWidget {
@@ -179,7 +180,7 @@ class _ReceiveScreenState extends State<ReceiveScreen> {
           
           // Centered title
           Text(
-            'Recibir',
+            AppLocalizations.of(context)!.receive_title,
             style: TextStyle(
               fontFamily: 'Inter',
               fontSize: isMobile ? 40 : 48,
@@ -230,7 +231,7 @@ class _ReceiveScreenState extends State<ReceiveScreen> {
             ),
             const SizedBox(height: 24),
             Text(
-              'Cargando Lightning Address...',
+              AppLocalizations.of(context)!.loading_address_text,
               style: TextStyle(
                 color: Colors.white.withValues(alpha: 0.8),
                 fontSize: 16,
@@ -263,8 +264,8 @@ class _ReceiveScreenState extends State<ReceiveScreen> {
             size: 48,
           ),
           const SizedBox(height: 16),
-          const Text(
-            'Error cargando Lightning Address',
+          Text(
+            AppLocalizations.of(context)!.loading_address_error_prefix,
             style: TextStyle(
               color: Colors.white,
               fontSize: 18,
@@ -296,8 +297,8 @@ class _ReceiveScreenState extends State<ReceiveScreen> {
                 ),
                 elevation: 0,
               ),
-              child: const Text(
-                'Reintentar',
+              child: Text(
+                AppLocalizations.of(context)!.connect_button,
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
@@ -331,8 +332,8 @@ class _ReceiveScreenState extends State<ReceiveScreen> {
             size: 64,
           ),
           const SizedBox(height: 24),
-          const Text(
-            'Sin Lightning Address',
+          Text(
+            AppLocalizations.of(context)!.not_available_text,
             style: TextStyle(
               color: Colors.white,
               fontSize: 20,
@@ -342,7 +343,7 @@ class _ReceiveScreenState extends State<ReceiveScreen> {
           ),
           const SizedBox(height: 12),
           Text(
-            'Crea una Lightning Address para recibir pagos más fácilmente',
+            AppLocalizations.of(context)!.lightning_address_description,
             style: TextStyle(
               color: Colors.white.withValues(alpha: 0.8),
               fontSize: 16,
@@ -387,8 +388,8 @@ class _ReceiveScreenState extends State<ReceiveScreen> {
                   ),
                 ),
                 icon: const Icon(Icons.add, color: Colors.white),
-                label: const Text(
-                  'Crear Lightning Address',
+                label: Text(
+                  AppLocalizations.of(context)!.lightning_address_title,
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
@@ -526,8 +527,8 @@ class _ReceiveScreenState extends State<ReceiveScreen> {
                 size: 20,
               ),
               const SizedBox(width: 8),
-              const Text(
-                'Lightning Address',
+              Text(
+                AppLocalizations.of(context)!.lightning_address_title,
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 14,
@@ -597,7 +598,7 @@ class _ReceiveScreenState extends State<ReceiveScreen> {
   }
 
   Widget _buildLoadingQR() {
-    return const SizedBox(
+    return SizedBox(
       height: 220, // Reduced from 280 to 220
       width: 220,  // Reduced from 280 to 220
       child: Column(
@@ -613,7 +614,7 @@ class _ReceiveScreenState extends State<ReceiveScreen> {
           ),
           SizedBox(height: 16), // Reduced from 20 to 16
           Text(
-            'Resolviendo LNURL...',
+            AppLocalizations.of(context)!.loading_text,
             style: TextStyle(
               fontSize: 14, // Reduced from 16 to 14
               color: Colors.grey,
@@ -722,7 +723,7 @@ class _ReceiveScreenState extends State<ReceiveScreen> {
           ),
           icon: const Icon(Icons.copy, color: Colors.white, size: 20),
           label: Text(
-            _generatedInvoice != null ? 'Copiar Factura' : 'Copiar Lightning Address',
+            _generatedInvoice != null ? AppLocalizations.of(context)!.copy_button : AppLocalizations.of(context)!.lightning_address_title,
             style: const TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w600,
@@ -788,9 +789,9 @@ class _ReceiveScreenState extends State<ReceiveScreen> {
                       size: 20,
                     ),
                     const SizedBox(width: 12),
-                    const Expanded(
+                    Expanded(
                       child: Text(
-                        'Información de uso',
+                        AppLocalizations.of(context)!.settings_title,
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
@@ -824,7 +825,7 @@ class _ReceiveScreenState extends State<ReceiveScreen> {
                   ),
                   const SizedBox(height: 12),
                   Text(
-                    '• Comparte tu Lightning Address para recibir pagos de cualquier monto\n\n• El código QR se resuelve automáticamente a LNURL para máxima compatibilidad\n\n• Los pagos se reciben directamente en esta billetera',
+                    AppLocalizations.of(context)!.receive_info_text,
                     style: TextStyle(
                       fontSize: 14,
                       color: Colors.white.withValues(alpha: 0.8),
@@ -857,8 +858,8 @@ class _ReceiveScreenState extends State<ReceiveScreen> {
           ),
         ),
         icon: const Icon(Icons.request_quote, size: 20),
-        label: const Text(
-          'Solicitar monto',
+        label: Text(
+          AppLocalizations.of(context)!.amount_sats_label,
           style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w600,
@@ -882,12 +883,12 @@ class _ReceiveScreenState extends State<ReceiveScreen> {
           });
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: const Row(
+              content: Row(
                 children: [
                   Icon(Icons.refresh, color: Colors.white, size: 20),
                   SizedBox(width: 12),
                   Text(
-                    'Vuelto a Lightning Address',
+                    AppLocalizations.of(context)!.lightning_address_title,
                     style: TextStyle(
                       fontFamily: 'Inter',
                       fontWeight: FontWeight.w500,
@@ -916,8 +917,8 @@ class _ReceiveScreenState extends State<ReceiveScreen> {
           ),
         ),
         icon: const Icon(Icons.refresh, size: 20),
-        label: const Text(
-          'Nueva solicitud',
+        label: Text(
+          AppLocalizations.of(context)!.receive_title,
           style: TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w600,
@@ -974,9 +975,9 @@ class _ReceiveScreenState extends State<ReceiveScreen> {
                       size: 24,
                     ),
                     const SizedBox(width: 12),
-                    const Expanded(
+                    Expanded(
                       child: Text(
-                        'Solicitar monto',
+                        AppLocalizations.of(context)!.amount_sats_label,
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 20,
@@ -1013,7 +1014,7 @@ class _ReceiveScreenState extends State<ReceiveScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  'Monto',
+                                  AppLocalizations.of(context)!.amount_sats_label,
                                   style: TextStyle(
                                     color: Colors.white.withValues(alpha: 0.8),
                                     fontSize: 14,
@@ -1072,7 +1073,7 @@ class _ReceiveScreenState extends State<ReceiveScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'Moneda',
+                                AppLocalizations.of(context)!.amount_sats_label,
                                 style: TextStyle(
                                   color: Colors.white.withValues(alpha: 0.8),
                                   fontSize: 14,
@@ -1130,7 +1131,7 @@ class _ReceiveScreenState extends State<ReceiveScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'Nota (opcional)',
+                            AppLocalizations.of(context)!.description_placeholder,
                             style: TextStyle(
                               color: Colors.white.withValues(alpha: 0.8),
                               fontSize: 14,
@@ -1147,7 +1148,7 @@ class _ReceiveScreenState extends State<ReceiveScreen> {
                               fontFamily: 'Inter',
                             ),
                             decoration: InputDecoration(
-                              hintText: 'Ej: Pago por servicios',
+                              hintText: AppLocalizations.of(context)!.payment_description_example,
                               hintStyle: TextStyle(
                                 color: Colors.white.withValues(alpha: 0.5),
                               ),
@@ -1201,8 +1202,8 @@ class _ReceiveScreenState extends State<ReceiveScreen> {
                                     borderRadius: BorderRadius.circular(12),
                                   ),
                                 ),
-                                child: const Text(
-                                  'Cancelar',
+                                child: Text(
+                                  AppLocalizations.of(context)!.cancel_button,
                                   style: TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.w600,
@@ -1224,8 +1225,8 @@ class _ReceiveScreenState extends State<ReceiveScreen> {
                                   ),
                                   elevation: 0,
                                 ),
-                                child: const Text(
-                                  'Confirmar',
+                                child: Text(
+                                  AppLocalizations.of(context)!.pay_button_confirm,
                                   style: TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.w600,
@@ -1251,14 +1252,14 @@ class _ReceiveScreenState extends State<ReceiveScreen> {
   void _confirmRequestAmount() async {
     // Validate that an amount has been entered
     if (_amountController.text.trim().isEmpty) {
-      _showErrorSnackBar('Por favor ingresa un monto');
+      _showErrorSnackBar(AppLocalizations.of(context)!.invalid_amount_error);
       return;
     }
 
     // Validate that the amount is valid
     final amount = double.tryParse(_amountController.text.trim());
     if (amount == null || amount <= 0) {
-      _showErrorSnackBar('Monto inválido');
+      _showErrorSnackBar(AppLocalizations.of(context)!.invalid_amount_error);
       return;
     }
 
@@ -1279,7 +1280,7 @@ class _ReceiveScreenState extends State<ReceiveScreen> {
       final serverUrl = authProvider.sessionData?.serverUrl;
       
       if (wallet == null || serverUrl == null) {
-        throw Exception('Sin billetera o servidor configurado');
+        throw Exception(AppLocalizations.of(context)!.no_wallet_error);
       }
 
       // CURRENCY CONVERSION TO SATOSHIS
@@ -1449,11 +1450,11 @@ class _ReceiveScreenState extends State<ReceiveScreen> {
     if (_generatedInvoice != null) {
       // If there's a generated invoice, copy the invoice
       textToCopy = _generatedInvoice!.paymentRequest;
-      successMessage = 'Factura copiada';
+      successMessage = AppLocalizations.of(context)!.copy_button;
     } else {
       // If there's no invoice, copy the Lightning Address
       textToCopy = defaultAddress.fullAddress;
-      successMessage = 'Lightning Address copiada';
+      successMessage = AppLocalizations.of(context)!.address_copied_message;
     }
     
     await Clipboard.setData(ClipboardData(text: textToCopy));
@@ -1527,7 +1528,7 @@ class _ReceiveScreenState extends State<ReceiveScreen> {
                         const Icon(Icons.check_circle, color: Colors.white, size: 20),
                         const SizedBox(width: 12),
                         Text(
-                          'Pago recibido! ${invoice.formattedAmount}',
+                          '${AppLocalizations.of(context)!.received_label}! ${invoice.formattedAmount}',
                           style: const TextStyle(
                             fontFamily: 'Inter',
                             fontWeight: FontWeight.w500,
@@ -1570,7 +1571,7 @@ class _ReceiveScreenState extends State<ReceiveScreen> {
               const Icon(Icons.check_circle, color: Colors.white, size: 20),
               const SizedBox(width: 12),
               Text(
-                'Lightning Address copiada',
+                AppLocalizations.of(context)!.address_copied_message,
                 style: const TextStyle(
                   fontFamily: 'Inter',
                   fontWeight: FontWeight.w500,

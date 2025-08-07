@@ -6,6 +6,7 @@ import '../providers/auth_provider.dart';
 import '../providers/wallet_provider.dart';
 import '../services/wallet_service.dart';
 import '../models/transaction_info.dart';
+import '../l10n/generated/app_localizations.dart';
 
 class HistoryScreen extends StatefulWidget {
   const HistoryScreen({super.key});
@@ -268,7 +269,7 @@ class _HistoryScreenState extends State<HistoryScreen> with TickerProviderStateM
                     ],
                   ),
                   child: Text(
-                    'Historial',
+                    AppLocalizations.of(context)!.history_title,
                     style: TextStyle(
                       fontSize: 28,
                       fontWeight: FontWeight.w700,
@@ -408,13 +409,13 @@ class _HistoryScreenState extends State<HistoryScreen> with TickerProviderStateM
   String _getFilterLabel(TransactionFilter filter) {
     switch (filter) {
       case TransactionFilter.all:
-        return 'Todas';
+        return AppLocalizations.of(context)!.history_title;
       case TransactionFilter.incoming:
-        return 'Recibidas';
+        return AppLocalizations.of(context)!.received_label;
       case TransactionFilter.outgoing:
-        return 'Enviadas';
+        return AppLocalizations.of(context)!.sent_label;
       case TransactionFilter.pending:
-        return 'Pendientes';
+        return AppLocalizations.of(context)!.pending_label;
     }
   }
 
@@ -460,7 +461,7 @@ class _HistoryScreenState extends State<HistoryScreen> with TickerProviderStateM
 
   Widget _buildTransactionsList() {
     if (_isLoading) {
-      return const Center(
+      return Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -469,7 +470,7 @@ class _HistoryScreenState extends State<HistoryScreen> with TickerProviderStateM
             ),
             SizedBox(height: 16),
             Text(
-              'Cargando transacciones...',
+              AppLocalizations.of(context)!.loading_transactions_text,
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 16,
@@ -492,7 +493,7 @@ class _HistoryScreenState extends State<HistoryScreen> with TickerProviderStateM
             ),
             const SizedBox(height: 16),
             Text(
-              'Error cargando transacciones',
+              AppLocalizations.of(context)!.loading_transactions_error_prefix,
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 18,
@@ -515,7 +516,7 @@ class _HistoryScreenState extends State<HistoryScreen> with TickerProviderStateM
                 backgroundColor: const Color(0xFF2D3FE7),
                 foregroundColor: Colors.white,
               ),
-              child: const Text('Reintentar'),
+              child: Text(AppLocalizations.of(context)!.connect_button),
             ),
           ],
         ),
@@ -536,7 +537,7 @@ class _HistoryScreenState extends State<HistoryScreen> with TickerProviderStateM
             ),
             const SizedBox(height: 16),
             Text(
-              'No hay transacciones',
+              AppLocalizations.of(context)!.no_transactions_text,
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 18,
@@ -545,7 +546,7 @@ class _HistoryScreenState extends State<HistoryScreen> with TickerProviderStateM
             ),
             const SizedBox(height: 8),
             Text(
-              'Las transacciones aparecerán aquí cuando las realices',
+              AppLocalizations.of(context)!.no_transactions_description,
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: Colors.white.withValues(alpha: 0.7),
@@ -601,7 +602,7 @@ class _HistoryScreenState extends State<HistoryScreen> with TickerProviderStateM
           children: [
             Expanded(
               child: Text(
-                transaction.memo.isEmpty ? 'Sin descripción' : transaction.memo,
+                transaction.memo.isEmpty ? AppLocalizations.of(context)!.no_description_text : transaction.memo,
                 style: const TextStyle(
                   color: Colors.white,
                   fontSize: 16,
@@ -646,7 +647,7 @@ class _HistoryScreenState extends State<HistoryScreen> with TickerProviderStateM
                   ),
                   const SizedBox(width: 6),
                   Text(
-                    'Pendiente',
+                    AppLocalizations.of(context)!.pending_label,
                     style: TextStyle(
                       color: Colors.orange,
                       fontSize: 12,
@@ -701,7 +702,7 @@ class _HistoryScreenState extends State<HistoryScreen> with TickerProviderStateM
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        transaction.isIncoming ? 'Recibido' : 'Enviado',
+                        transaction.isIncoming ? AppLocalizations.of(context)!.received_label : AppLocalizations.of(context)!.sent_label,
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 18,
@@ -724,13 +725,13 @@ class _HistoryScreenState extends State<HistoryScreen> with TickerProviderStateM
             
             const SizedBox(height: 24),
             
-            _buildDetailRow('Fecha', transaction.formattedDate),
-            _buildDetailRow('Descripción', transaction.memo.isEmpty ? 'Sin descripción' : transaction.memo),
+            _buildDetailRow(AppLocalizations.of(context)!.invoice_description_label, transaction.formattedDate),
+            _buildDetailRow(AppLocalizations.of(context)!.invoice_description_label, transaction.memo.isEmpty ? AppLocalizations.of(context)!.no_description_text : transaction.memo),
             if (transaction.paymentHash != null)
               _buildDetailRow('Hash', transaction.paymentHash!, copyable: true),
             if (transaction.fee != null)
               _buildDetailRow('Fee', '${transaction.fee} msat'),
-            _buildDetailRow('Estado', transaction.isPending ? 'Pendiente' : 'Completado'),
+            _buildDetailRow(AppLocalizations.of(context)!.invoice_status_label, transaction.isPending ? AppLocalizations.of(context)!.pending_label : AppLocalizations.of(context)!.valid_status),
             
             const SizedBox(height: 16),
             
@@ -747,7 +748,7 @@ class _HistoryScreenState extends State<HistoryScreen> with TickerProviderStateM
                     borderRadius: BorderRadius.circular(12),
                   ),
                 ),
-                child: const Text('Cerrar'),
+                child: Text(AppLocalizations.of(context)!.cancel_button),
               ),
             ),
           ],
@@ -777,7 +778,7 @@ class _HistoryScreenState extends State<HistoryScreen> with TickerProviderStateM
               onTap: copyable ? () {
                 // TODO: Implement clipboard copy
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Copiado al portapapeles')),
+                  SnackBar(content: Text(AppLocalizations.of(context)!.address_copied_message)),
                 );
               } : null,
               child: Text(

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
 import '../providers/server_provider.dart';
+import '../l10n/generated/app_localizations.dart';
 import '6home_screen.dart';
 
 class SignupScreen extends StatefulWidget {
@@ -196,7 +197,7 @@ class _SignupScreenState extends State<SignupScreen>
                 ],
               ),
               child: Text(
-                'Crear Cuenta',
+                AppLocalizations.of(context)!.create_account_title,
                 style: TextStyle(
                   fontSize: 32,
                   fontWeight: FontWeight.w700,
@@ -275,8 +276,8 @@ class _SignupScreenState extends State<SignupScreen>
         return null;
       },
       decoration: InputDecoration(
-        labelText: 'Nombre de usuario',
-        hintText: 'Ingresa tu nombre de usuario',
+        labelText: AppLocalizations.of(context)!.signup_username_label,
+        hintText: AppLocalizations.of(context)!.signup_username_placeholder,
         labelStyle: TextStyle(color: Colors.white.withValues(alpha: 0.7)),
         hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.5)),
         prefixIcon: Icon(Icons.person, color: Colors.white.withValues(alpha: 0.7)),
@@ -325,8 +326,8 @@ class _SignupScreenState extends State<SignupScreen>
       },
       obscureText: !_isPasswordVisible,
       decoration: InputDecoration(
-        labelText: 'Contraseña',
-        hintText: 'Ingresa tu contraseña',
+        labelText: AppLocalizations.of(context)!.signup_password_label,
+        hintText: AppLocalizations.of(context)!.signup_password_placeholder,
         labelStyle: TextStyle(color: Colors.white.withValues(alpha: 0.7)),
         hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.5)),
         prefixIcon: Icon(Icons.lock, color: Colors.white.withValues(alpha: 0.7)),
@@ -369,14 +370,14 @@ class _SignupScreenState extends State<SignupScreen>
           return 'Confirma tu contraseña';
         }
         if (value != _passwordController.text) {
-          return 'Las contraseñas no coinciden';
+          return AppLocalizations.of(context)!.passwords_mismatch_error;
         }
         return null;
       },
       obscureText: !_isConfirmPasswordVisible,
       decoration: InputDecoration(
-        labelText: 'Confirmar Contraseña',
-        hintText: 'Repite tu contraseña',
+        labelText: AppLocalizations.of(context)!.confirm_password_label,
+        hintText: AppLocalizations.of(context)!.confirm_password_placeholder,
         labelStyle: TextStyle(color: Colors.white.withValues(alpha: 0.7)),
         hintStyle: TextStyle(color: Colors.white.withValues(alpha: 0.5)),
         prefixIcon: Icon(Icons.lock_outline, color: Colors.white.withValues(alpha: 0.7)),
@@ -443,9 +444,9 @@ class _SignupScreenState extends State<SignupScreen>
                       valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                     ),
                   )
-                : const Text(
-                    'Crear Cuenta',
-                    style: TextStyle(
+                : Text(
+                    AppLocalizations.of(context)!.create_account_button,
+                    style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
                       color: Colors.white,

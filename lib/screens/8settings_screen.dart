@@ -3,6 +3,8 @@ import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
 import '../providers/wallet_provider.dart';
 import '../providers/server_provider.dart';
+import '../providers/language_provider.dart';
+import '../l10n/generated/app_localizations.dart';
 import '3server_settings_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -82,8 +84,8 @@ class _SettingsScreenState extends State<SettingsScreen>
 
   @override
   Widget build(BuildContext context) {
-    return Consumer3<AuthProvider, WalletProvider, ServerProvider>(
-      builder: (context, authProvider, walletProvider, serverProvider, child) {
+    return Consumer4<AuthProvider, WalletProvider, ServerProvider, LanguageProvider>(
+      builder: (context, authProvider, walletProvider, serverProvider, languageProvider, child) {
         return Scaffold(
           backgroundColor: Colors.transparent,
           body: Container(
@@ -133,7 +135,7 @@ class _SettingsScreenState extends State<SettingsScreen>
                           ).animate(_contentAnimation),
                           child: FadeTransition(
                             opacity: _contentAnimation,
-                            child: _buildContent(authProvider, walletProvider, serverProvider),
+                            child: _buildContent(authProvider, walletProvider, serverProvider, languageProvider),
                           ),
                         );
                       },
@@ -183,7 +185,7 @@ class _SettingsScreenState extends State<SettingsScreen>
               animation: _glowAnimation,
               builder: (context, child) {
                 return Text(
-                  'Configuración',
+                  AppLocalizations.of(context)!.settings_title,
                   style: TextStyle(
                     fontFamily: 'Inter',
                     fontSize: 24,
@@ -208,7 +210,7 @@ class _SettingsScreenState extends State<SettingsScreen>
     );
   }
 
-  Widget _buildContent(AuthProvider authProvider, WalletProvider walletProvider, ServerProvider serverProvider) {
+  Widget _buildContent(AuthProvider authProvider, WalletProvider walletProvider, ServerProvider serverProvider, LanguageProvider languageProvider) {
     return SingleChildScrollView(
       padding: const EdgeInsets.symmetric(horizontal: 24),
       child: Column(
@@ -225,6 +227,11 @@ class _SettingsScreenState extends State<SettingsScreen>
           
           // Wallet section
           _buildWalletSection(walletProvider),
+          
+          const SizedBox(height: 24),
+          
+          // Language section
+          _buildLanguageSection(languageProvider),
           
           const SizedBox(height: 24),
           
@@ -281,7 +288,7 @@ class _SettingsScreenState extends State<SettingsScreen>
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'Usuario autenticado',
+                      AppLocalizations.of(context)!.login_title,
                       style: TextStyle(
                         fontSize: 14,
                         color: Colors.white.withValues(alpha: 0.7),
@@ -319,9 +326,9 @@ class _SettingsScreenState extends State<SettingsScreen>
                 size: 24,
               ),
               const SizedBox(width: 12),
-              const Text(
-                'Servidor',
-                style: TextStyle(
+              Text(
+                AppLocalizations.of(context)!.server_settings_title,
+                style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w600,
                   color: Colors.white,
@@ -340,7 +347,7 @@ class _SettingsScreenState extends State<SettingsScreen>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Servidor actual',
+                  AppLocalizations.of(context)!.server_settings_title,
                   style: TextStyle(
                     fontSize: 12,
                     color: Colors.white.withValues(alpha: 0.7),
@@ -378,9 +385,9 @@ class _SettingsScreenState extends State<SettingsScreen>
                 ),
                 padding: const EdgeInsets.symmetric(vertical: 16),
               ),
-              child: const Text(
-                'Cambiar servidor',
-                style: TextStyle(
+              child: Text(
+                AppLocalizations.of(context)!.server_settings_title,
+                style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.w600,
                 ),
@@ -414,9 +421,9 @@ class _SettingsScreenState extends State<SettingsScreen>
                 size: 24,
               ),
               const SizedBox(width: 12),
-              const Text(
-                'Billetera',
-                style: TextStyle(
+              Text(
+                AppLocalizations.of(context)!.wallet_title,
+                style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w600,
                   color: Colors.white,
@@ -436,7 +443,7 @@ class _SettingsScreenState extends State<SettingsScreen>
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Billetera activa',
+                    AppLocalizations.of(context)!.wallet_title,
                     style: TextStyle(
                       fontSize: 12,
                       color: Colors.white.withValues(alpha: 0.7),
@@ -481,10 +488,10 @@ class _SettingsScreenState extends State<SettingsScreen>
                     size: 20,
                   ),
                   const SizedBox(width: 8),
-                  const Expanded(
+                  Expanded(
                     child: Text(
-                      'Sin billetera activa',
-                      style: TextStyle(
+                      AppLocalizations.of(context)!.wallet_title,
+                      style: const TextStyle(
                         fontSize: 14,
                         color: Colors.orange,
                         fontWeight: FontWeight.w500,
@@ -500,6 +507,205 @@ class _SettingsScreenState extends State<SettingsScreen>
     );
   }
 
+  Widget _buildLanguageSection(LanguageProvider languageProvider) {
+    return Container(
+          padding: const EdgeInsets.all(24),
+          decoration: BoxDecoration(
+            color: Colors.white.withValues(alpha: 0.08),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: Colors.white.withValues(alpha: 0.1),
+              width: 1,
+            ),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  const Icon(
+                    Icons.language,
+                    color: Color(0xFF4C63F7),
+                    size: 24,
+                  ),
+                  const SizedBox(width: 12),
+                  Text(
+                    AppLocalizations.of(context)!.language_selector_title,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              
+              // Language selector
+              _buildLanguageSelector(languageProvider),
+            ],
+          ),
+        );
+  }
+
+  Widget _buildLanguageSelector(LanguageProvider languageProvider) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.05),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(
+          color: Colors.white.withValues(alpha: 0.1),
+          width: 1,
+        ),
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(12),
+          onTap: () => _showLanguageSelector(languageProvider),
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              children: [
+                Text(
+                  languageProvider.getCurrentLanguageFlag(),
+                  style: const TextStyle(fontSize: 20),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        languageProvider.getCurrentLanguageName(),
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.white,
+                        ),
+                      ),
+                      Text(
+                        AppLocalizations.of(context)!.language_selector_description,
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.white.withValues(alpha: 0.7),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Icon(
+                  Icons.keyboard_arrow_right,
+                  color: Colors.white.withValues(alpha: 0.7),
+                  size: 20,
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showLanguageSelector(LanguageProvider languageProvider) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (modalContext) => Consumer<LanguageProvider>(
+        builder: (context, langProvider, child) => Container(
+        decoration: const BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              Color(0xFF1A1A2E),
+              Color(0xFF16213E),
+              Color(0xFF0F0F23),
+            ],
+          ),
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(20),
+            topRight: Radius.circular(20),
+          ),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Handle
+            Container(
+              margin: const EdgeInsets.only(top: 8),
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.3),
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            
+            // Title
+            Padding(
+              padding: const EdgeInsets.all(20),
+              child: Text(
+                AppLocalizations.of(context)!.select_language,
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
+              ),
+            ),
+            
+            // Language options
+            ...langProvider.getAvailableLanguages().map((language) {
+              final isSelected = langProvider.currentLocale.languageCode == language['code'];
+              return Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  onTap: () async {
+                    await langProvider.changeLanguage(Locale(language['code']!));
+                    if (mounted) {
+                      Navigator.pop(context);
+                    }
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                    child: Row(
+                      children: [
+                        Text(
+                          language['flag']!,
+                          style: const TextStyle(fontSize: 24),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Text(
+                            language['name']!,
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
+                              color: isSelected ? const Color(0xFF4C63F7) : Colors.white,
+                            ),
+                          ),
+                        ),
+                        if (isSelected)
+                          const Icon(
+                            Icons.check_circle,
+                            color: Color(0xFF4C63F7),
+                            size: 24,
+                          ),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            }).toList(),
+            
+            const SizedBox(height: 20),
+          ],
+        ),
+      ),
+      ),
+    );
+  }
 
   Widget _buildInfoSection() {
     return Container(
@@ -523,9 +729,9 @@ class _SettingsScreenState extends State<SettingsScreen>
                 size: 24,
               ),
               const SizedBox(width: 12),
-              const Text(
-                'Información',
-                style: TextStyle(
+              Text(
+                AppLocalizations.of(context)!.settings_title,
+                style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w600,
                   color: Colors.white,
@@ -538,8 +744,8 @@ class _SettingsScreenState extends State<SettingsScreen>
           // About the app
           _buildSettingItem(
             icon: Icons.info_outline,
-            title: 'Acerca de LaChispa',
-            subtitle: 'Versión e información de la aplicación',
+            title: AppLocalizations.of(context)!.settings_title,
+            subtitle: AppLocalizations.of(context)!.settings_title,
             onTap: () {
               _showAboutDialog();
             },
@@ -550,12 +756,12 @@ class _SettingsScreenState extends State<SettingsScreen>
           // Help
           _buildSettingItem(
             icon: Icons.help_outline,
-            title: 'Ayuda',
-            subtitle: 'Obtener ayuda y soporte',
+            title: AppLocalizations.of(context)!.settings_title,
+            subtitle: AppLocalizations.of(context)!.settings_title,
             onTap: () {
               ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Ayuda y soporte (próximamente)'),
+                SnackBar(
+                  content: Text(AppLocalizations.of(context)!.settings_title),
                 ),
               );
             },
@@ -622,94 +828,119 @@ class _SettingsScreenState extends State<SettingsScreen>
   }
 
   void _showAboutDialog() {
+    final languageProvider = Provider.of<LanguageProvider>(context, listen: false);
+    final currentLanguage = languageProvider.currentLocale.languageCode;
+    
+    String subtitle;
+    String description;
+    String closeText;
+    
+    switch (currentLanguage) {
+      case 'en':
+        subtitle = 'Lightning Wallet';
+        description = 'A mobile application to manage Bitcoin through Lightning Network using LNBits as backend.';
+        closeText = 'Close';
+        break;
+      case 'pt':
+        subtitle = 'Carteira Lightning';
+        description = 'Uma aplicação móvel para gerir Bitcoin através da Lightning Network usando LNBits como backend.';
+        closeText = 'Fechar';
+        break;
+      default: // es
+        subtitle = 'Billetera Lightning';
+        description = 'Una aplicación móvil para gestionar Bitcoin a través de Lightning Network usando LNBits como backend.';
+        closeText = 'Cerrar';
+        break;
+    }
+    
     showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        backgroundColor: const Color(0xFF1A1D47),
-        title: Row(
-          children: [
-            Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(8),
-                child: Image.asset(
-                  'Logo/chispabordesredondos.png',
-                  width: 40,
-                  height: 40,
-                  fit: BoxFit.cover,
+        context: context,
+        builder: (dialogContext) => AlertDialog(
+          backgroundColor: const Color(0xFF1A1D47),
+          title: Row(
+            children: [
+              Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: Image.asset(
+                    'Logo/chispabordesredondos.png',
+                    width: 40,
+                    height: 40,
+                    fit: BoxFit.cover,
+                  ),
                 ),
               ),
-            ),
-            const SizedBox(width: 12),
-            const Text(
-              'LaChispa',
-              style: TextStyle(color: Colors.white),
-            ),
-          ],
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Billetera Lightning',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 16,
-                fontWeight: FontWeight.w600,
+              const SizedBox(width: 12),
+              const Text(
+                'LaChispa',
+                style: TextStyle(color: Colors.white),
               ),
-            ),
-            const SizedBox(height: 8),
-            const Text(
-              'Una aplicación móvil para gestionar Bitcoin a través de Lightning Network usando LNBits como backend.',
-              style: TextStyle(
-                color: Colors.white70,
-                fontSize: 14,
-              ),
-            ),
-            const SizedBox(height: 16),
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: const Color(0xFF2D3FE7).withValues(alpha: 0.2),
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: const Row(
-                children: [
-                  Icon(
-                    Icons.code,
-                    color: Color(0xFF5B73FF),
-                    size: 16,
-                  ),
-                  SizedBox(width: 8),
-                  Text(
-                    'Version: 0.0.1',
-                    style: TextStyle(
-                      color: Color(0xFF5B73FF),
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text(
-              'Cerrar',
-              style: TextStyle(color: Color(0xFF5B73FF)),
-            ),
+            ],
           ),
-        ],
-      ),
-    );
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                subtitle,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                description,
+                style: const TextStyle(
+                  color: Colors.white70,
+                  fontSize: 14,
+                ),
+              ),
+              const SizedBox(height: 16),
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF2D3FE7).withValues(alpha: 0.2),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: const Row(
+                  children: [
+                    Icon(
+                      Icons.code,
+                      color: Color(0xFF5B73FF),
+                      size: 16,
+                    ),
+                    SizedBox(width: 8),
+                    Text(
+                      'Version: 0.0.1',
+                      style: TextStyle(
+                        color: Color(0xFF5B73FF),
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(dialogContext),
+              child: Text(
+                closeText,
+                style: const TextStyle(color: Color(0xFF5B73FF)),
+              ),
+            ),
+          ],
+        ),
+      );
   }
 
   String _extractDomain(String url) {

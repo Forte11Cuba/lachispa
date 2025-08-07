@@ -5,6 +5,7 @@ import '../providers/ln_address_provider.dart';
 import '../providers/auth_provider.dart';
 import '../providers/wallet_provider.dart';
 import '../models/ln_address.dart';
+import '../l10n/generated/app_localizations.dart';
 
 class LNAddressScreen extends StatefulWidget {
   const LNAddressScreen({super.key});
@@ -141,9 +142,9 @@ class _LNAddressScreenState extends State<LNAddressScreen> {
           const SizedBox(width: 16),
           
           // Title
-          const Expanded(
+          Expanded(
             child: Text(
-              'Lightning Address',
+              AppLocalizations.of(context)!.lightning_address_title,
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 24,
@@ -213,7 +214,7 @@ class _LNAddressScreenState extends State<LNAddressScreen> {
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
-                    walletProvider.primaryWallet?.name ?? 'Sin billetera seleccionada',
+                    walletProvider.primaryWallet?.name ?? AppLocalizations.of(context)!.wallet_title,
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 16,
@@ -225,7 +226,7 @@ class _LNAddressScreenState extends State<LNAddressScreen> {
             ),
             const SizedBox(height: 8),
             Text(
-              'Servidor: $serverDomain',
+              '${AppLocalizations.of(context)!.server_settings_title}: $serverDomain',
               style: TextStyle(
                 color: Colors.white.withValues(alpha: 0.7),
                 fontSize: 14,
@@ -269,8 +270,8 @@ class _LNAddressScreenState extends State<LNAddressScreen> {
                   size: 48,
                 ),
                 const SizedBox(height: 16),
-                const Text(
-                  'Error cargando direcciones',
+                Text(
+                  AppLocalizations.of(context)!.loading_address_error_prefix,
                   style: TextStyle(
                     color: Colors.white,
                     fontSize: 18,
@@ -288,7 +289,7 @@ class _LNAddressScreenState extends State<LNAddressScreen> {
                 ),
                 const SizedBox(height: 16),
                 _buildPrimaryButton(
-                  text: 'Reintentar',
+                  text: AppLocalizations.of(context)!.connect_button,
                   onPressed: _refreshAddresses,
                 ),
               ],
@@ -324,8 +325,8 @@ class _LNAddressScreenState extends State<LNAddressScreen> {
                         size: 64,
                       ),
                       const SizedBox(height: 16),
-                      const Text(
-                        'Sin Lightning addresses',
+                      Text(
+                        AppLocalizations.of(context)!.not_available_text,
                         style: TextStyle(
                           color: Colors.white,
                           fontSize: 18,
@@ -334,7 +335,7 @@ class _LNAddressScreenState extends State<LNAddressScreen> {
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        'Crea tu primera Lightning Address',
+                        AppLocalizations.of(context)!.lightning_address_title,
                         style: TextStyle(
                           color: Colors.white.withValues(alpha: 0.7),
                           fontSize: 14,
@@ -367,7 +368,7 @@ class _LNAddressScreenState extends State<LNAddressScreen> {
             child: SizedBox(
               width: double.infinity,
               child: _buildPrimaryButton(
-                text: 'Agregar Nueva Dirección',
+                text: AppLocalizations.of(context)!.lightning_address_title,
                 onPressed: () {
                   setState(() {
                     _showCreateForm = true;
@@ -434,7 +435,7 @@ class _LNAddressScreenState extends State<LNAddressScreen> {
                     if (address.isDefault) ...[
                       const SizedBox(height: 4),
                       Text(
-                        'Por defecto',
+                        AppLocalizations.of(context)!.lightning_address_title,
                         style: TextStyle(
                           color: Colors.amber,
                           fontSize: 11,
@@ -449,13 +450,13 @@ class _LNAddressScreenState extends State<LNAddressScreen> {
                 onSelected: (value) => _handleAddressAction(value, address, lnAddressProvider),
                 iconColor: Colors.white,
                 itemBuilder: (context) => [
-                  const PopupMenuItem(
+                  PopupMenuItem(
                     value: 'copy',
                     child: Row(
                       children: [
-                        Icon(Icons.copy, size: 18),
-                        SizedBox(width: 8),
-                        Text('Copiar'),
+                        const Icon(Icons.copy, size: 18),
+                        const SizedBox(width: 8),
+                        Text(AppLocalizations.of(context)!.lightning_address_copy),
                       ],
                     ),
                   ),
@@ -471,7 +472,9 @@ class _LNAddressScreenState extends State<LNAddressScreen> {
                         const SizedBox(width: 8),
                         Expanded(
                           child: Text(
-                            address.isDefault ? 'Es por defecto' : 'Establecer como por defecto',
+                            address.isDefault 
+                              ? AppLocalizations.of(context)!.lightning_address_is_default
+                              : AppLocalizations.of(context)!.lightning_address_set_default,
                             overflow: TextOverflow.ellipsis,
                             maxLines: 1,
                           ),
@@ -479,13 +482,16 @@ class _LNAddressScreenState extends State<LNAddressScreen> {
                       ],
                     ),
                   ),
-                  const PopupMenuItem(
+                  PopupMenuItem(
                     value: 'delete',
                     child: Row(
                       children: [
-                        Icon(Icons.delete, size: 18, color: Colors.red),
-                        SizedBox(width: 8),
-                        Text('Eliminar', style: TextStyle(color: Colors.red)),
+                        const Icon(Icons.delete, size: 18, color: Colors.red),
+                        const SizedBox(width: 8),
+                        Text(
+                          AppLocalizations.of(context)!.lightning_address_delete, 
+                          style: const TextStyle(color: Colors.red)
+                        ),
                       ],
                     ),
                   ),
@@ -526,7 +532,7 @@ class _LNAddressScreenState extends State<LNAddressScreen> {
                   ),
                 ),
                 child: Text(
-                  address.isDefault ? 'Por defecto' : (address.isActive ? 'Activa' : 'Inactiva'),
+                  address.isDefault ? AppLocalizations.of(context)!.lightning_address_title : (address.isActive ? AppLocalizations.of(context)!.valid_status : AppLocalizations.of(context)!.not_available_text),
                   style: TextStyle(
                     color: address.isDefault ? Colors.amber : (address.isActive ? Colors.green : Colors.grey),
                     fontSize: 12,
@@ -580,9 +586,9 @@ class _LNAddressScreenState extends State<LNAddressScreen> {
                     size: 24,
                   ),
                   const SizedBox(width: 12),
-                  const Expanded(
+                  Expanded(
                     child: Text(
-                      'Nueva Lightning Address',
+                      AppLocalizations.of(context)!.lightning_address_title,
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 18,
@@ -816,7 +822,7 @@ class _LNAddressScreenState extends State<LNAddressScreen> {
                     children: [
                       Expanded(
                         child: _buildSecondaryButton(
-                          text: 'Cancel',
+                          text: AppLocalizations.of(context)!.cancel_button,
                           onPressed: () {
                             setState(() {
                               _showCreateForm = false;
@@ -828,7 +834,7 @@ class _LNAddressScreenState extends State<LNAddressScreen> {
                       const SizedBox(width: 12),
                       Expanded(
                         child: _buildPrimaryButton(
-                          text: lnAddressProvider.isCreating ? 'Creating...' : 'Create',
+                          text: lnAddressProvider.isCreating ? AppLocalizations.of(context)!.loading_text : AppLocalizations.of(context)!.connect_button,
                           onPressed: lnAddressProvider.isCreating ? null : _createAddress,
                         ),
                       ),
@@ -910,7 +916,7 @@ class _LNAddressScreenState extends State<LNAddressScreen> {
         Clipboard.setData(ClipboardData(text: address.fullAddress));
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('${address.fullAddress} copiada'),
+            content: Text('${address.fullAddress} ${AppLocalizations.of(context)!.address_copied_message}'),
             backgroundColor: Colors.green,
             behavior: SnackBarBehavior.floating,
           ),
@@ -935,7 +941,7 @@ class _LNAddressScreenState extends State<LNAddressScreen> {
     if (success && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('${address.fullAddress} establecida como por defecto'),
+          content: Text('${address.fullAddress} ${AppLocalizations.of(context)!.lightning_address_title}'),
           backgroundColor: Colors.green,
           behavior: SnackBarBehavior.floating,
         ),
@@ -948,8 +954,8 @@ class _LNAddressScreenState extends State<LNAddressScreen> {
       context: context,
       builder: (context) => AlertDialog(
         backgroundColor: const Color(0xFF1A1D47),
-        title: const Text(
-          'Delete Lightning Address',
+        title: Text(
+          AppLocalizations.of(context)!.lightning_address_title,
           style: TextStyle(color: Colors.white),
         ),
         content: Text(
@@ -959,7 +965,7 @@ class _LNAddressScreenState extends State<LNAddressScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancelar'),
+            child: Text(AppLocalizations.of(context)!.cancel_button),
           ),
           TextButton(
             onPressed: () async {
@@ -967,8 +973,8 @@ class _LNAddressScreenState extends State<LNAddressScreen> {
               final success = await lnAddressProvider.deleteLNAddress(address.id);
               if (success && mounted) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('Lightning Address eliminada'),
+                  SnackBar(
+                    content: Text(AppLocalizations.of(context)!.lightning_address_title),
                     backgroundColor: Colors.green,
                     behavior: SnackBarBehavior.floating,
                   ),
@@ -1006,8 +1012,8 @@ class _LNAddressScreenState extends State<LNAddressScreen> {
       });
       
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Lightning Address created successfully'),
+        SnackBar(
+          content: Text(AppLocalizations.of(context)!.lightning_address_title),
           backgroundColor: Colors.green,
           behavior: SnackBarBehavior.floating,
         ),

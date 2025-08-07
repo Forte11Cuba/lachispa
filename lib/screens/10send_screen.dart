@@ -7,6 +7,7 @@ import '../services/invoice_service.dart';
 import '../providers/auth_provider.dart';
 import '../providers/wallet_provider.dart';
 import '../widgets/qr_scanner_widget.dart';
+import '../l10n/generated/app_localizations.dart';
 
 class SendScreen extends StatefulWidget {
   const SendScreen({super.key});
@@ -123,7 +124,7 @@ class _SendScreenState extends State<SendScreen> {
       }
       
     } catch (e) {
-      _showErrorSnackBar('Error procesando el pago: $e');
+      _showErrorSnackBar('${AppLocalizations.of(context)!.send_error_prefix}$e');
     } finally {
       setState(() {
         _isProcessing = false;
@@ -141,11 +142,11 @@ class _SendScreenState extends State<SendScreen> {
       final walletProvider = context.read<WalletProvider>();
       
       if (authProvider.sessionData == null) {
-        throw Exception('Sin sesión activa');
+        throw Exception(AppLocalizations.of(context)!.invalid_session_error);
       }
 
       if (walletProvider.primaryWallet == null) {
-        throw Exception('No hay wallet principal disponible');
+        throw Exception(AppLocalizations.of(context)!.no_wallet_error);
       }
 
       final session = authProvider.sessionData!;
@@ -179,7 +180,7 @@ class _SendScreenState extends State<SendScreen> {
 
     } catch (e) {
       print('[SEND_SCREEN] Error decoding invoice: $e');
-      _showErrorSnackBar('Error decodificando factura: $e');
+      _showErrorSnackBar('${AppLocalizations.of(context)!.decode_invoice_error_prefix}$e');
     } finally {
       if (mounted) {
         setState(() {
@@ -325,7 +326,7 @@ class _SendScreenState extends State<SendScreen> {
                         SizedBox(height: isMobile ? 0 : 4),
                         
                         Text(
-                          'Enviar',
+                          AppLocalizations.of(context)!.send_title,
                           style: TextStyle(
                             fontFamily: 'Inter',
                             fontSize: isMobile ? 40 : 48,
@@ -382,7 +383,7 @@ class _SendScreenState extends State<SendScreen> {
                                     fontWeight: FontWeight.w400,
                                   ),
                                   decoration: InputDecoration(
-                                    hintText: 'Pega factura, LNURL o dirección',
+                                    hintText: AppLocalizations.of(context)!.paste_input_hint,
                                     hintStyle: TextStyle(
                                       color: Colors.white.withValues(alpha: 0.6),
                                       fontSize: isMobile ? 14 : 16,
@@ -444,8 +445,8 @@ class _SendScreenState extends State<SendScreen> {
                                               ),
                                             ),
                                             const SizedBox(width: 8),
-                                            const Text(
-                                              'Pegar',
+                                            Text(
+                                              AppLocalizations.of(context)!.paste_button,
                                               style: TextStyle(
                                                 fontSize: 14,
                                                 fontWeight: FontWeight.w500,
@@ -495,8 +496,8 @@ class _SendScreenState extends State<SendScreen> {
                                               ),
                                             ),
                                             const SizedBox(width: 8),
-                                            const Text(
-                                              'Escanear',
+                                            Text(
+                                              AppLocalizations.of(context)!.scan_button,
                                               style: TextStyle(
                                                 fontSize: 14,
                                                 fontWeight: FontWeight.w500,
@@ -550,8 +551,8 @@ class _SendScreenState extends State<SendScreen> {
                                               ),
                                             ),
                                             const SizedBox(width: 12),
-                                            const Text(
-                                              'PROCESANDO...',
+                                            Text(
+                                              AppLocalizations.of(context)!.processing_text.toUpperCase(),
                                               style: TextStyle(
                                                 fontSize: 16,
                                                 fontWeight: FontWeight.w700,
@@ -561,7 +562,7 @@ class _SendScreenState extends State<SendScreen> {
                                           ],
                                         )
                                       : Text(
-                                          'PAGAR',
+                                          AppLocalizations.of(context)!.pay_button.toUpperCase(),
                                           style: TextStyle(
                                             fontSize: 18,
                                             fontWeight: FontWeight.w700,
@@ -586,7 +587,7 @@ class _SendScreenState extends State<SendScreen> {
                             Padding(
                               padding: const EdgeInsets.only(bottom: 8),
                               child: Text(
-                                'Pega una factura Lightning, LNURL o dirección',
+                                AppLocalizations.of(context)!.paste_input_hint,
                                 style: TextStyle(
                                   color: Colors.white.withValues(alpha: 0.6),
                                   fontSize: 12,

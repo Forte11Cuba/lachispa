@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/server_provider.dart';
+import '../l10n/generated/app_localizations.dart';
 import '3server_settings_screen.dart';
 import '4login_screen.dart';
 import '5signup_screen.dart';
@@ -102,7 +103,7 @@ class _StartScreenState extends State<StartScreen> {
                     const SizedBox(height: 16),
                     
                     Text(
-                      'Conecta con tu servidor LNBits favorito',
+                      AppLocalizations.of(context)!.choose_option_title,
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontFamily: 'Inter',
@@ -138,7 +139,7 @@ class _StartScreenState extends State<StartScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
-              'Servidor actual:',
+              AppLocalizations.of(context)!.server_settings_title,
               style: TextStyle(
                 fontFamily: 'Inter',
                 fontSize: 16,
@@ -175,17 +176,17 @@ class _StartScreenState extends State<StartScreen> {
                 ),
               ],
             ),
-            child: const Row(
+            child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(
+                const Icon(
                   Icons.settings_outlined,
                   size: 16,
                   color: Colors.white,
                 ),
-                SizedBox(width: 6),
+                const SizedBox(width: 6),
                 Text(
-                  'Cambiar servidor',
+                  AppLocalizations.of(context)!.server_settings_title,
                   style: TextStyle(
                     fontFamily: 'Inter',
                     fontSize: 14,
@@ -205,14 +206,14 @@ class _StartScreenState extends State<StartScreen> {
     return Column(
       children: [
         _buildGradientButton(
-          'Iniciar Sesión',
+          AppLocalizations.of(context)!.login_title,
           () => _navigateToLogin(context),
           isPrimary: true,
         ),
         const SizedBox(height: 16),
         
         _buildGradientButton(
-          'Crear Cuenta',
+          AppLocalizations.of(context)!.create_account_title,
           () => _navigateToSignup(context),
           isPrimary: false,
         ),

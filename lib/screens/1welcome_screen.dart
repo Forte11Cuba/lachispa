@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'dart:math' as math;
 import 'dart:async';
 import '2start_screen.dart';
+import '../l10n/generated/app_localizations.dart';
+import '../providers/language_provider.dart';
 
 class WelcomeScreen extends StatefulWidget {
   const WelcomeScreen({super.key});
@@ -173,13 +176,23 @@ class _WelcomeScreenState extends State<WelcomeScreen>
             
             // Main content
             SafeArea(
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    const Spacer(flex: 2),
+              child: Stack(
+                children: [
+                  // Language selector in top right corner
+                  Positioned(
+                    top: 16,
+                    right: 24,
+                    child: _buildLanguageSelector(),
+                  ),
+                  
+                  // Main content
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        const Spacer(flex: 2),
                     
                     // Logo and Title with animation
                     AnimatedBuilder(
@@ -255,7 +268,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                           child: Opacity(
                             opacity: _subtitleAnimation.value,
                             child: Text(
-                              'Lightning para todos',
+                              AppLocalizations.of(context)!.welcome_subtitle,
                               textAlign: TextAlign.center,
                               style: TextStyle(
                                 fontFamily: 'Inter',
@@ -280,7 +293,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                             opacity: _card1Animation.value,
                             child: _buildGlassmorphismCard(
                               Icons.electric_bolt_outlined,
-                              'Tan fácil como encender una chispa',
+                              AppLocalizations.of(context)!.tap_to_start_hint,
                             ),
                           ),
                         );
@@ -297,7 +310,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                             opacity: _card2Animation.value,
                             child: _buildGlassmorphismCard(
                               Icons.timer,
-                              'Pagos instantáneos',
+                              AppLocalizations.of(context)!.instant_payments_feature,
                             ),
                           ),
                         );
@@ -314,7 +327,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                             opacity: _card3Animation.value,
                             child: _buildGlassmorphismCard(
                               Icons.cloud,
-                              'Con tu servidor favorito',
+                              AppLocalizations.of(context)!.favorite_server_feature,
                             ),
                           ),
                         );
@@ -336,9 +349,11 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                         );
                       },
                     ),
-                    const SizedBox(height: 32),
-                  ],
-                ),
+                        const SizedBox(height: 32),
+                      ],
+                    ),
+                  ),
+                ],
               ),
             ),
           ],
@@ -428,14 +443,172 @@ class _WelcomeScreenState extends State<WelcomeScreen>
             borderRadius: BorderRadius.circular(16),
           ),
         ),
-        child: const Text(
-          'Continuar',
-          style: TextStyle(
+        child: Text(
+          AppLocalizations.of(context)!.get_started_button,
+          style: const TextStyle(
             fontFamily: 'Inter',
             fontSize: 16,
             fontWeight: FontWeight.w600,
             color: Colors.white,
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLanguageSelector() {
+    return Consumer<LanguageProvider>(
+      builder: (context, languageProvider, child) {
+        return GestureDetector(
+          onTap: () => _showLanguageSelector(context, languageProvider),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.08),
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(
+                color: Colors.white.withValues(alpha: 0.1),
+                width: 1,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.1),
+                  blurRadius: 8,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  languageProvider.getCurrentLanguageFlag(),
+                  style: const TextStyle(fontSize: 18),
+                ),
+                const SizedBox(width: 6),
+                Icon(
+                  Icons.keyboard_arrow_down,
+                  size: 16,
+                  color: Colors.white.withValues(alpha: 0.8),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void _showLanguageSelector(BuildContext context, LanguageProvider languageProvider) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        decoration: const BoxDecoration(
+          color: Color(0xFF1A1D47),
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(24),
+            topRight: Radius.circular(24),
+          ),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // Handle bar
+            Container(
+              margin: const EdgeInsets.only(top: 12),
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.3),
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            
+            // Header
+            Container(
+              padding: const EdgeInsets.all(24),
+              child: Row(
+                children: [
+                  const Icon(
+                    Icons.language,
+                    color: Color(0xFF4C63F7),
+                    size: 24,
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      AppLocalizations.of(context)!.language_selector_title,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 20,
+                        fontWeight: FontWeight.w600,
+                        fontFamily: 'Inter',
+                      ),
+                    ),
+                  ),
+                  IconButton(
+                    onPressed: () => Navigator.pop(context),
+                    icon: Icon(
+                      Icons.close,
+                      color: Colors.white.withValues(alpha: 0.7),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            
+            // Language options
+            ...languageProvider.getAvailableLanguages().map((language) {
+              final isSelected = languageProvider.currentLocale.languageCode == language['code'];
+              
+              return Container(
+                margin: const EdgeInsets.symmetric(horizontal: 24, vertical: 4),
+                decoration: BoxDecoration(
+                  color: isSelected 
+                    ? const Color(0xFF2D3FE7).withValues(alpha: 0.2)
+                    : Colors.transparent,
+                  borderRadius: BorderRadius.circular(12),
+                  border: isSelected 
+                    ? Border.all(color: const Color(0xFF2D3FE7), width: 1)
+                    : null,
+                ),
+                child: ListTile(
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  leading: Text(
+                    language['flag']!,
+                    style: const TextStyle(fontSize: 24),
+                  ),
+                  title: Text(
+                    language['name']!,
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: isSelected ? FontWeight.w600 : FontWeight.w500,
+                      fontFamily: 'Inter',
+                    ),
+                  ),
+                  trailing: isSelected 
+                    ? const Icon(
+                        Icons.check,
+                        color: Color(0xFF4C63F7),
+                        size: 20,
+                      )
+                    : null,
+                  onTap: () async {
+                    await languageProvider.changeLanguage(
+                      Locale(language['code']!, ''),
+                    );
+                    if (mounted) {
+                      Navigator.pop(context);
+                    }
+                  },
+                ),
+              );
+            }).toList(),
+            
+            const SizedBox(height: 32),
+          ],
         ),
       ),
     );
