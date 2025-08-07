@@ -140,6 +140,7 @@
   "recipient_label": "Recipient",
   "cancel_button_confirm": "Cancel",
   "pay_button_confirm": "Pay",
+  "confirm_button": "Confirm",
   "expired_button_text": "Expired",
   "sending_button": "Sending...",
   "invoice_expired_error": "The invoice has expired and cannot be paid",
