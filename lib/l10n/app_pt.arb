@@ -215,5 +215,20 @@
     }
   },
   "fixed_float_external_browser": "Abrirá Fixed Float no navegador externo",
-  "fixed_float_within_app": "Abre Fixed Float dentro da aplicação"
+  "fixed_float_within_app": "Abre Fixed Float dentro da aplicação",
+
+  "boltz_loading": "A carregar Boltz...",
+  "boltz_description": "Trocas atómicas de Bitcoin e Lightning\nsem necessidade de confiança",
+  "boltz_webview_error": "WebView não disponível nesta plataforma.\nAbrirá no navegador externo.",
+  "boltz_open_button": "Abrir Boltz",
+  "boltz_error_opening": "Erro ao abrir Boltz: {error}",
+  "@boltz_error_opening": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "boltz_external_browser": "Abrirá Boltz no navegador externo",
+  "boltz_within_app": "Abre Boltz dentro da aplicação"
 }

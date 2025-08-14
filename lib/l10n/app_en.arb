@@ -215,5 +215,20 @@
     }
   },
   "fixed_float_external_browser": "Will open Fixed Float in external browser",
-  "fixed_float_within_app": "Opens Fixed Float within the app"
+  "fixed_float_within_app": "Opens Fixed Float within the app",
+
+  "boltz_loading": "Loading Boltz...",
+  "boltz_description": "Trustless Bitcoin and Lightning\natomic swaps",
+  "boltz_webview_error": "WebView not available on this platform.\nWill open in external browser.",
+  "boltz_open_button": "Open Boltz",
+  "boltz_error_opening": "Error opening Boltz: {error}",
+  "@boltz_error_opening": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "boltz_external_browser": "Will open Boltz in external browser",
+  "boltz_within_app": "Opens Boltz within the app"
 }
