@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../core/utils/proxy_config.dart';
+import 'app_info_service.dart';
 
 void _debugLog(String message) {
   if (kDebugMode) {
@@ -23,7 +24,7 @@ class AuthService {
     _dio.options.connectTimeout = const Duration(seconds: 15);
     _dio.options.receiveTimeout = const Duration(seconds: 15);
     _dio.options.headers['Content-Type'] = 'application/json';
-    _dio.options.headers['User-Agent'] = 'LaChispa-Wallet/0.0.1';
+    _dio.options.headers['User-Agent'] = AppInfoService.getUserAgent();
     _dio.options.followRedirects = false;
     _dio.options.validateStatus = (status) {
       return status != null && status >= 200 && status < 400;

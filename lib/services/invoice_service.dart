@@ -7,6 +7,7 @@ import 'package:flutter/foundation.dart' show kIsWeb, kDebugMode;
 import '../models/lightning_invoice.dart';
 import '../models/decoded_invoice.dart';
 import '../core/utils/proxy_config.dart';
+import 'app_info_service.dart';
 
 void _debugLog(String message) {
   if (kDebugMode) {
@@ -27,10 +28,10 @@ class InvoiceService {
     
     _dio.options.headers['Content-Type'] = 'application/json';
     _dio.options.headers['User-Agent'] = isAndroid 
-        ? 'LaChispa-Android/0.0.1' 
+        ? AppInfoService.getUserAgent('Android') 
         : isWeb 
-          ? 'LaChispa-Web/0.0.1'
-          : 'LaChispa-Wallet/0.0.1';
+          ? AppInfoService.getUserAgent('Web')
+          : AppInfoService.getUserAgent();
     
     // Longer timeouts for proxy and Android devices
     _dio.options.connectTimeout = isAndroid 
@@ -989,7 +990,7 @@ class InvoiceService {
           externalDio.options.receiveTimeout = isAndroid 
               ? const Duration(seconds: 20) 
               : const Duration(seconds: 15);
-          externalDio.options.headers['User-Agent'] = 'LaChispa-Wallet/0.0.1';
+          externalDio.options.headers['User-Agent'] = AppInfoService.getUserAgent();
           externalDio.options.headers['Accept'] = 'application/json';
           
           _configureProxyForDio(externalDio);
@@ -1053,7 +1054,7 @@ class InvoiceService {
       final callbackDio = Dio();
       callbackDio.options.connectTimeout = const Duration(seconds: 15);
       callbackDio.options.receiveTimeout = const Duration(seconds: 15);
-      callbackDio.options.headers['User-Agent'] = 'LaChispa-Wallet/0.0.1';
+      callbackDio.options.headers['User-Agent'] = AppInfoService.getUserAgent();
       callbackDio.options.headers['Accept'] = 'application/json';
       
       _configureProxyForDio(callbackDio);
@@ -1107,7 +1108,7 @@ class InvoiceService {
       final lnurlDio = Dio();
       lnurlDio.options.connectTimeout = const Duration(seconds: 15);
       lnurlDio.options.receiveTimeout = const Duration(seconds: 15);
-      lnurlDio.options.headers['User-Agent'] = 'LaChispa-Wallet/0.0.1';
+      lnurlDio.options.headers['User-Agent'] = AppInfoService.getUserAgent();
       lnurlDio.options.headers['Accept'] = 'application/json';
       
       _configureProxyForDio(lnurlDio);

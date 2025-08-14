@@ -193,7 +193,6 @@
   
   "about_app_subtitle": "Carteira Lightning",
   "about_app_description": "Uma aplicação móvel para gerir Bitcoin através da Lightning Network usando LNBits como backend.",
-  "app_version": "Versão: 0.0.1",
   "lightning_address_copy": "Copiar",
   "lightning_address_default": "Por defeito",
   "lightning_address_delete": "Eliminar",
@@ -204,10 +203,17 @@
   "create_wallet_detailed_instructions": "Para criar uma nova carteira:\\n\\n1. Abra o seu navegador web\\n2. Aceda ao seu servidor LNBits\\n3. Inicie sessão com a sua conta\\n4. Procure o botão \\\"Criar carteira\\\"\\n5. Atribua um nome à sua nova carteira\\n6. Regresse ao LaChispa e atualize as suas carteiras\\n\\nA nova carteira aparecerá automaticamente na sua lista.",
 
   "fixed_float_loading": "A carregar Fixed Float...",
-  "fixed_float_description": "Troque criptomoedas com\\ntaxas fixas e sem registo",
-  "fixed_float_webview_error": "WebView não disponível nesta plataforma.\\nAbrirá no navegador externo.",
+  "fixed_float_description": "Troque criptomoedas com\ntaxas fixas e sem registo",
+  "fixed_float_webview_error": "WebView não disponível nesta plataforma.\nAbrirá no navegador externo.",
   "fixed_float_open_button": "Abrir Fixed Float",
   "fixed_float_error_opening": "Erro ao abrir Fixed Float: {error}",
+  "@fixed_float_error_opening": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
   "fixed_float_external_browser": "Abrirá Fixed Float no navegador externo",
   "fixed_float_within_app": "Abre Fixed Float dentro da aplicação"
 }

@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import 'dart:convert';
 import '../models/ln_address.dart';
 import '../core/utils/proxy_config.dart';
+import 'app_info_service.dart';
 
 void _debugLog(String message) {
   if (kDebugMode) {
@@ -26,7 +27,7 @@ class LNAddressService {
     
     _dio.options.headers['Content-Type'] = 'application/json';
     _dio.options.headers['Accept'] = 'application/json';
-    _dio.options.headers['User-Agent'] = 'LaChispa-Web/0.0.1';
+    _dio.options.headers['User-Agent'] = AppInfoService.getUserAgent('Web');
     
     ProxyConfig.configureProxy(_dio, enableLogging: false);
     
@@ -57,7 +58,7 @@ class LNAddressService {
     _dio.options.headers.clear();
     _dio.options.headers['Content-Type'] = 'application/json';
     _dio.options.headers['Accept'] = 'application/json';
-    _dio.options.headers['User-Agent'] = 'LaChispa-Web/0.0.1';
+    _dio.options.headers['User-Agent'] = AppInfoService.getUserAgent('Web');
     _dio.options.headers['X-Api-Key'] = _invoiceKey;
     _debugLog('[LN_ADDRESS_SERVICE] Using invoice key for read operation');
   }
@@ -67,7 +68,7 @@ class LNAddressService {
     _dio.options.headers.clear();
     _dio.options.headers['Content-Type'] = 'application/json';
     _dio.options.headers['Accept'] = 'application/json';
-    _dio.options.headers['User-Agent'] = 'LaChispa-Web/0.0.1';
+    _dio.options.headers['User-Agent'] = AppInfoService.getUserAgent('Web');
     _dio.options.headers['X-Api-Key'] = _adminKey;
     
     _debugLog('[LN_ADDRESS_SERVICE] 🔐 Setting up write headers:');
