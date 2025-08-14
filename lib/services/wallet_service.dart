@@ -3,6 +3,7 @@ import 'package:flutter/foundation.dart';
 import '../models/wallet_info.dart';
 import '../models/transaction_info.dart';
 import '../core/utils/proxy_config.dart';
+import 'app_info_service.dart';
 
 void _debugLog(String message) {
   if (kDebugMode) {
@@ -22,7 +23,7 @@ class WalletService {
     _dio.options.connectTimeout = const Duration(seconds: 15);
     _dio.options.receiveTimeout = const Duration(seconds: 15);
     _dio.options.headers['Content-Type'] = 'application/json';
-    _dio.options.headers['User-Agent'] = 'LaChispa-Wallet/0.0.1';
+    _dio.options.headers['User-Agent'] = AppInfoService.getUserAgent();
     
     ProxyConfig.configureProxy(_dio, enableLogging: false);
     

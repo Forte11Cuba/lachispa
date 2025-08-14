@@ -8,10 +8,16 @@ import 'providers/ln_address_provider.dart';
 import 'providers/language_provider.dart';
 import 'services/wallet_service.dart';
 import 'services/ln_address_service.dart';
+import 'services/app_info_service.dart';
 import 'screens/1welcome_screen.dart';
 import 'l10n/generated/app_localizations.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  
+  // Initialize app info service to read version from pubspec.yaml
+  await AppInfoService.initialize();
+  
   runApp(const LaChispaApp());
 }
 

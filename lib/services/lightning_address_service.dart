@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import '../core/utils/proxy_config.dart';
+import 'app_info_service.dart';
 
 /// Conditional logging for development
 void _debugLog(String message) {
@@ -20,7 +21,7 @@ class LightningAddressService {
     _dio.options.connectTimeout = const Duration(seconds: 15);
     _dio.options.receiveTimeout = const Duration(seconds: 15);
     _dio.options.headers['Content-Type'] = 'application/json';
-    _dio.options.headers['User-Agent'] = 'LaChispa-Wallet/0.0.1';
+    _dio.options.headers['User-Agent'] = AppInfoService.getUserAgent();
     
     // Configure automatic proxy support
     ProxyConfig.configureProxy(_dio, enableLogging: false);

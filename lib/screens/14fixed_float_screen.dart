@@ -169,17 +169,17 @@ class _FixedFloatScreenState extends State<FixedFloatScreen> {
         if (_isLoading)
           Container(
             color: const Color(0xFF0F1419).withValues(alpha: 0.9),
-            child: const Center(
+            child: Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  CircularProgressIndicator(
+                  const CircularProgressIndicator(
                     valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF2D3FE7)),
                   ),
-                  SizedBox(height: 16),
+                  const SizedBox(height: 16),
                   Text(
                     AppLocalizations.of(context)!.fixed_float_loading,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontFamily: 'Inter',
                       fontSize: 16,
                       fontWeight: FontWeight.w500,
@@ -284,7 +284,7 @@ class _FixedFloatScreenState extends State<FixedFloatScreen> {
                   if (context.mounted) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
-                        content: Text(AppLocalizations.of(context)!.fixed_float_error_opening.replaceAll('{error}', e.toString())),
+                        content: Text(AppLocalizations.of(context)!.fixed_float_error_opening(e.toString())),
                         backgroundColor: Colors.red,
                       ),
                     );
@@ -300,19 +300,19 @@ class _FixedFloatScreenState extends State<FixedFloatScreen> {
                   borderRadius: BorderRadius.circular(16),
                 ),
               ),
-              child: const Row(
+              child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
                     AppLocalizations.of(context)!.fixed_float_open_button,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontFamily: 'Inter',
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
-                  SizedBox(width: 8),
-                  Icon(
+                  const SizedBox(width: 8),
+                  const Icon(
                     Icons.open_in_browser,
                     size: 20,
                   ),

@@ -7,6 +7,7 @@ import '../providers/wallet_provider.dart';
 import '../providers/language_provider.dart';
 import '../services/transaction_detector.dart';
 import '../services/yadio_service.dart';
+import '../services/app_info_service.dart';
 import '../l10n/generated/app_localizations.dart';
 import '7history_screen.dart';
 import '7ln_address_screen.dart';
@@ -1948,17 +1949,17 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver, Ti
                 color: const Color(0xFF2D3FE7).withValues(alpha: 0.2),
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: const Row(
+              child: Row(
                 children: [
-                  Icon(
+                  const Icon(
                     Icons.code,
                     color: Color(0xFF5B73FF),
                     size: 16,
                   ),
-                  SizedBox(width: 8),
+                  const SizedBox(width: 8),
                   Text(
-                    'Version: 0.0.1',
-                    style: TextStyle(
+                    AppInfoService.getVersionDisplay(languageProvider.currentLocale.languageCode),
+                    style: const TextStyle(
                       color: Color(0xFF5B73FF),
                       fontSize: 12,
                       fontWeight: FontWeight.w500,
