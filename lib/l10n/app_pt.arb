@@ -201,5 +201,13 @@
   "lightning_address_set_default": "Definir como por defeito",
   "create_new_wallet_help": "Criar nova carteira",
   "create_wallet_short_description": "Para criar uma nova carteira, aceda ao seu painel LNBits pelo navegador e use a opção \\\"Criar carteira\\\".",
-  "create_wallet_detailed_instructions": "Para criar uma nova carteira:\\n\\n1. Abra o seu navegador web\\n2. Aceda ao seu servidor LNBits\\n3. Inicie sessão com a sua conta\\n4. Procure o botão \\\"Criar carteira\\\"\\n5. Atribua um nome à sua nova carteira\\n6. Regresse ao LaChispa e atualize as suas carteiras\\n\\nA nova carteira aparecerá automaticamente na sua lista."
+  "create_wallet_detailed_instructions": "Para criar uma nova carteira:\\n\\n1. Abra o seu navegador web\\n2. Aceda ao seu servidor LNBits\\n3. Inicie sessão com a sua conta\\n4. Procure o botão \\\"Criar carteira\\\"\\n5. Atribua um nome à sua nova carteira\\n6. Regresse ao LaChispa e atualize as suas carteiras\\n\\nA nova carteira aparecerá automaticamente na sua lista.",
+
+  "fixed_float_loading": "A carregar Fixed Float...",
+  "fixed_float_description": "Troque criptomoedas com\\ntaxas fixas e sem registo",
+  "fixed_float_webview_error": "WebView não disponível nesta plataforma.\\nAbrirá no navegador externo.",
+  "fixed_float_open_button": "Abrir Fixed Float",
+  "fixed_float_error_opening": "Erro ao abrir Fixed Float: {error}",
+  "fixed_float_external_browser": "Abrirá Fixed Float no navegador externo",
+  "fixed_float_within_app": "Abre Fixed Float dentro da aplicação"
 }

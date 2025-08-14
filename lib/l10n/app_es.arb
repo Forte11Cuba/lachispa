@@ -201,5 +201,13 @@
   "lightning_address_set_default": "Establecer como por defecto",
   "create_new_wallet_help": "Crear nueva billetera",
   "create_wallet_short_description": "Para crear una nueva billetera, accede a tu panel LNBits desde el navegador y usa la opción \"Crear billetera\".",
-  "create_wallet_detailed_instructions": "Para crear una nueva billetera:\\n\\n1. Abre tu navegador web\\n2. Accede a tu servidor LNBits\\n3. Inicia sesión con tu cuenta\\n4. Busca el botón \"Crear billetera\"\\n5. Asigna un nombre a tu nueva billetera\\n6. Regresa a LaChispa y actualiza tus billeteras\\n\\nLa nueva billetera aparecerá automáticamente en tu lista."
+  "create_wallet_detailed_instructions": "Para crear una nueva billetera:\\n\\n1. Abre tu navegador web\\n2. Accede a tu servidor LNBits\\n3. Inicia sesión con tu cuenta\\n4. Busca el botón \"Crear billetera\"\\n5. Asigna un nombre a tu nueva billetera\\n6. Regresa a LaChispa y actualiza tus billeteras\\n\\nLa nueva billetera aparecerá automáticamente en tu lista.",
+
+  "fixed_float_loading": "Cargando Fixed Float...",
+  "fixed_float_description": "Intercambia criptomonedas con\\ntasas fijas y sin registro",
+  "fixed_float_webview_error": "WebView no disponible en esta plataforma.\\nSe abrirá en navegador externo.",
+  "fixed_float_open_button": "Abrir Fixed Float",
+  "fixed_float_error_opening": "Error abriendo Fixed Float: {error}",
+  "fixed_float_external_browser": "Se abrirá Fixed Float en navegador externo",
+  "fixed_float_within_app": "Abre Fixed Float dentro de la aplicación"
 }

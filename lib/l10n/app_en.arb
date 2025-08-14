@@ -201,5 +201,13 @@
   "lightning_address_set_default": "Set as default",
   "create_new_wallet_help": "Create new wallet",
   "create_wallet_short_description": "To create a new wallet, access your LNBits panel from the browser and use the \"Create wallet\" option.",
-  "create_wallet_detailed_instructions": "To create a new wallet:\\n\\n1. Open your web browser\\n2. Access your LNBits server\\n3. Log in with your account\\n4. Look for the \"Create wallet\" button\\n5. Assign a name to your new wallet\\n6. Return to LaChispa and refresh your wallets\\n\\nThe new wallet will appear automatically in your list."
+  "create_wallet_detailed_instructions": "To create a new wallet:\\n\\n1. Open your web browser\\n2. Access your LNBits server\\n3. Log in with your account\\n4. Look for the \"Create wallet\" button\\n5. Assign a name to your new wallet\\n6. Return to LaChispa and refresh your wallets\\n\\nThe new wallet will appear automatically in your list.",
+
+  "fixed_float_loading": "Loading Fixed Float...",
+  "fixed_float_description": "Exchange cryptocurrencies with\\nfixed rates and no registration",
+  "fixed_float_webview_error": "WebView not available on this platform.\\nWill open in external browser.",
+  "fixed_float_open_button": "Open Fixed Float",
+  "fixed_float_error_opening": "Error opening Fixed Float: {error}",
+  "fixed_float_external_browser": "Will open Fixed Float in external browser",
+  "fixed_float_within_app": "Opens Fixed Float within the app"
 }

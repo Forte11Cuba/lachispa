@@ -12,6 +12,7 @@ import '7history_screen.dart';
 import '7ln_address_screen.dart';
 import '9receive_screen.dart';
 import '10send_screen.dart';
+import '14fixed_float_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -1729,6 +1730,20 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver, Ti
                           context,
                           MaterialPageRoute(
                             builder: (context) => const LNAddressScreen(),
+                          ),
+                        );
+                      },
+                    ),
+                    
+                    _buildDrawerItem(
+                      icon: Icons.swap_horiz,
+                      title: 'Fixed Float',
+                      onTap: () {
+                        Navigator.pop(context);
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const FixedFloatScreen(),
                           ),
                         );
                       },
