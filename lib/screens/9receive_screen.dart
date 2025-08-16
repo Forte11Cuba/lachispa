@@ -751,6 +751,11 @@ class _ReceiveScreenState extends State<ReceiveScreen> {
         
         const SizedBox(height: 12),
         
+        // LNURL copy button
+        _buildCopyLNURLButton(defaultAddress),
+        
+        const SizedBox(height: 12),
+        
         // Request amount button or clear invoice button
         _generatedInvoice != null 
           ? _buildClearInvoiceButton()
@@ -1570,6 +1575,94 @@ class _ReceiveScreenState extends State<ReceiveScreen> {
       _invoicePaymentTimer?.cancel();
       print('[RECEIVE_SCREEN] Timeout: Deteniendo monitoreo de factura');
     });
+  }
+
+  Widget _buildCopyLNURLButton(LNAddress defaultAddress) {
+    return SizedBox(
+      width: double.infinity,
+      child: OutlinedButton.icon(
+        onPressed: () => _copyLNURL(defaultAddress),
+        style: OutlinedButton.styleFrom(
+          foregroundColor: Colors.white,
+          side: BorderSide(
+            color: Colors.white.withValues(alpha: 0.3),
+            width: 1.5,
+          ),
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+        ),
+        icon: const Icon(Icons.copy, size: 20),
+        label: const Text(
+          'LNURL',
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+            fontFamily: 'Inter',
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _copyLNURL(LNAddress defaultAddress) async {
+    final lnurl = defaultAddress.lnurl;
+    
+    if (lnurl != null && lnurl.isNotEmpty) {
+      await Clipboard.setData(ClipboardData(text: lnurl));
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(Icons.check_circle, color: Colors.white, size: 20),
+                const SizedBox(width: 12),
+                const Text(
+                  'LNURL copiado',
+                  style: TextStyle(
+                    fontFamily: 'Inter',
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+            backgroundColor: const Color(0xFF2D3FE7),
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      }
+    } else {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(Icons.error, color: Colors.white, size: 20),
+                const SizedBox(width: 12),
+                const Text(
+                  'LNURL no disponible',
+                  style: TextStyle(
+                    fontFamily: 'Inter',
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+            backgroundColor: Colors.red,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+            duration: const Duration(seconds: 2),
+          ),
+        );
+      }
+    }
   }
 
   void _copyLightningAddress(String address) async {
