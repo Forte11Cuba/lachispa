@@ -74,6 +74,14 @@ class _SendScreenState extends State<SendScreen> {
     );
   }
   
+  String _cleanLightningInput(String input) {
+    String cleaned = input.toLowerCase().trim();
+    if (cleaned.startsWith('lightning:')) {
+      cleaned = cleaned.substring(10);
+    }
+    return cleaned;
+  }
+  
   bool _hasValidInput() {
     final text = _inputController.text.trim();
     return text.isNotEmpty && (_isValidBolt11(text) || _isValidLNURL(text) || _isValidLightningAddress(text));
@@ -81,12 +89,7 @@ class _SendScreenState extends State<SendScreen> {
   
   bool _isValidBolt11(String text) {
     // Normalize text by removing common prefixes
-    String normalizedText = text.toLowerCase().trim();
-    
-    // Remove "lightning:" prefix if present
-    if (normalizedText.startsWith('lightning:')) {
-      normalizedText = normalizedText.substring(10);
-    }
+    String normalizedText = _cleanLightningInput(text);
     
     // Basic Lightning BOLT11 invoice validation
     return normalizedText.startsWith('lnbc') || 
@@ -95,8 +98,11 @@ class _SendScreenState extends State<SendScreen> {
   }
   
   bool _isValidLNURL(String text) {
+    // Normalize text by removing common prefixes
+    String normalizedText = _cleanLightningInput(text);
+    
     // Basic LNURL validation
-    return text.toLowerCase().startsWith('lnurl') ||
+    return normalizedText.startsWith('lnurl') ||
            (text.startsWith('http') && text.contains('lnurl'));
   }
   
@@ -191,12 +197,18 @@ class _SendScreenState extends State<SendScreen> {
   }
   
   Future<void> _processLNURLPayment(String lnurl) async {
+    // Clean LNURL by removing prefixes if they exist
+    String cleanLnurl = lnurl.trim();
+    if (cleanLnurl.toLowerCase().startsWith('lightning:')) {
+      cleanLnurl = cleanLnurl.substring(10);
+    }
+    
     // Navigate to amount screen for LNURL payment
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => AmountScreen(
-          destination: lnurl,
+          destination: cleanLnurl,
           destinationType: 'lnurl',
         ),
       ),
