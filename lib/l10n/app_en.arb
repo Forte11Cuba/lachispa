@@ -230,5 +230,7 @@
     }
   },
   "boltz_external_browser": "Will open Boltz in external browser",
-  "boltz_within_app": "Opens Boltz within the app"
+  "boltz_within_app": "Opens Boltz within the app",
+
+  "add_note_optional": "Add a note (optional)"
 }

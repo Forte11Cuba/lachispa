@@ -29,6 +29,9 @@ class _AmountScreenState extends State<AmountScreen> {
   String _selectedCurrency = 'sats';
   final List<String> _currencies = ['sats', 'USD', 'CUP'];
   
+  final TextEditingController _commentController = TextEditingController();
+  final FocusNode _commentFocusNode = FocusNode();
+  
   Map<String, double>? _exchangeRates;
   bool _isLoadingRates = false;
   bool _isProcessingPayment = false;
@@ -50,6 +53,8 @@ class _AmountScreenState extends State<AmountScreen> {
   @override
   void dispose() {
     _conversionTimer?.cancel();
+    _commentController.dispose();
+    _commentFocusNode.dispose();
     _yadioService.dispose();
     _invoiceService.dispose();
     super.dispose();
@@ -279,7 +284,7 @@ class _AmountScreenState extends State<AmountScreen> {
         adminKey: wallet.adminKey,
         lnurl: widget.destination,
         amountSats: satsAmount,
-        comment: null, // TODO: Add comment support in UI
+        comment: _commentController.text.trim().isEmpty ? null : _commentController.text.trim(),
       );
       
       print('[AMOUNT_SCREEN] LNURL payment sent successfully: $paymentResult');
@@ -357,7 +362,7 @@ class _AmountScreenState extends State<AmountScreen> {
         adminKey: wallet.adminKey,
         lightningAddress: widget.destination,
         amountSats: satsAmount,
-        comment: null, // TODO: Add comment support in UI
+        comment: _commentController.text.trim().isEmpty ? null : _commentController.text.trim(),
       );
       
       print('[AMOUNT_SCREEN] Payment sent successfully: $paymentResult');
@@ -456,7 +461,7 @@ class _AmountScreenState extends State<AmountScreen> {
   }
 
   Widget _buildNumberButton(String text, VoidCallback onPressed, bool isMobile) {
-    return Container(
+    return SizedBox(
       height: isMobile ? 48 : 56,
       child: ElevatedButton(
         onPressed: onPressed,
@@ -486,7 +491,7 @@ class _AmountScreenState extends State<AmountScreen> {
   }
 
   Widget _buildActionButton(String text, VoidCallback onPressed, {IconData? icon, required bool isMobile}) {
-    return Container(
+    return SizedBox(
       height: isMobile ? 48 : 56,
       child: ElevatedButton(
         onPressed: onPressed,
@@ -522,6 +527,7 @@ class _AmountScreenState extends State<AmountScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       body: LayoutBuilder(
         builder: (context, constraints) {
           final screenWidth = constraints.maxWidth;
@@ -622,26 +628,31 @@ class _AmountScreenState extends State<AmountScreen> {
                   
                   // Main content
                   Expanded(
-                    child: Padding(
+                    child: SingleChildScrollView(
                       padding: EdgeInsets.symmetric(
                         horizontal: isMobile ? 24.0 : 32.0,
                         vertical: 16.0,
                       ),
-                      child: Column(
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(
+                          minHeight: constraints.maxHeight - 200,
+                        ),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
                         children: [
-                          SizedBox(height: isMobile ? 16 : 24),
+                          SizedBox(height: isMobile ? 8 : 12),
                           
                           // Amount display
                           Container(
                             width: double.infinity,
-                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            padding: const EdgeInsets.symmetric(vertical: 8),
                             child: Column(
                               children: [
                                 Text(
                                   _formatDisplayAmount(),
                                   style: TextStyle(
                                     fontFamily: 'Inter',
-                                    fontSize: isMobile ? 32 : 40,
+                                    fontSize: isMobile ? 38 : 48,
                                     fontWeight: FontWeight.w700,
                                     color: Colors.white,
                                   ),
@@ -653,7 +664,7 @@ class _AmountScreenState extends State<AmountScreen> {
                                     '≈ ${_cachedSatsAmount.toStringAsFixed(0)} sats',
                                     style: TextStyle(
                                       fontFamily: 'Inter',
-                                      fontSize: isMobile ? 16 : 18,
+                                      fontSize: isMobile ? 18 : 22,
                                       fontWeight: FontWeight.w400,
                                       color: Colors.white.withValues(alpha: 0.7),
                                     ),
@@ -664,7 +675,7 @@ class _AmountScreenState extends State<AmountScreen> {
                             ),
                           ),
                           
-                          SizedBox(height: isMobile ? 20 : 32),
+                          SizedBox(height: isMobile ? 12 : 20),
                           
                           // Numeric keypad
                           Flexible(
@@ -750,7 +761,46 @@ class _AmountScreenState extends State<AmountScreen> {
                           
                           const SizedBox(height: 16),
                           
+                          // Comment field
                           Container(
+                            width: double.infinity,
+                            decoration: BoxDecoration(
+                              color: Colors.white.withValues(alpha: 0.08),
+                              borderRadius: BorderRadius.circular(16),
+                              border: Border.all(
+                                color: Colors.white.withValues(alpha: 0.1),
+                                width: 1,
+                              ),
+                            ),
+                            child: TextField(
+                              key: const Key('comment_field'),
+                              controller: _commentController,
+                              focusNode: _commentFocusNode,
+                              maxLines: 2,
+                              maxLength: 150,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 16,
+                              ),
+                              decoration: InputDecoration(
+                                hintText: AppLocalizations.of(context)!.add_note_optional,
+                                hintStyle: TextStyle(
+                                  color: Colors.white.withValues(alpha: 0.6),
+                                  fontSize: 16,
+                                ),
+                                border: InputBorder.none,
+                                contentPadding: const EdgeInsets.all(16),
+                                counterStyle: TextStyle(
+                                  color: Colors.white.withValues(alpha: 0.5),
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ),
+                          ),
+                          
+                          const SizedBox(height: 16),
+                          
+                          SizedBox(
                             width: double.infinity,
                             height: 64,
                             child: ElevatedButton(
@@ -846,7 +896,11 @@ class _AmountScreenState extends State<AmountScreen> {
                           ] else ...[
                             const SizedBox(height: 8),
                           ],
+                          
+                          // Extra space for keyboard
+                          const SizedBox(height: 60),
                         ],
+                        ),
                       ),
                     ),
                   ),

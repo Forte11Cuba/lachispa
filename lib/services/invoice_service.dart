@@ -95,6 +95,7 @@ class InvoiceService {
     required String adminKey,
     required int amount,
     String? memo,
+    String? comment,
   }) async {
     try {
       String baseUrl = serverUrl;
@@ -123,6 +124,7 @@ class InvoiceService {
               'out': false,
               'amount': amount,
               'memo': memo ?? '',
+              'extras': comment != null && comment.isNotEmpty ? {'comment': comment} : null,
             }
           },
           {
@@ -130,6 +132,7 @@ class InvoiceService {
             'data': {
               'amount': amount,
               'memo': memo ?? '',
+              'extras': comment != null && comment.isNotEmpty ? {'comment': comment} : null,
             }
           },
           {
@@ -138,6 +141,7 @@ class InvoiceService {
               'out': false,
               'amount': amount,
               'description': memo ?? '',
+              'extras': comment != null && comment.isNotEmpty ? {'comment': comment} : null,
             }
           },
           {
@@ -146,6 +150,7 @@ class InvoiceService {
               'out': false,
               'amount': amount,
               'memo': memo ?? '',
+              'extras': comment != null && comment.isNotEmpty ? {'comment': comment} : null,
             }
           },
           {
@@ -154,6 +159,7 @@ class InvoiceService {
               'amount': amount,
               'description': memo ?? '',
               'unit': 'sat',
+              'extras': comment != null && comment.isNotEmpty ? {'comment': comment} : null,
             }
           },
           {
@@ -162,6 +168,7 @@ class InvoiceService {
               'out': false,
               'amount': amount,
               'memo': memo ?? '',
+              'extras': comment != null && comment.isNotEmpty ? {'comment': comment} : null,
             }
           },
           {
@@ -169,6 +176,7 @@ class InvoiceService {
             'data': {
               'amount': amount,
               'memo': memo ?? '',
+              'extras': comment != null && comment.isNotEmpty ? {'comment': comment} : null,
             }
           },
           {
@@ -176,6 +184,7 @@ class InvoiceService {
             'data': {
               'amount': amount,
               'memo': memo ?? '',
+              'extras': comment != null && comment.isNotEmpty ? {'comment': comment} : null,
             }
           },
         ];
@@ -189,6 +198,7 @@ class InvoiceService {
               'amount': amount,
               'memo': memo ?? '',
               'unit': 'sat',
+              'extras': comment != null && comment.isNotEmpty ? {'comment': comment} : null,
             }
           },
           {
@@ -198,6 +208,7 @@ class InvoiceService {
               'amount': amount,
               'memo': memo ?? '',
               'unit': 'sat',
+              'extras': comment != null && comment.isNotEmpty ? {'comment': comment} : null,
             }
           },
           {
@@ -206,6 +217,7 @@ class InvoiceService {
               'amount': amount,
               'memo': memo ?? '',
               'unit': 'sat',
+              'extras': comment != null && comment.isNotEmpty ? {'comment': comment} : null,
             }
           },
           {
@@ -214,6 +226,7 @@ class InvoiceService {
               'amount': amount,
               'memo': memo ?? '',
               'description': memo ?? '',
+              'extras': comment != null && comment.isNotEmpty ? {'comment': comment} : null,
             }
           },
         ];

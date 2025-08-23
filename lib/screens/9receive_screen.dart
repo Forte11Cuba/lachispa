@@ -1345,6 +1345,7 @@ class _ReceiveScreenState extends State<ReceiveScreen> {
         adminKey: wallet.adminKey,
         amount: amountInSats,
         memo: _noteController.text.trim().isNotEmpty ? _noteController.text.trim() : null,
+        comment: _noteController.text.trim().isNotEmpty ? _noteController.text.trim() : null,
       );
 
       // Update state
