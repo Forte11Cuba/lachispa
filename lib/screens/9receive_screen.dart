@@ -13,6 +13,7 @@ import '../services/transaction_detector.dart';
 import '../models/lightning_invoice.dart';
 import '../models/wallet_info.dart';
 import '../l10n/generated/app_localizations.dart';
+import '../widgets/universal_screen_wrapper.dart';
 import '7ln_address_screen.dart';
 
 class ReceiveScreen extends StatefulWidget {
@@ -101,32 +102,36 @@ class _ReceiveScreenState extends State<ReceiveScreen> {
           ),
         ),
         child: SafeArea(
-          child: Column(
-            children: [
-              // Header with navigation
-              _buildHeader(),
-              
-              // Main content
-              Expanded(
-                child: Consumer3<LNAddressProvider, WalletProvider, AuthProvider>(
-                  builder: (context, lnAddressProvider, walletProvider, authProvider, child) {
-                    final isMobile = MediaQuery.of(context).size.width < 768;
-                    return SingleChildScrollView(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: isMobile ? 24.0 : 32.0,
-                        vertical: 16.0,
-                      ),
-                      child: Column(
-                        children: [
-                          SizedBox(height: isMobile ? 8 : 12),
-                          _buildMainContent(lnAddressProvider, walletProvider),
-                        ],
-                      ),
-                    );
-                  },
+          child: withBottomPadding(
+            context,
+            Column(
+              children: [
+                // Header with navigation
+                _buildHeader(),
+                
+                // Main content
+                Expanded(
+                  child: Consumer3<LNAddressProvider, WalletProvider, AuthProvider>(
+                    builder: (context, lnAddressProvider, walletProvider, authProvider, child) {
+                      final isMobile = MediaQuery.of(context).size.width < 768;
+                      return SingleChildScrollView(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: isMobile ? 24.0 : 32.0,
+                          vertical: 16.0,
+                        ),
+                        child: Column(
+                          children: [
+                            SizedBox(height: isMobile ? 8 : 12),
+                            _buildMainContent(lnAddressProvider, walletProvider),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
+            extraPadding: 24.0,
           ),
         ),
       ),
