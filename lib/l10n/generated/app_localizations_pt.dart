@@ -552,9 +552,6 @@ class AppLocalizationsPt extends AppLocalizations {
       'Uma aplicação móvel para gerir Bitcoin através da Lightning Network usando LNBits como backend.';
 
   @override
-  String get app_version => 'Versão: 0.0.1';
-
-  @override
   String get lightning_address_copy => 'Copiar';
 
   @override
@@ -579,4 +576,58 @@ class AppLocalizationsPt extends AppLocalizations {
   @override
   String get create_wallet_detailed_instructions =>
       'Para criar uma nova carteira:\\n\\n1. Abra o seu navegador web\\n2. Aceda ao seu servidor LNBits\\n3. Inicie sessão com a sua conta\\n4. Procure o botão \\\"Criar carteira\\\"\\n5. Atribua um nome à sua nova carteira\\n6. Regresse ao LaChispa e atualize as suas carteiras\\n\\nA nova carteira aparecerá automaticamente na sua lista.';
+
+  @override
+  String get fixed_float_loading => 'A carregar Fixed Float...';
+
+  @override
+  String get fixed_float_description =>
+      'Troque criptomoedas com\ntaxas fixas e sem registo';
+
+  @override
+  String get fixed_float_webview_error =>
+      'WebView não disponível nesta plataforma.\nAbrirá no navegador externo.';
+
+  @override
+  String get fixed_float_open_button => 'Abrir Fixed Float';
+
+  @override
+  String fixed_float_error_opening(String error) {
+    return 'Erro ao abrir Fixed Float: $error';
+  }
+
+  @override
+  String get fixed_float_external_browser =>
+      'Abrirá Fixed Float no navegador externo';
+
+  @override
+  String get fixed_float_within_app => 'Abre Fixed Float dentro da aplicação';
+
+  @override
+  String get boltz_loading => 'A carregar Boltz...';
+
+  @override
+  String get boltz_description =>
+      'Trocas atómicas de Bitcoin e Lightning\nsem necessidade de confiança';
+
+  @override
+  String get boltz_webview_error =>
+      'WebView não disponível nesta plataforma.\nAbrirá no navegador externo.';
+
+  @override
+  String get boltz_open_button => 'Abrir Boltz';
+
+  @override
+  String boltz_error_opening(String error) {
+    return 'Erro ao abrir Boltz: $error';
+  }
+
+  @override
+  String get boltz_external_browser => 'Abrirá Boltz no navegador externo';
+
+  @override
+  String get boltz_within_app => 'Abre Boltz dentro da aplicação';
+
+  @override
+  String get add_note_optional => 'Adicionar uma nota (opcional)';
 }

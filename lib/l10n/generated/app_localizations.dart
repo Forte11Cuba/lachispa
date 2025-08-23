@@ -1138,12 +1138,6 @@ abstract class AppLocalizations {
   /// **'Una aplicación móvil para gestionar Bitcoin a través de Lightning Network usando LNBits como backend.'**
   String get about_app_description;
 
-  /// No description provided for @app_version.
-  ///
-  /// In es, this message translates to:
-  /// **'Version: 0.0.1'**
-  String get app_version;
-
   /// No description provided for @lightning_address_copy.
   ///
   /// In es, this message translates to:
@@ -1191,6 +1185,96 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Para crear una nueva billetera:\\n\\n1. Abre tu navegador web\\n2. Accede a tu servidor LNBits\\n3. Inicia sesión con tu cuenta\\n4. Busca el botón \"Crear billetera\"\\n5. Asigna un nombre a tu nueva billetera\\n6. Regresa a LaChispa y actualiza tus billeteras\\n\\nLa nueva billetera aparecerá automáticamente en tu lista.'**
   String get create_wallet_detailed_instructions;
+
+  /// No description provided for @fixed_float_loading.
+  ///
+  /// In es, this message translates to:
+  /// **'Cargando Fixed Float...'**
+  String get fixed_float_loading;
+
+  /// No description provided for @fixed_float_description.
+  ///
+  /// In es, this message translates to:
+  /// **'Intercambia criptomonedas con\ntasas fijas y sin registro'**
+  String get fixed_float_description;
+
+  /// No description provided for @fixed_float_webview_error.
+  ///
+  /// In es, this message translates to:
+  /// **'WebView no disponible en esta plataforma.\nSe abrirá en navegador externo.'**
+  String get fixed_float_webview_error;
+
+  /// No description provided for @fixed_float_open_button.
+  ///
+  /// In es, this message translates to:
+  /// **'Abrir Fixed Float'**
+  String get fixed_float_open_button;
+
+  /// No description provided for @fixed_float_error_opening.
+  ///
+  /// In es, this message translates to:
+  /// **'Error abriendo Fixed Float: {error}'**
+  String fixed_float_error_opening(String error);
+
+  /// No description provided for @fixed_float_external_browser.
+  ///
+  /// In es, this message translates to:
+  /// **'Se abrirá Fixed Float en navegador externo'**
+  String get fixed_float_external_browser;
+
+  /// No description provided for @fixed_float_within_app.
+  ///
+  /// In es, this message translates to:
+  /// **'Abre Fixed Float dentro de la aplicación'**
+  String get fixed_float_within_app;
+
+  /// No description provided for @boltz_loading.
+  ///
+  /// In es, this message translates to:
+  /// **'Cargando Boltz...'**
+  String get boltz_loading;
+
+  /// No description provided for @boltz_description.
+  ///
+  /// In es, this message translates to:
+  /// **'Intercambios atómicos sin confianza\nde Bitcoin y Lightning'**
+  String get boltz_description;
+
+  /// No description provided for @boltz_webview_error.
+  ///
+  /// In es, this message translates to:
+  /// **'WebView no disponible en esta plataforma.\nSe abrirá en navegador externo.'**
+  String get boltz_webview_error;
+
+  /// No description provided for @boltz_open_button.
+  ///
+  /// In es, this message translates to:
+  /// **'Abrir Boltz'**
+  String get boltz_open_button;
+
+  /// No description provided for @boltz_error_opening.
+  ///
+  /// In es, this message translates to:
+  /// **'Error abriendo Boltz: {error}'**
+  String boltz_error_opening(String error);
+
+  /// No description provided for @boltz_external_browser.
+  ///
+  /// In es, this message translates to:
+  /// **'Se abrirá Boltz en navegador externo'**
+  String get boltz_external_browser;
+
+  /// No description provided for @boltz_within_app.
+  ///
+  /// In es, this message translates to:
+  /// **'Abre Boltz dentro de la aplicación'**
+  String get boltz_within_app;
+
+  /// No description provided for @add_note_optional.
+  ///
+  /// In es, this message translates to:
+  /// **'Añadir una nota (opcional)'**
+  String get add_note_optional;
 }
 
 class _AppLocalizationsDelegate
