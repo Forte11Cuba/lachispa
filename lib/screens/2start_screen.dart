@@ -46,9 +46,10 @@ class _StartScreenState extends State<StartScreen> {
             builder: (context, serverProvider, child) {
               return Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 24),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
+                child: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
                     const SizedBox(height: 60),
                     
                     Column(
@@ -112,15 +113,16 @@ class _StartScreenState extends State<StartScreen> {
                         color: Colors.white.withValues(alpha: 0.8),
                       ),
                     ),
-                    const Spacer(),
+                    const SizedBox(height: 60),
                     
                     _buildMainActionButtons(context),
                     
-                    const Spacer(),
+                    const SizedBox(height: 40),
                     
                     _buildServerInfo(serverProvider),
                     const SizedBox(height: 32),
-                  ],
+                    ],
+                  ),
                 ),
               );
             },
@@ -186,7 +188,7 @@ class _StartScreenState extends State<StartScreen> {
                 ),
                 const SizedBox(width: 6),
                 Text(
-                  AppLocalizations.of(context)!.server_settings_title,
+                  AppLocalizations.of(context)!.change_server_button,
                   style: TextStyle(
                     fontFamily: 'Inter',
                     fontSize: 14,

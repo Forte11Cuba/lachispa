@@ -234,7 +234,7 @@
 
   "add_note_optional": "Add a note (optional)",
 
-  "currency_settings_title": "Currency Settings",
+  "currency_settings_title": "Currency Selection",
   "currency_settings_subtitle": "Select your preferred currencies",
   "available_currencies": "Available Currencies",
   "selected_currencies": "Selected Currencies", 
@@ -242,5 +242,7 @@
   "select_currencies_hint": "Select currencies from the list above",
   "preview_title": "Preview",
   "tap_to_cycle": "Tap to cycle currencies",
-  "calculating_text": "Calculating..."
+  "calculating_text": "Calculating...",
+  "settings_screen_title": "Settings",
+  "about_title": "About"
 }

@@ -188,11 +188,12 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                   // Main content
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 24),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        const Spacer(flex: 2),
+                    child: SingleChildScrollView(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                        const SizedBox(height: 80),
                     
                     // Logo and Title with animation
                     AnimatedBuilder(
@@ -299,7 +300,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                         );
                       },
                     ),
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 16),
                     
                     AnimatedBuilder(
                       animation: _card2Animation,
@@ -316,7 +317,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                         );
                       },
                     ),
-                    const SizedBox(height: 24),
+                    const SizedBox(height: 16),
                     
                     AnimatedBuilder(
                       animation: _card3Animation,
@@ -334,7 +335,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                       },
                     ),
                     
-                    const Spacer(flex: 2),
+                    const SizedBox(height: 48),
                     
                     // Continue button with animation
                     AnimatedBuilder(
@@ -350,7 +351,8 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                       },
                     ),
                         const SizedBox(height: 32),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                 ],
@@ -365,7 +367,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
   Widget _buildGlassmorphismCard(IconData icon, String text) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: Colors.white.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(16),
@@ -394,7 +396,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
               text,
               style: TextStyle(
                 fontFamily: 'Inter',
-                fontSize: 16,
+                fontSize: 14,
                 fontWeight: FontWeight.w500,
                 color: Colors.white.withValues(alpha: 0.9),
               ),

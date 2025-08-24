@@ -654,4 +654,10 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get tap_to_cycle => 'Toca para cambiar monedas';
+
+  @override
+  String get settings_screen_title => 'Configuración';
+
+  @override
+  String get about_title => 'Acerca de';
 }
