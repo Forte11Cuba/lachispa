@@ -407,11 +407,11 @@ class CurrencyRatesService {
   Map<String, double> _getHardcodedFallbackRates(List<String>? currencies) {
     print('[CURRENCY_RATES_SERVICE] Using emergency fallback rates - CURRENT MARKET ESTIMATES');
     
-    // Updated emergency rates (more realistic estimates)
+    // Updated emergency rates (more realistic estimates as of 2024)
     final Map<String, double> emergencyRates = {
-      'USD': 100000.0, // ~100k USD/BTC
-      'EUR': 92000.0,  // ~92k EUR/BTC 
-      'CUP': 2400000.0, // ~2.4M CUP/BTC (Cuban Peso is heavily devalued)
+      'USD': 95000.0,   // ~95k USD/BTC (updated Dec 2024)
+      'EUR': 88000.0,   // ~88k EUR/BTC (EUR/USD ~1.08)
+      'CUP': 28500000.0, // ~28.5M CUP/BTC (Cuban Peso heavily devalued ~300 CUP/USD black market)
     };
     
     final Map<String, double> result = {};
