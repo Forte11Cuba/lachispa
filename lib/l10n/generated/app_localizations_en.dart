@@ -645,4 +645,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get tap_to_cycle => 'Tap to cycle currencies';
+
+  @override
+  String get settings_screen_title => 'Settings';
+
+  @override
+  String get about_title => 'About';
 }

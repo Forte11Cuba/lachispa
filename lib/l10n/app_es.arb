@@ -234,7 +234,7 @@
 
   "add_note_optional": "Añadir una nota (opcional)",
 
-  "currency_settings_title": "Configuración de Monedas",
+  "currency_settings_title": "Selección de Monedas",
   "currency_settings_subtitle": "Selecciona tus monedas preferidas",
   "available_currencies": "Monedas Disponibles",
   "selected_currencies": "Monedas Seleccionadas",
@@ -242,5 +242,7 @@
   "select_currencies_hint": "Selecciona monedas de la lista de arriba",
   "preview_title": "Vista Previa",
   "tap_to_cycle": "Toca para cambiar monedas",
-  "calculating_text": "Calculando..."
+  "calculating_text": "Calculando...",
+  "settings_screen_title": "Configuración",
+  "about_title": "Acerca de"
 }

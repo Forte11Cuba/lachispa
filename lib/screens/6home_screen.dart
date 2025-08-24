@@ -16,6 +16,7 @@ import '10send_screen.dart';
 import '14fixed_float_screen.dart';
 import '15boltz_screen.dart';
 import '16currency_settings_screen.dart';
+import '17settings_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -1769,14 +1770,14 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver, Ti
                   children: [
                     
                     _buildDrawerItem(
-                      icon: Icons.alternate_email,
-                      title: AppLocalizations.of(context)!.lightning_address_title,
+                      icon: Icons.settings,
+                      title: AppLocalizations.of(context)!.settings_button,
                       onTap: () {
                         Navigator.pop(context);
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => const LNAddressScreen(),
+                            builder: (context) => const SettingsScreen(),
                           ),
                         );
                       },
@@ -1810,43 +1811,9 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver, Ti
                       },
                     ),
                     
-                    Consumer<CurrencySettingsProvider>(
-                      builder: (context, currencyProvider, child) {
-                        return _buildDrawerItem(
-                          icon: Icons.attach_money,
-                          title: AppLocalizations.of(context)!.currency_settings_title ?? 'Currency Settings',
-                          subtitle: '${currencyProvider.selectedCurrencies.length + 1} currencies', // +1 for sats
-                          onTap: () {
-                            Navigator.pop(context);
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const CurrencySettingsScreen(),
-                              ),
-                            );
-                          },
-                        );
-                      },
-                    ),
-                    
-                    // Language selector
-                    Consumer<LanguageProvider>(
-                      builder: (context, languageProvider, child) {
-                        return _buildDrawerItem(
-                          icon: Icons.language,
-                          title: AppLocalizations.of(context)!.language_selector_title,
-                          subtitle: languageProvider.getCurrentLanguageDisplay(),
-                          onTap: () {
-                            Navigator.pop(context);
-                            _showLanguageSelector(languageProvider);
-                          },
-                        );
-                      },
-                    ),
-                    
                     _buildDrawerItem(
                       icon: Icons.info_outline,
-                      title: AppLocalizations.of(context)!.settings_title,
+                      title: AppLocalizations.of(context)!.about_title,
                       onTap: () {
                         Navigator.pop(context);
                         _showAboutDialog();

@@ -1323,6 +1323,18 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Toca para cambiar monedas'**
   String get tap_to_cycle;
+
+  /// No description provided for @settings_screen_title.
+  ///
+  /// In es, this message translates to:
+  /// **'Configuración'**
+  String get settings_screen_title;
+
+  /// No description provided for @about_title.
+  ///
+  /// In es, this message translates to:
+  /// **'Acerca de'**
+  String get about_title;
 }
 
 class _AppLocalizationsDelegate
