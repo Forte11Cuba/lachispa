@@ -623,7 +623,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get add_note_optional => 'Add a note (optional)';
 
   @override
-  String get currency_settings_title => 'Currency Settings';
+  String get currency_settings_title => 'Currency Selection';
 
   @override
   String get currency_settings_subtitle => 'Select your preferred currencies';

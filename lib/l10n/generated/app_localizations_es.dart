@@ -630,7 +630,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get add_note_optional => 'Añadir una nota (opcional)';
 
   @override
-  String get currency_settings_title => 'Configuración de Monedas';
+  String get currency_settings_title => 'Selección de Monedas';
 
   @override
   String get currency_settings_subtitle => 'Selecciona tus monedas preferidas';
