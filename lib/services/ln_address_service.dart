@@ -279,6 +279,7 @@ class LNAddressService {
     required String username,
     required String walletId,
     String? description,
+    bool zapsEnabled = true,
   }) async {
     try {
       _debugLog('[LN_ADDRESS_SERVICE] ⚡ Creating Lightning Address: $username for wallet $walletId');
@@ -310,6 +311,7 @@ class LNAddressService {
         minAmount: 1,
         maxAmount: 2100000000,
         commentChars: 500,
+        zapsEnabled: zapsEnabled,
       );
 
       _debugLog('[LN_ADDRESS_SERVICE] Payload to create:');

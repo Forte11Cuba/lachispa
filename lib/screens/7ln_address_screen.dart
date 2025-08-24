@@ -1003,6 +1003,7 @@ class _LNAddressScreenState extends State<LNAddressScreen> {
       username: _usernameController.text.trim().toLowerCase(),
       walletId: _selectedWalletId!,
       description: 'Lightning Address for ${selectedWallet.name}',
+      zapsEnabled: true,
     );
 
     if (success && mounted) {

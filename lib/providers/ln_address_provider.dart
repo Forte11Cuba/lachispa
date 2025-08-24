@@ -362,6 +362,7 @@ class LNAddressProvider extends ChangeNotifier {
     required String username,
     required String walletId,
     String? description,
+    bool zapsEnabled = true,
   }) async {
     _setCreating(true);
     _error = null;
@@ -386,6 +387,7 @@ class LNAddressProvider extends ChangeNotifier {
         username: username,
         walletId: walletId,
         description: description,
+        zapsEnabled: zapsEnabled,
       );
 
       _allAddresses.add(newAddress);
