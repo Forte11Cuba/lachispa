@@ -10,6 +10,7 @@ class LanguageProvider extends ChangeNotifier {
     Locale('pt', ''),
     Locale('de', ''),
     Locale('fr', ''),
+    Locale('it', ''),
   ];
   
   Locale _currentLocale = const Locale('es', '');
@@ -99,6 +100,8 @@ class LanguageProvider extends ChangeNotifier {
         return 'Deutsch';
       case 'fr':
         return 'Français';
+      case 'it':
+        return 'Italiano';
       default:
         return 'Español';
     }
@@ -116,6 +119,8 @@ class LanguageProvider extends ChangeNotifier {
         return '🇩🇪';
       case 'fr':
         return '🇫🇷';
+      case 'it':
+        return '🇮🇹';
       default:
         return '🇪🇸';
     }
@@ -138,6 +143,8 @@ class LanguageProvider extends ChangeNotifier {
           return {'code': 'de', 'name': 'Deutsch', 'flag': '🇩🇪'};
         case 'fr':
           return {'code': 'fr', 'name': 'Français', 'flag': '🇫🇷'};
+        case 'it':
+          return {'code': 'it', 'name': 'Italiano', 'flag': '🇮🇹'};
         default:
           return {'code': locale.languageCode, 'name': locale.languageCode, 'flag': '🌐'};
       }

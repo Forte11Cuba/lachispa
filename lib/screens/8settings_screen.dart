@@ -856,6 +856,11 @@ class _SettingsScreenState extends State<SettingsScreen>
         description = 'Une application mobile pour gérer Bitcoin via le réseau Lightning en utilisant LNBits comme backend.';
         closeText = 'Fermer';
         break;
+      case 'it':
+        subtitle = 'Portafoglio Lightning';
+        description = 'Un\'applicazione mobile per gestire Bitcoin tramite Lightning Network utilizzando LNBits come backend.';
+        closeText = 'Chiudi';
+        break;
       default: // es
         subtitle = 'Billetera Lightning';
         description = 'Una aplicación móvil para gestionar Bitcoin a través de Lightning Network usando LNBits como backend.';
