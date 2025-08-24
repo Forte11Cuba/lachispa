@@ -6,6 +6,7 @@ import 'dart:async';
 import '../providers/auth_provider.dart';
 import '../providers/wallet_provider.dart';
 import '../providers/ln_address_provider.dart';
+import '../providers/currency_settings_provider.dart';
 import '../models/ln_address.dart';
 import '../services/invoice_service.dart';
 import '../services/yadio_service.dart';
@@ -36,7 +37,7 @@ class _ReceiveScreenState extends State<ReceiveScreen> {
   final _amountController = TextEditingController();
   final _noteController = TextEditingController();
   String _selectedCurrency = 'sats';
-  final List<String> _currencies = ['sats', 'CUP', 'USD'];
+  List<String> _currencies = ['sats'];
   
   // State for generated invoice
   LightningInvoice? _generatedInvoice;
@@ -53,7 +54,103 @@ class _ReceiveScreenState extends State<ReceiveScreen> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _initializeLightningAddress();
+      _initializeCurrencies();
     });
+  }
+  
+  void _initializeCurrencies() async {
+    final currencyProvider = context.read<CurrencySettingsProvider>();
+    final authProvider = context.read<AuthProvider>();
+    
+    print('[RECEIVE_SCREEN] Initializing currencies...');
+    print('[RECEIVE_SCREEN] Server URL: ${authProvider.currentServer}');
+    
+    // Ensure provider has server URL configured
+    if (authProvider.currentServer != null) {
+      await currencyProvider.updateServerUrl(authProvider.currentServer);
+      
+      // Force load exchange rates to ensure they're available
+      await currencyProvider.loadExchangeRates(forceRefresh: true);
+      
+      print('[RECEIVE_SCREEN] Available currencies: ${currencyProvider.availableCurrencies}');
+      print('[RECEIVE_SCREEN] Exchange rates loaded: ${currencyProvider.availableCurrencies.isNotEmpty}');
+    }
+    
+    final displaySequence = currencyProvider.displaySequence;
+    
+    if (mounted) {
+      setState(() {
+        _currencies = displaySequence.isNotEmpty ? displaySequence : ['sats'];
+        // Ensure selected currency is valid
+        if (!_currencies.contains(_selectedCurrency)) {
+          _selectedCurrency = _currencies.first;
+        }
+      });
+    }
+    
+    print('[RECEIVE_SCREEN] Final currencies: $_currencies');
+    print('[RECEIVE_SCREEN] Selected currency: $_selectedCurrency');
+  }
+  
+  /// Convert fiat amount to sats using inverse conversion (same method as amount_screen)
+  Future<int> _getAmountInSats(double amount, String currency) async {
+    print('[RECEIVE_SCREEN] Converting $amount $currency to sats');
+    
+    if (currency == 'sats') {
+      return amount.round();
+    }
+    
+    // Use INVERSE conversion from the working convertSatsToFiat method
+    // This ensures we use exactly the same rates as home_screen
+    try {
+      final currencyProvider = context.read<CurrencySettingsProvider>();
+      
+      print('[RECEIVE_SCREEN] Using inverse conversion method for consistency');
+      
+      // Step 1: Get rate by converting 1 BTC (100M sats) to fiat
+      const oneBtcInSats = 100000000; // 1 BTC = 100M sats
+      final oneBtcInFiat = await currencyProvider.convertSatsToFiat(oneBtcInSats, currency);
+      
+      print('[RECEIVE_SCREEN] Rate check: $oneBtcInSats sats = $oneBtcInFiat $currency');
+      
+      // Step 2: Parse the result to get numeric rate
+      final fiatString = oneBtcInFiat.replaceAll(RegExp(r'[^\d.]'), ''); // Remove non-numeric chars
+      final oneBtcRate = double.tryParse(fiatString);
+      
+      if (oneBtcRate == null || oneBtcRate <= 0) {
+        throw Exception('Invalid rate obtained: $oneBtcInFiat');
+      }
+      
+      print('[RECEIVE_SCREEN] Parsed rate: 1 BTC = $oneBtcRate $currency');
+      
+      // Step 3: Calculate sats using inverse proportion
+      // If 1 BTC = oneBtcRate fiat, then amount fiat = ? sats
+      // sats = (amount / oneBtcRate) * 100000000
+      final btcAmount = amount / oneBtcRate;
+      final satsAmount = (btcAmount * 100000000).round();
+      
+      print('[RECEIVE_SCREEN] Conversion successful: $amount $currency = $satsAmount sats');
+      print('[RECEIVE_SCREEN] Math: ($amount / $oneBtcRate) * 100000000 = $satsAmount');
+      
+      return satsAmount;
+      
+    } catch (e) {
+      print('[RECEIVE_SCREEN] Error with inverse conversion: $e');
+      
+      // Fallback to YadioService as last resort
+      try {
+        print('[RECEIVE_SCREEN] Trying YadioService fallback');
+        final sats = await _yadioService.convertToSats(
+          amount: amount,
+          currency: currency,
+        );
+        print('[RECEIVE_SCREEN] YadioService conversion: $amount $currency = $sats sats');
+        return sats;
+      } catch (fallbackError) {
+        print('[RECEIVE_SCREEN] All conversion methods failed: $fallbackError');
+        throw Exception('Error de conversión: $fallbackError');
+      }
+    }
   }
 
   @override
@@ -510,7 +607,7 @@ class _ReceiveScreenState extends State<ReceiveScreen> {
   Widget _buildAddressDisplay(LNAddress defaultAddress) {
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: Colors.white.withValues(alpha: 0.05),
         borderRadius: BorderRadius.circular(12),
@@ -522,37 +619,14 @@ class _ReceiveScreenState extends State<ReceiveScreen> {
         crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisSize: MainAxisSize.min,
         children: [
-          // First line: icon + label (centered)
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Icon(
-                Icons.alternate_email,
-                color: const Color(0xFF4C63F7),
-                size: 20,
-              ),
-              const SizedBox(width: 8),
-              Text(
-                AppLocalizations.of(context)!.lightning_address_title,
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w500,
-                  fontFamily: 'Inter',
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          // Second line: centered address
+          // Centered address
           SizedBox(
             width: double.infinity,
             child: Text(
               defaultAddress.fullAddress,
               style: const TextStyle(
                 color: Colors.white,
-                fontSize: 12,
+                fontSize: 14,
                 fontWeight: FontWeight.w400,
                 fontFamily: 'Inter',
               ),
@@ -647,7 +721,7 @@ class _ReceiveScreenState extends State<ReceiveScreen> {
         dataModuleShape: QrDataModuleShape.square,
         color: Colors.black,
       ),
-      embeddedImage: const AssetImage('Logo/chispa_logo.png'),
+      embeddedImage: const AssetImage('Logo/chispalogoredondo.png'),
       embeddedImageStyle: const QrEmbeddedImageStyle(
         size: Size(44, 44), // Proportionally reduced from 56x56 to 44x44
       ),
@@ -669,7 +743,7 @@ class _ReceiveScreenState extends State<ReceiveScreen> {
         dataModuleShape: QrDataModuleShape.square,
         color: Colors.black,
       ),
-      embeddedImage: const AssetImage('Logo/chispa_logo.png'),
+      embeddedImage: const AssetImage('Logo/chispalogoredondo.png'),
       embeddedImageStyle: const QrEmbeddedImageStyle(
         size: Size(44, 44), // Proportionally reduced from 56x56 to 44x44
       ),
@@ -691,7 +765,7 @@ class _ReceiveScreenState extends State<ReceiveScreen> {
         dataModuleShape: QrDataModuleShape.square,
         color: Colors.black,
       ),
-      embeddedImage: const AssetImage('Logo/chispa_logo.png'),
+      embeddedImage: const AssetImage('Logo/chispalogoredondo.png'),
       embeddedImageStyle: const QrEmbeddedImageStyle(
         size: Size(44, 44), // Proportionally reduced from 56x56 to 44x44
       ),
@@ -729,7 +803,7 @@ class _ReceiveScreenState extends State<ReceiveScreen> {
           ),
           icon: const Icon(Icons.copy, color: Colors.white, size: 20),
           label: Text(
-            _generatedInvoice != null ? AppLocalizations.of(context)!.copy_button : AppLocalizations.of(context)!.lightning_address_title,
+            _generatedInvoice != null ? AppLocalizations.of(context)!.copy_button : AppLocalizations.of(context)!.copy_lightning_address,
             style: const TextStyle(
               fontSize: 16,
               fontWeight: FontWeight.w600,
@@ -1034,7 +1108,7 @@ class _ReceiveScreenState extends State<ReceiveScreen> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    AppLocalizations.of(context)!.amount_sats_label,
+                                    AppLocalizations.of(context)!.amount_label,
                                     style: TextStyle(
                                       color: Colors.white.withValues(alpha: 0.8),
                                       fontSize: 14,
@@ -1093,7 +1167,7 @@ class _ReceiveScreenState extends State<ReceiveScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  AppLocalizations.of(context)!.amount_sats_label,
+                                  AppLocalizations.of(context)!.currency_label,
                                   style: TextStyle(
                                     color: Colors.white.withValues(alpha: 0.8),
                                     fontSize: 14,
@@ -1151,7 +1225,7 @@ class _ReceiveScreenState extends State<ReceiveScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              AppLocalizations.of(context)!.description_placeholder,
+                              AppLocalizations.of(context)!.optional_description_label,
                               style: TextStyle(
                                 color: Colors.white.withValues(alpha: 0.8),
                                 fontSize: 14,
@@ -1305,39 +1379,29 @@ class _ReceiveScreenState extends State<ReceiveScreen> {
       }
 
       // CURRENCY CONVERSION TO SATOSHIS
-      int amountInSats;
-      String conversionMessage = '';
+      print('[RECEIVE_SCREEN] === STARTING CURRENCY CONVERSION ===');
+      print('[RECEIVE_SCREEN] Amount: $amount $_selectedCurrency');
       
-      if (_selectedCurrency == 'sats') {
-        // If already in sats, use directly
-        amountInSats = amount.toInt();
+      // ALWAYS use fresh conversion with consistent rates
+      final amountInSats = await _getAmountInSats(amount, _selectedCurrency);
+      final conversionMessage = _selectedCurrency == 'sats' 
+          ? 'Factura: $amountInSats sats'
+          : '$amount $_selectedCurrency / $amountInSats sats';
+      
+      print('[RECEIVE_SCREEN] Final conversion result: $conversionMessage');
+      
+      // Basic validations
+      if (amountInSats < 1) {
+        throw Exception('Monto convertido muy pequeño (mínimo 1 sat)');
+      }
         
-        print('[RECEIVE_SCREEN] Monto directo en sats: $amountInSats');
-      } else {
-        // Convert using Yadio.io
-        print('[RECEIVE_SCREEN] Convirtiendo $amount $_selectedCurrency a sats usando Yadio');
-        
-        amountInSats = await _yadioService.convertToSats(
-          amount: amount,
-          currency: _selectedCurrency,
-        );
-        
-        conversionMessage = '$amount $_selectedCurrency / $amountInSats sats';
-        print('[RECEIVE_SCREEN] Conversion completed: $conversionMessage');
-        
-        // Basic validations
-        if (amountInSats < 1) {
-          throw Exception('Monto convertido muy pequeño (mínimo 1 sat)');
-        }
-        
-        // Validate extremely large amounts that can cause server problems
-        if (amountInSats > 2100000000000000) { // 21M BTC en sats
-          throw Exception('Monto muy grande. Máximo: 21M BTC');
-        }
-        
-        if (amountInSats > 100000000000) { // 1000 BTC as practical limit
-          print('[RECEIVE_SCREEN] ⚠️ WARNING: Very large amount ($amountInSats sats = ${(amountInSats/100000000).toStringAsFixed(2)} BTC)');
-        }
+      // Validate extremely large amounts that can cause server problems
+      if (amountInSats > 2100000000000000) { // 21M BTC en sats
+        throw Exception('Monto muy grande. Máximo: 21M BTC');
+      }
+      
+      if (amountInSats > 100000000000) { // 1000 BTC as practical limit
+        print('[RECEIVE_SCREEN] ⚠️ WARNING: Very large amount ($amountInSats sats = ${(amountInSats/100000000).toStringAsFixed(2)} BTC)');
       }
 
       print('[RECEIVE_SCREEN] Generando factura: $amountInSats sats');
@@ -1600,9 +1664,9 @@ class _ReceiveScreenState extends State<ReceiveScreen> {
           ),
         ),
         icon: const Icon(Icons.copy, size: 20),
-        label: const Text(
-          'LNURL',
-          style: TextStyle(
+        label: Text(
+          AppLocalizations.of(context)!.copy_lnurl,
+          style: const TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.w600,
             fontFamily: 'Inter',

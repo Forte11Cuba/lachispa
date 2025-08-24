@@ -255,6 +255,12 @@ class AppLocalizationsFr extends AppLocalizations {
   String get amount_sats_label => 'Montant demandé';
 
   @override
+  String get amount_label => 'Montant';
+
+  @override
+  String get currency_label => 'Devise';
+
+  @override
   String get description_label => 'Description';
 
   @override
@@ -262,6 +268,15 @@ class AppLocalizationsFr extends AppLocalizations {
 
   @override
   String get description_placeholder => 'Description optionnelle';
+
+  @override
+  String get optional_description_label => 'Description (Optionnelle)';
+
+  @override
+  String get copy_lightning_address => 'Copier l\'Adresse Lightning';
+
+  @override
+  String get copy_lnurl => 'Copier LNURL';
 
   @override
   String get generate_invoice_button => 'Générer la facture';

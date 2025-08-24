@@ -253,6 +253,12 @@ class AppLocalizationsIt extends AppLocalizations {
   String get amount_sats_label => 'Importo richiesto';
 
   @override
+  String get amount_label => 'Importo';
+
+  @override
+  String get currency_label => 'Valuta';
+
+  @override
   String get description_label => 'Descrizione';
 
   @override
@@ -260,6 +266,15 @@ class AppLocalizationsIt extends AppLocalizations {
 
   @override
   String get description_placeholder => 'Descrizione opzionale';
+
+  @override
+  String get optional_description_label => 'Descrizione (Opzionale)';
+
+  @override
+  String get copy_lightning_address => 'Copia Indirizzo Lightning';
+
+  @override
+  String get copy_lnurl => 'Copia LNURL';
 
   @override
   String get generate_invoice_button => 'Genera fattura';

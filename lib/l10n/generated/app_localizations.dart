@@ -582,6 +582,18 @@ abstract class AppLocalizations {
   /// **'Solicitar Monto'**
   String get amount_sats_label;
 
+  /// No description provided for @amount_label.
+  ///
+  /// In es, this message translates to:
+  /// **'Cantidad'**
+  String get amount_label;
+
+  /// No description provided for @currency_label.
+  ///
+  /// In es, this message translates to:
+  /// **'Moneda'**
+  String get currency_label;
+
   /// No description provided for @description_label.
   ///
   /// In es, this message translates to:
@@ -599,6 +611,24 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Descripción opcional'**
   String get description_placeholder;
+
+  /// No description provided for @optional_description_label.
+  ///
+  /// In es, this message translates to:
+  /// **'Descripción (Opcional)'**
+  String get optional_description_label;
+
+  /// No description provided for @copy_lightning_address.
+  ///
+  /// In es, this message translates to:
+  /// **'Copiar Lightning Address'**
+  String get copy_lightning_address;
+
+  /// No description provided for @copy_lnurl.
+  ///
+  /// In es, this message translates to:
+  /// **'Copiar LNURL'**
+  String get copy_lnurl;
 
   /// No description provided for @generate_invoice_button.
   ///
