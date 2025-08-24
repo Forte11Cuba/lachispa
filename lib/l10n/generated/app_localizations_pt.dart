@@ -632,7 +632,7 @@ class AppLocalizationsPt extends AppLocalizations {
   String get add_note_optional => 'Adicionar uma nota (opcional)';
 
   @override
-  String get currency_settings_title => 'Configurações de Moeda';
+  String get currency_settings_title => 'Seleção de Moedas';
 
   @override
   String get currency_settings_subtitle => 'Selecione suas moedas preferidas';
