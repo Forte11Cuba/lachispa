@@ -112,6 +112,7 @@ class LaChispaApp extends StatelessWidget {
                   Locale('de', ''),
                   Locale('fr', ''),
                   Locale('it', ''),
+                  Locale('ru', ''),
                 ],
                 home: const WelcomeScreen(),
                 debugShowCheckedModeBanner: false,
