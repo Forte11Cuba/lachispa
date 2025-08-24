@@ -616,7 +616,7 @@ class _LoginScreenState extends State<LoginScreen>
                     children: [
                       const SizedBox(height: 8),
                       _buildHeader(),
-                      const SizedBox(height: 20),
+                      const SizedBox(height: 32),
                       _buildLoginForm(),
                       const SizedBox(height: 16),
                       _buildHelpInfo(),

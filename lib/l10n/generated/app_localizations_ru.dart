@@ -250,6 +250,12 @@ class AppLocalizationsRu extends AppLocalizations {
   String get amount_sats_label => 'Запрашиваемая сумма';
 
   @override
+  String get amount_label => 'Сумма';
+
+  @override
+  String get currency_label => 'Валюта';
+
+  @override
   String get description_label => 'Описание';
 
   @override
@@ -257,6 +263,15 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get description_placeholder => 'Необязательное описание';
+
+  @override
+  String get optional_description_label => 'Описание (Необязательно)';
+
+  @override
+  String get copy_lightning_address => 'Копировать Lightning адрес';
+
+  @override
+  String get copy_lnurl => 'Копировать LNURL';
 
   @override
   String get generate_invoice_button => 'Создать счет';

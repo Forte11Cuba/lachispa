@@ -253,6 +253,12 @@ class AppLocalizationsPt extends AppLocalizations {
   String get amount_sats_label => 'Solicitar Quantia';
 
   @override
+  String get amount_label => 'Quantia';
+
+  @override
+  String get currency_label => 'Moeda';
+
+  @override
   String get description_label => 'Descrição';
 
   @override
@@ -260,6 +266,15 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get description_placeholder => 'Descrição opcional';
+
+  @override
+  String get optional_description_label => 'Descrição (Opcional)';
+
+  @override
+  String get copy_lightning_address => 'Copiar Endereço Lightning';
+
+  @override
+  String get copy_lnurl => 'Copiar LNURL';
 
   @override
   String get generate_invoice_button => 'Gerar Fatura';
