@@ -1945,6 +1945,10 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver, Ti
         subtitle = 'Portafoglio Lightning';
         description = 'Un\'applicazione mobile per gestire Bitcoin tramite Lightning Network utilizzando LNBits come backend.';
         break;
+      case 'ru':
+        subtitle = 'Lightning кошелек';
+        description = 'Мобильное приложение для управления Bitcoin через Lightning Network с использованием LNBits в качестве бэкенда.';
+        break;
       default: // es
         subtitle = 'Billetera Lightning';
         description = 'Una aplicación móvil para gestionar Bitcoin a través de Lightning Network usando LNBits como backend.';
