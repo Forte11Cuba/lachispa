@@ -49,13 +49,13 @@ class CurrencySettingsProvider extends ChangeNotifier {
   /// Get formatted display name for currency
   String getCurrencyDisplayName(String currencyCode) {
     final info = CurrencyInfo.getInfo(currencyCode);
-    return info?.name ?? _ratesService.getCurrencyDisplayName(currencyCode);
+    return info?.name ?? currencyCode;
   }
   
   /// Get currency symbol
   String getCurrencySymbol(String currencyCode) {
     final info = CurrencyInfo.getInfo(currencyCode);
-    return info?.symbol ?? _ratesService.getCurrencySymbol(currencyCode);
+    return info?.symbol ?? currencyCode;
   }
   
   /// Get currency flag
@@ -263,24 +263,24 @@ class CurrencySettingsProvider extends ChangeNotifier {
 
   /// Convert satoshis to fiat currency using current server rates
   Future<String> convertSatsToFiat(int sats, String currencyCode) async {
-    print('[CURRENCY_SETTINGS_PROVIDER] 🔄 convertSatsToFiat called: $sats sats to $currencyCode');
+    print('[CURRENCY_SETTINGS_PROVIDER] convertSatsToFiat called: $sats sats to $currencyCode');
     
     if (currencyCode == 'sats') {
-      print('[CURRENCY_SETTINGS_PROVIDER] ✅ Returning sats directly');
+      print('[CURRENCY_SETTINGS_PROVIDER] Returning sats directly');
       return '$sats';
     }
     
     if (_serverUrl == null || _serverUrl!.isEmpty) {
-      print('[CURRENCY_SETTINGS_PROVIDER] ❌ No server URL - cannot convert');
-      print('[CURRENCY_SETTINGS_PROVIDER] 🔍 Server URL: ${_serverUrl ?? 'null'}');
+      print('[CURRENCY_SETTINGS_PROVIDER] No server URL - cannot convert');
+      print('[CURRENCY_SETTINGS_PROVIDER] Server URL: ${_serverUrl ?? 'null'}');
       return '--';
     }
     
-    print('[CURRENCY_SETTINGS_PROVIDER] 🌐 Server URL: $_serverUrl');
-    print('[CURRENCY_SETTINGS_PROVIDER] 📊 Available rates: ${_exchangeRates.keys.toList()}');
+    print('[CURRENCY_SETTINGS_PROVIDER] Server URL: $_serverUrl');
+    print('[CURRENCY_SETTINGS_PROVIDER] Available rates: ${_exchangeRates.keys.toList()}');
     
     try {
-      print('[CURRENCY_SETTINGS_PROVIDER] 🚀 Starting conversion...');
+      print('[CURRENCY_SETTINGS_PROVIDER] Starting conversion...');
       
       // Add timeout to prevent infinite loading
       final result = await _ratesService.convertSatsToFiat(
@@ -291,15 +291,15 @@ class CurrencySettingsProvider extends ChangeNotifier {
       ).timeout(
         const Duration(seconds: 10), // 10 second timeout
         onTimeout: () {
-          print('[CURRENCY_SETTINGS_PROVIDER] ⏰ Conversion timeout for $currencyCode');
+          print('[CURRENCY_SETTINGS_PROVIDER] Conversion timeout for $currencyCode');
           return '--';
         },
       );
       
-      print('[CURRENCY_SETTINGS_PROVIDER] ✅ Conversion result: $result');
+      print('[CURRENCY_SETTINGS_PROVIDER] Conversion result: $result');
       return result;
     } catch (e) {
-      print('[CURRENCY_SETTINGS_PROVIDER] ❌ Current server conversion failed: $e');
+      print('[CURRENCY_SETTINGS_PROVIDER] Current server conversion failed: $e');
       return '--';
     }
   }

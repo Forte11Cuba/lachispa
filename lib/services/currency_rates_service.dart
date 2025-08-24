@@ -78,7 +78,7 @@ class CurrencyRatesService {
   Future<List<String>> _getLNBitsCurrencies(String serverUrl) async {
     // Try LNBits endpoints in order of priority
     final endpoints = [
-      '$serverUrl/lnurlp/api/v1/currencies',        // ✅ Found in OpenAPI - primary
+      '$serverUrl/lnurlp/api/v1/currencies',        // Found in OpenAPI - primary
       '$serverUrl/api/v1/currencies',
       '$serverUrl/api/v1/rates', 
       '$serverUrl/api/v1/extension/fiat/currencies',
@@ -92,28 +92,28 @@ class CurrencyRatesService {
       try {
         print('[CURRENCY_RATES_SERVICE] Trying endpoint: $endpoint');
         final response = await _dio.get(endpoint);
-        print('[CURRENCY_RATES_SERVICE] ✅ $endpoint responded with status: ${response.statusCode}');
+        print('[CURRENCY_RATES_SERVICE] $endpoint responded with status: ${response.statusCode}');
         
         if (response.statusCode == 200 && response.data != null) {
-          print('[CURRENCY_RATES_SERVICE] 📊 Data type: ${response.data.runtimeType}');
-          print('[CURRENCY_RATES_SERVICE] 📋 Data: ${response.data}');
+          print('[CURRENCY_RATES_SERVICE] Data type: ${response.data.runtimeType}');
+          print('[CURRENCY_RATES_SERVICE] Data: ${response.data}');
           
           // Parse response based on structure
           final currencies = _parseCurrenciesFromResponse(response.data);
           if (currencies.isNotEmpty) {
-            print('[CURRENCY_RATES_SERVICE] 🎉 Found currencies from $endpoint: $currencies');
+            print('[CURRENCY_RATES_SERVICE] Found currencies from $endpoint: $currencies');
             return currencies;
           } else {
-            print('[CURRENCY_RATES_SERVICE] ⚠️ No currencies parsed from $endpoint response');
+            print('[CURRENCY_RATES_SERVICE] No currencies parsed from $endpoint response');
           }
         }
       } catch (e) {
-        print('[CURRENCY_RATES_SERVICE] ❌ Endpoint $endpoint failed: $e');
+        print('[CURRENCY_RATES_SERVICE] Endpoint $endpoint failed: $e');
         continue; // Try next endpoint
       }
     }
     
-    print('[CURRENCY_RATES_SERVICE] ❌ No currency endpoints found on server');
+    print('[CURRENCY_RATES_SERVICE] No currency endpoints found on server');
     return [];
   }
 
@@ -224,7 +224,7 @@ class CurrencyRatesService {
             if (rate != null && rate > 0) {
               // Special validation for CUP - known problematic currency
               if (currency == 'CUP' && rate < 1000) {
-                print('[CURRENCY_RATES_SERVICE] ⚠️ CUP rate too low ($rate), using emergency fallback');
+                print('[CURRENCY_RATES_SERVICE] CUP rate too low ($rate), using emergency fallback');
                 final emergencyRates = _getHardcodedFallbackRates([currency]);
                 if (emergencyRates.containsKey(currency)) {
                   rates[currency] = emergencyRates[currency]!;
@@ -291,19 +291,19 @@ class CurrencyRatesService {
       // Validate rate is reasonable (not zero, negative, or extreme)
       if (rate != null) {
         if (rate <= 0) {
-          print('[CURRENCY_RATES_SERVICE] ⚠️ Invalid rate for $currency: $rate (zero or negative)');
+          print('[CURRENCY_RATES_SERVICE] Invalid rate for $currency: $rate (zero or negative)');
           return null;
         } else if (rate > 10000000) { // More than 10M per BTC seems unrealistic
-          print('[CURRENCY_RATES_SERVICE] ⚠️ Suspicious rate for $currency: $rate (too high)');
+          print('[CURRENCY_RATES_SERVICE] Suspicious rate for $currency: $rate (too high)');
         } else if (rate < 0.001) { // Less than 0.001 per BTC seems unrealistic
-          print('[CURRENCY_RATES_SERVICE] ⚠️ Suspicious rate for $currency: $rate (too low)');
+          print('[CURRENCY_RATES_SERVICE] Suspicious rate for $currency: $rate (too low)');
         } else {
-          print('[CURRENCY_RATES_SERVICE] ✅ Valid rate for $currency: $rate');
+          print('[CURRENCY_RATES_SERVICE] Valid rate for $currency: $rate');
         }
         return rate;
       }
       
-      print('[CURRENCY_RATES_SERVICE] ❌ No valid rate found in response for $currency');
+      print('[CURRENCY_RATES_SERVICE] No valid rate found in response for $currency');
     } catch (e) {
       print('[CURRENCY_RATES_SERVICE] Error parsing rate for $currency: $e');
     }
@@ -420,7 +420,7 @@ class CurrencyRatesService {
       for (final currency in currencies) {
         if (emergencyRates.containsKey(currency)) {
           result[currency] = emergencyRates[currency]!;
-          print('[CURRENCY_RATES_SERVICE] 💰 Emergency rate for $currency: ${emergencyRates[currency]}');
+          print('[CURRENCY_RATES_SERVICE] Emergency rate for $currency: ${emergencyRates[currency]}');
         }
       }
     } else {
@@ -449,13 +449,13 @@ class CurrencyRatesService {
     Map<String, double>? rates,
     required String serverUrl,
   }) async {
-    print('[CURRENCY_RATES_SERVICE] 🔄 Converting $sats sats to $currency using server: $serverUrl');
+    print('[CURRENCY_RATES_SERVICE] Converting $sats sats to $currency using server: $serverUrl');
     
     try {
       // First try the direct conversion endpoint (POST only, more accurate)
       try {
         final conversionEndpoint = '$serverUrl/api/v1/conversion';
-        print('[CURRENCY_RATES_SERVICE] 🎯 Trying conversion: $conversionEndpoint');
+        print('[CURRENCY_RATES_SERVICE] Trying conversion: $conversionEndpoint');
         
         final response = await _dio.post(conversionEndpoint, data: {
           'from_': 'sat',
@@ -463,21 +463,21 @@ class CurrencyRatesService {
           'amount': sats,
         });
         
-        print('[CURRENCY_RATES_SERVICE] 📡 POST Response status: ${response.statusCode}');
-        print('[CURRENCY_RATES_SERVICE] 📡 Response headers: ${response.headers}');
+        print('[CURRENCY_RATES_SERVICE] POST Response status: ${response.statusCode}');
+        print('[CURRENCY_RATES_SERVICE] Response headers: ${response.headers}');
         
         if (response.statusCode == 200 && response.data != null) {
           final data = response.data as Map<String, dynamic>;
-          print('[CURRENCY_RATES_SERVICE] 📊 Conversion response: $data');
+          print('[CURRENCY_RATES_SERVICE] Conversion response: $data');
           
           // Check if server returned the requested currency
           if (data.containsKey(currency)) {
             final convertedAmount = (data[currency] as num).toDouble();
-            print('[CURRENCY_RATES_SERVICE] 💱 Raw converted amount: $convertedAmount');
+            print('[CURRENCY_RATES_SERVICE] Raw converted amount: $convertedAmount');
             
             // Validate the converted amount is reasonable
             if (convertedAmount <= 0) {
-              print('[CURRENCY_RATES_SERVICE] ⚠️ Invalid converted amount: $convertedAmount');
+              print('[CURRENCY_RATES_SERVICE] Invalid converted amount: $convertedAmount');
             } else {
               // Format according to currency
               String formatted;
@@ -494,17 +494,17 @@ class CurrencyRatesService {
                   break;
               }
               
-              print('[CURRENCY_RATES_SERVICE] ✅ Conversion successful: $sats sats = $formatted $currency');
+              print('[CURRENCY_RATES_SERVICE] Conversion successful: $sats sats = $formatted $currency');
               return formatted;
             }
           } else {
-            print('[CURRENCY_RATES_SERVICE] ⚠️ Currency $currency not found in conversion response');
-            print('[CURRENCY_RATES_SERVICE] 🔍 Available keys: ${data.keys.toList()}');
+            print('[CURRENCY_RATES_SERVICE] Currency $currency not found in conversion response');
+            print('[CURRENCY_RATES_SERVICE] Available keys: ${data.keys.toList()}');
             
             // WORKAROUND: Server bug - it returns USD instead of requested currency
             // If we requested CUP but got USD, calculate CUP from USD using known exchange rate
             if (currency == 'CUP' && data.containsKey('USD')) {
-              print('[CURRENCY_RATES_SERVICE] 🔧 WORKAROUND: Server returned USD instead of CUP, calculating CUP...');
+              print('[CURRENCY_RATES_SERVICE] WORKAROUND: Server returned USD instead of CUP, calculating CUP...');
               
               final usdAmount = (data['USD'] as num).toDouble();
               // Approximate USD to CUP rate (1 USD ≈ 120 CUP as of 2024)
@@ -512,39 +512,39 @@ class CurrencyRatesService {
               final usdToCupRate = 120.0; 
               final cupAmount = usdAmount * usdToCupRate;
               
-              print('[CURRENCY_RATES_SERVICE] 🧮 Calculated: ${usdAmount.toStringAsFixed(2)} USD × $usdToCupRate = ${cupAmount.toStringAsFixed(0)} CUP');
-              print('[CURRENCY_RATES_SERVICE] ✅ Workaround successful: $sats sats = ${cupAmount.toStringAsFixed(0)} CUP');
+              print('[CURRENCY_RATES_SERVICE] Calculated: ${usdAmount.toStringAsFixed(2)} USD × $usdToCupRate = ${cupAmount.toStringAsFixed(0)} CUP');
+              print('[CURRENCY_RATES_SERVICE] Workaround successful: $sats sats = ${cupAmount.toStringAsFixed(0)} CUP');
               return cupAmount.toStringAsFixed(0);
             }
           }
         } else {
-          print('[CURRENCY_RATES_SERVICE] ⚠️ Invalid response: status=${response.statusCode}, data=${response.data}');
+          print('[CURRENCY_RATES_SERVICE] Invalid response: status=${response.statusCode}, data=${response.data}');
         }
       } catch (e, stackTrace) {
-        print('[CURRENCY_RATES_SERVICE] ⚠️ Conversion endpoint failed: ${e.toString()}');
-        print('[CURRENCY_RATES_SERVICE] 📍 Error type: ${e.runtimeType}');
+        print('[CURRENCY_RATES_SERVICE] Conversion endpoint failed: ${e.toString()}');
+        print('[CURRENCY_RATES_SERVICE] Error type: ${e.runtimeType}');
         if (e is DioException) {
-          print('[CURRENCY_RATES_SERVICE] 🔍 DioException details:');
-          print('[CURRENCY_RATES_SERVICE] 📡 Response status: ${e.response?.statusCode}');
-          print('[CURRENCY_RATES_SERVICE] 📡 Response data: ${e.response?.data}');
-          print('[CURRENCY_RATES_SERVICE] 🔗 Request path: ${e.requestOptions.path}');
+          print('[CURRENCY_RATES_SERVICE] DioException details:');
+          print('[CURRENCY_RATES_SERVICE] Response status: ${e.response?.statusCode}');
+          print('[CURRENCY_RATES_SERVICE] Response data: ${e.response?.data}');
+          print('[CURRENCY_RATES_SERVICE] Request path: ${e.requestOptions.path}');
         }
-        print('[CURRENCY_RATES_SERVICE] ⬇️ Falling back to rate-based conversion...');
+        print('[CURRENCY_RATES_SERVICE] Falling back to rate-based conversion...');
       }
       
       // Fallback to rate-based conversion
-      print('[CURRENCY_RATES_SERVICE] 🔄 Falling back to rate-based conversion');
+      print('[CURRENCY_RATES_SERVICE] Falling back to rate-based conversion');
       
       // Log if using cached rates or fetching new ones
       if (rates != null && rates.isNotEmpty) {
-        print('[CURRENCY_RATES_SERVICE] 📋 Using provided rates: ${rates.keys.toList()}');
+        print('[CURRENCY_RATES_SERVICE] Using provided rates: ${rates.keys.toList()}');
         if (rates.containsKey(currency)) {
-          print('[CURRENCY_RATES_SERVICE] 💰 Found $currency rate in cache: ${rates[currency]}');
+          print('[CURRENCY_RATES_SERVICE] Found $currency rate in cache: ${rates[currency]}');
         } else {
-          print('[CURRENCY_RATES_SERVICE] ⚠️ $currency not found in provided rates');
+          print('[CURRENCY_RATES_SERVICE] $currency not found in provided rates');
         }
       } else {
-        print('[CURRENCY_RATES_SERVICE] 🌐 Fetching fresh rates for: $currency');
+        print('[CURRENCY_RATES_SERVICE] Fetching fresh rates for: $currency');
       }
       
       final exchangeRates = rates ?? await getExchangeRates(
@@ -552,26 +552,26 @@ class CurrencyRatesService {
         serverUrl: serverUrl,
       );
       
-      print('[CURRENCY_RATES_SERVICE] 📊 Final exchange rates: $exchangeRates');
+      print('[CURRENCY_RATES_SERVICE] Final exchange rates: $exchangeRates');
       
       if (!exchangeRates.containsKey(currency)) {
-        print('[CURRENCY_RATES_SERVICE] ❌ Rate not found for $currency in final rates map');
+        print('[CURRENCY_RATES_SERVICE] Rate not found for $currency in final rates map');
         throw Exception('Rate not available for $currency from current server');
       }
       
       final fiatRate = exchangeRates[currency]!;
-      print('[CURRENCY_RATES_SERVICE] 💱 Using rate for $currency: $fiatRate');
+      print('[CURRENCY_RATES_SERVICE] Using rate for $currency: $fiatRate');
       
       // Additional validation for the rate
       if (fiatRate <= 0) {
-        print('[CURRENCY_RATES_SERVICE] ❌ Invalid rate for $currency: $fiatRate (zero or negative)');
+        print('[CURRENCY_RATES_SERVICE] Invalid rate for $currency: $fiatRate (zero or negative)');
         throw Exception('Invalid exchange rate for $currency: $fiatRate');
       }
       
       final btcAmount = sats / 100000000.0; // Convert sats to BTC
       final fiatAmount = btcAmount * fiatRate;
       
-      print('[CURRENCY_RATES_SERVICE] 🧮 Calculation: $sats sats → ${btcAmount.toStringAsFixed(8)} BTC → $fiatAmount $currency');
+      print('[CURRENCY_RATES_SERVICE] Calculation: $sats sats → ${btcAmount.toStringAsFixed(8)} BTC → $fiatAmount $currency');
       
       // Format according to currency
       String formatted;
@@ -634,41 +634,6 @@ class CurrencyRatesService {
     }
   }
 
-  /// Get formatted currency display name
-  String getCurrencyDisplayName(String currencyCode) {
-    const Map<String, String> displayNames = {
-      'USD': 'US Dollar',
-      'EUR': 'Euro',
-      'GBP': 'British Pound',
-      'CAD': 'Canadian Dollar',
-      'JPY': 'Japanese Yen',
-      'AUD': 'Australian Dollar',
-      'CHF': 'Swiss Franc',
-      'CNY': 'Chinese Yuan',
-      'CUP': 'Cuban Peso',
-      'MXN': 'Mexican Peso',
-    };
-    
-    return displayNames[currencyCode] ?? currencyCode;
-  }
-
-  /// Get currency symbol
-  String getCurrencySymbol(String currencyCode) {
-    const Map<String, String> symbols = {
-      'USD': '\$',
-      'EUR': '€',
-      'GBP': '£',
-      'CAD': 'C\$',
-      'JPY': '¥',
-      'AUD': 'A\$',
-      'CHF': 'CHF',
-      'CNY': '¥',
-      'CUP': 'CUP',
-      'MXN': '\$',
-    };
-    
-    return symbols[currencyCode] ?? currencyCode;
-  }
 
   void dispose() {
     _dio.close();

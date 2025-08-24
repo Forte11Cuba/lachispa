@@ -397,8 +397,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver, Ti
     final currency = displaySequence[_currentCurrencyIndex];
     
     if (!_balanceVisible) {
-      final symbol = currencyProvider.getCurrencySymbol(currency);
-      return currency == 'sats' ? '••• sats' : '••• $symbol';
+      return currency == 'sats' ? '••• sats' : '••• $currency';
     }
     
     if (currency == 'sats') {
@@ -484,7 +483,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver, Ti
   void _initializeSparkEffect() {
     _sparkSubscription = _transactionDetector.sparkTriggerStream.listen((shouldTrigger) {
       if (shouldTrigger && mounted) {
-        print('[HOME_SCREEN] 🎆 Transaction event detected!');
+        print('[HOME_SCREEN] Transaction event detected!');
         createDepositSpark();
       }
     });
@@ -560,7 +559,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver, Ti
   void createDepositSpark() {
     if (!mounted) return;
     
-    print('[HOME_SCREEN] 🎆 Activating deposit spark!');
+    print('[HOME_SCREEN] Activating deposit spark!');
     
     // Create 5-10 simultaneous sparks
     final sparkCount = _random.nextInt(6) + 5; // 5-10 chispas
@@ -655,13 +654,13 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver, Ti
     
     // Return cached result if available
     if (_conversionResults.containsKey(key)) {
-      print('[HOME_SCREEN] 📋 Using cached result for $currency: ${_conversionResults[key]}');
+      print('[HOME_SCREEN] Using cached result for $currency: ${_conversionResults[key]}');
       return _conversionResults[key]!;
     }
     
     // Prevent multiple concurrent calls for same conversion
     if (_activeConversions.contains(key)) {
-      print('[HOME_SCREEN] ⏳ Conversion already in progress for $currency');
+      print('[HOME_SCREEN] Conversion already in progress for $currency');
       // Wait a bit for the active conversion to complete
       for (int i = 0; i < 10; i++) {
         await Future.delayed(const Duration(milliseconds: 100));
@@ -675,24 +674,24 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver, Ti
     _activeConversions.add(key);
     
     try {
-      print('[HOME_SCREEN] 🔄 Starting conversion: $sats sats to $currency');
+      print('[HOME_SCREEN] Starting conversion: $sats sats to $currency');
       
       // Use the proper CurrencySettingsProvider method that handles all API logic
       final result = await currencyProvider.convertSatsToFiat(sats, currency)
           .timeout(
         const Duration(seconds: 10), // Reasonable timeout for API calls
         onTimeout: () {
-          print('[HOME_SCREEN] ⏰ Provider conversion timeout for $currency');
+          print('[HOME_SCREEN] Provider conversion timeout for $currency');
           return '--';
         },
       );
       
       _conversionResults[key] = result;
-      print('[HOME_SCREEN] ✅ Conversion completed for $currency: $result');
+      print('[HOME_SCREEN] Conversion completed for $currency: $result');
       return result;
       
     } catch (e) {
-      print('[HOME_SCREEN] ❌ Conversion failed for $currency: $e');
+      print('[HOME_SCREEN] Conversion failed for $currency: $e');
       _conversionResults[key] = '--';
       return '--';
     } finally {
@@ -1139,27 +1138,23 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver, Ti
                                             String mainBalance;
                                             
                                             if (!_balanceVisible) {
-                                              final symbol = currencyProvider.getCurrencySymbol(currency);
-                                              mainBalance = '••• $symbol';
+                                              mainBalance = '••• $currency';
                                             } else if (snapshot.connectionState == ConnectionState.waiting) {
                                               // Still loading
                                               mainBalance = AppLocalizations.of(context)!.calculating_text ?? 'Calculando...';
                                             } else if (snapshot.hasError) {
                                               // Show error message instead of resetting
                                               print('[HOME_SCREEN] Currency conversion error for $currency: ${snapshot.error}');
-                                              final symbol = currencyProvider.getCurrencySymbol(currency);
-                                              mainBalance = _balanceVisible ? 'Error $symbol' : '••• $symbol';
+                                              mainBalance = _balanceVisible ? 'Error $currency' : '••• $currency';
                                             } else if (snapshot.hasData) {
                                               final value = snapshot.data!;
                                               if (value == '--') {
                                                 // Show error message instead of resetting
                                                 print('[HOME_SCREEN] Currency conversion failed for $currency');
-                                                final symbol = currencyProvider.getCurrencySymbol(currency);
-                                                mainBalance = _balanceVisible ? 'Error $symbol' : '••• $symbol';
+                                                mainBalance = _balanceVisible ? 'Error $currency' : '••• $currency';
                                               } else {
-                                                // Successful conversion
-                                                final symbol = currencyProvider.getCurrencySymbol(currency);
-                                                mainBalance = symbol.startsWith(currency) ? '$value $currency' : '$symbol$value';
+                                                // Successful conversion - use currency code format
+                                                mainBalance = '$currency $value';
                                               }
                                             } else {
                                               // Fallback case

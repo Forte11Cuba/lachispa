@@ -20,15 +20,18 @@ class _CurrencySettingsScreenState extends State<CurrencySettingsScreen>
   late Animation<double> _fadeAnimation;
   late Animation<Offset> _slideAnimation;
   
-  // Preview balance for demo
-  final int _previewBalance = 50000; // 50k sats
-  int _previewCurrencyIndex = 0;
+  // Search functionality
+  final TextEditingController _searchController = TextEditingController();
+  List<String> _filteredCurrencies = [];
+  bool _isDropdownOpen = false;
+  
 
   @override
   void initState() {
     super.initState();
     _setupAnimations();
     _startAnimations();
+    _searchController.addListener(_filterCurrencies);
   }
 
   void _setupAnimations() {
@@ -64,10 +67,55 @@ class _CurrencySettingsScreenState extends State<CurrencySettingsScreen>
     _slideController.forward();
   }
 
+  void _filterCurrencies() {
+    final currencyProvider = context.read<CurrencySettingsProvider>();
+    final query = _searchController.text.toLowerCase();
+    
+    if (query.isEmpty) {
+      _filteredCurrencies = List.from(currencyProvider.availableCurrencies);
+    } else {
+      _filteredCurrencies = currencyProvider.availableCurrencies.where((currency) {
+        final currencyInfo = currencyProvider.getCurrencyInfo(currency);
+        final name = currencyInfo?.name.toLowerCase() ?? currency.toLowerCase();
+        final country = currencyInfo?.country.toLowerCase() ?? '';
+        
+        return currency.toLowerCase().contains(query) ||
+               name.contains(query) ||
+               country.contains(query);
+      }).toList();
+    }
+    
+    setState(() {});
+  }
+
+  void _toggleDropdown() {
+    setState(() {
+      _isDropdownOpen = !_isDropdownOpen;
+      if (_isDropdownOpen) {
+        _filterCurrencies();
+      }
+    });
+  }
+
+  void _selectCurrency(String currency, CurrencySettingsProvider currencyProvider) {
+    if (currency == 'sats') return; // Can't select sats
+    
+    if (!currencyProvider.isCurrencySelected(currency)) {
+      currencyProvider.addCurrency(currency);
+    }
+    
+    // Close dropdown and clear search
+    setState(() {
+      _isDropdownOpen = false;
+      _searchController.clear();
+    });
+  }
+
   @override
   void dispose() {
     _fadeController.dispose();
     _slideController.dispose();
+    _searchController.dispose();
     super.dispose();
   }
 
@@ -195,8 +243,8 @@ class _CurrencySettingsScreenState extends State<CurrencySettingsScreen>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Available currencies section
-          _buildAvailableCurrenciesSection(currencyProvider),
+          // Search and dropdown section
+          _buildSearchAndDropdownSection(currencyProvider),
           
           const SizedBox(height: 32),
           
@@ -204,17 +252,12 @@ class _CurrencySettingsScreenState extends State<CurrencySettingsScreen>
           _buildSelectedCurrenciesSection(currencyProvider),
           
           const SizedBox(height: 32),
-          
-          // Preview section
-          _buildPreviewSection(currencyProvider),
-          
-          const SizedBox(height: 32),
         ],
       ),
     );
   }
 
-  Widget _buildAvailableCurrenciesSection(CurrencySettingsProvider currencyProvider) {
+  Widget _buildSearchAndDropdownSection(CurrencySettingsProvider currencyProvider) {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(20),
@@ -229,16 +272,17 @@ class _CurrencySettingsScreenState extends State<CurrencySettingsScreen>
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Header
           Row(
             children: [
               const Icon(
-                Icons.public,
+                Icons.add_circle_outline,
                 color: Color(0xFF5B73FF),
                 size: 20,
               ),
               const SizedBox(width: 8),
               Text(
-                AppLocalizations.of(context)!.available_currencies ?? 'Available Currencies',
+                AppLocalizations.of(context)!.available_currencies ?? 'Add Currency',
                 style: const TextStyle(
                   fontFamily: 'Inter',
                   fontSize: 18,
@@ -261,8 +305,123 @@ class _CurrencySettingsScreenState extends State<CurrencySettingsScreen>
           
           const SizedBox(height: 16),
           
+          // Search bar / Dropdown trigger
+          GestureDetector(
+            onTap: () {
+              if (currencyProvider.availableCurrencies.isNotEmpty) {
+                _toggleDropdown();
+              }
+            },
+            child: Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.05),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: _isDropdownOpen 
+                      ? const Color(0xFF5B73FF)
+                      : Colors.white.withValues(alpha: 0.1),
+                  width: _isDropdownOpen ? 2 : 1,
+                ),
+              ),
+              child: Row(
+                children: [
+                  const Icon(
+                    Icons.search,
+                    color: Color(0xFF5B73FF),
+                    size: 20,
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: _isDropdownOpen
+                        ? TextField(
+                            controller: _searchController,
+                            autofocus: true,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                            ),
+                            decoration: InputDecoration(
+                              hintText: 'Search currencies...',
+                              hintStyle: TextStyle(
+                                color: Colors.white.withValues(alpha: 0.5),
+                                fontSize: 16,
+                              ),
+                              border: InputBorder.none,
+                              isDense: true,
+                              contentPadding: EdgeInsets.zero,
+                            ),
+                          )
+                        : Text(
+                            'Search and select currencies...',
+                            style: TextStyle(
+                              color: Colors.white.withValues(alpha: 0.7),
+                              fontSize: 16,
+                            ),
+                          ),
+                  ),
+                  Icon(
+                    _isDropdownOpen ? Icons.keyboard_arrow_up : Icons.keyboard_arrow_down,
+                    color: Color(0xFF5B73FF),
+                    size: 20,
+                  ),
+                ],
+              ),
+            ),
+          ),
+          
+          // Dropdown list
+          if (_isDropdownOpen) ...[
+            const SizedBox(height: 12),
+            Container(
+              constraints: const BoxConstraints(maxHeight: 300),
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.05),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: Colors.white.withValues(alpha: 0.1),
+                  width: 1,
+                ),
+              ),
+              child: _filteredCurrencies.isEmpty
+                  ? Container(
+                      padding: const EdgeInsets.all(16),
+                      child: Center(
+                        child: Text(
+                          _searchController.text.isNotEmpty
+                              ? 'No currencies found'
+                              : 'No currencies available',
+                          style: TextStyle(
+                            color: Colors.white.withValues(alpha: 0.7),
+                            fontSize: 14,
+                          ),
+                        ),
+                      ),
+                    )
+                  : ListView.builder(
+                      shrinkWrap: true,
+                      itemCount: _filteredCurrencies.length,
+                      itemBuilder: (context, index) {
+                        final currency = _filteredCurrencies[index];
+                        final currencyInfo = currencyProvider.getCurrencyInfo(currency);
+                        final isAlreadySelected = currencyProvider.isCurrencySelected(currency);
+                        
+                        return _buildDropdownCurrencyItem(
+                          currency: currency,
+                          currencyInfo: currencyInfo,
+                          isAlreadySelected: isAlreadySelected,
+                          onTap: () => _selectCurrency(currency, currencyProvider),
+                        );
+                      },
+                    ),
+            ),
+          ],
+          
+          // No currencies available warning
           if (currencyProvider.availableCurrencies.isEmpty && !currencyProvider.isLoadingCurrencies)
             Container(
+              margin: const EdgeInsets.only(top: 12),
               padding: const EdgeInsets.all(16),
               decoration: BoxDecoration(
                 color: Colors.orange.withValues(alpha: 0.1),
@@ -281,20 +440,6 @@ class _CurrencySettingsScreenState extends State<CurrencySettingsScreen>
                   ),
                 ],
               ),
-            )
-          else
-            Column(
-              children: currencyProvider.availableCurrencies.map((currency) {
-                final isSelected = currencyProvider.isCurrencySelected(currency);
-                final currencyInfo = currencyProvider.getCurrencyInfo(currency);
-                
-                return _buildCurrencyListItem(
-                  currency: currency,
-                  currencyInfo: currencyInfo,
-                  isSelected: isSelected,
-                  onTap: () => _toggleCurrency(currencyProvider, currency),
-                );
-              }).toList(),
             ),
         ],
       ),
@@ -398,145 +543,112 @@ class _CurrencySettingsScreenState extends State<CurrencySettingsScreen>
     );
   }
 
-  Widget _buildPreviewSection(CurrencySettingsProvider currencyProvider) {
-    final displaySequence = currencyProvider.displaySequence;
+  Widget _buildDropdownCurrencyItem({
+    required String currency,
+    required CurrencyInfo? currencyInfo,
+    required bool isAlreadySelected,
+    required VoidCallback onTap,
+  }) {
+    final flag = currencyInfo?.flag ?? '💰';
+    final name = currencyInfo?.name ?? currency;
+    final country = currencyInfo?.country ?? '';
     
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.08),
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: Colors.white.withValues(alpha: 0.1),
-          width: 1,
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              const Icon(
-                Icons.preview,
-                color: Color(0xFF5B73FF),
-                size: 20,
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: isAlreadySelected ? null : onTap,
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          decoration: BoxDecoration(
+            border: Border(
+              bottom: BorderSide(
+                color: Colors.white.withValues(alpha: 0.05),
+                width: 0.5,
               ),
-              const SizedBox(width: 8),
-              Text(
-                AppLocalizations.of(context)!.preview_title ?? 'Preview',
-                style: const TextStyle(
-                  fontFamily: 'Inter',
-                  fontSize: 18,
-                  fontWeight: FontWeight.w600,
-                  color: Colors.white,
+            ),
+          ),
+          child: Row(
+            children: [
+              // Flag
+              Container(
+                width: 32,
+                height: 32,
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.05),
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Center(
+                  child: Text(
+                    flag,
+                    style: const TextStyle(fontSize: 16),
+                  ),
                 ),
               ),
+              
+              const SizedBox(width: 12),
+              
+              // Currency info
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Text(
+                          currency,
+                          style: TextStyle(
+                            fontFamily: 'Inter',
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                            color: isAlreadySelected 
+                                ? Colors.white.withValues(alpha: 0.5)
+                                : Colors.white,
+                          ),
+                        ),
+                        const SizedBox(width: 6),
+                        Text(
+                          name,
+                          style: TextStyle(
+                            fontFamily: 'Inter',
+                            fontSize: 12,
+                            color: isAlreadySelected 
+                                ? Colors.white.withValues(alpha: 0.4)
+                                : Colors.white.withValues(alpha: 0.7),
+                          ),
+                        ),
+                      ],
+                    ),
+                    if (country.isNotEmpty)
+                      Text(
+                        country,
+                        style: TextStyle(
+                          fontFamily: 'Inter',
+                          fontSize: 11,
+                          color: isAlreadySelected 
+                              ? Colors.white.withValues(alpha: 0.3)
+                              : Colors.white.withValues(alpha: 0.5),
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+              
+              // Status indicator
+              if (isAlreadySelected)
+                Icon(
+                  Icons.check_circle,
+                  color: Colors.white.withValues(alpha: 0.5),
+                  size: 18,
+                )
+              else
+                Icon(
+                  Icons.add_circle_outline,
+                  color: Color(0xFF5B73FF),
+                  size: 18,
+                ),
             ],
           ),
-          
-          const SizedBox(height: 16),
-          
-          // Preview balance card
-          GestureDetector(
-            onTap: () => _cyclePreviewCurrency(displaySequence),
-            child: Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.05),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: Colors.white.withValues(alpha: 0.1),
-                  width: 1,
-                ),
-              ),
-              child: Column(
-                children: [
-                  Text(
-                    AppLocalizations.of(context)!.balance_label ?? 'Balance',
-                    style: TextStyle(
-                      fontFamily: 'Inter',
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                      color: Colors.white.withValues(alpha: 0.8),
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  
-                  // Main balance
-                  FutureBuilder<String>(
-                    future: _getPreviewBalance(currencyProvider, displaySequence),
-                    builder: (context, snapshot) {
-                      final mainBalance = snapshot.data ?? 'Loading...';
-                      return Text(
-                        mainBalance,
-                        textAlign: TextAlign.center,
-                        style: const TextStyle(
-                          fontFamily: 'Inter',
-                          fontSize: 32,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                      );
-                    },
-                  ),
-                  
-                  // Secondary balance (sats when not in sats mode)
-                  if (displaySequence.isNotEmpty && 
-                      _previewCurrencyIndex > 0 && 
-                      _previewCurrencyIndex < displaySequence.length) ...[
-                    const SizedBox(height: 8),
-                    Text(
-                      '$_previewBalance sats',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontFamily: 'Inter',
-                        fontSize: 16,
-                        fontWeight: FontWeight.w500,
-                        color: Colors.white.withValues(alpha: 0.7),
-                      ),
-                    ),
-                  ],
-                ],
-              ),
-            ),
-          ),
-          
-          const SizedBox(height: 16),
-          
-          // Navigation indicator
-          if (displaySequence.length > 1)
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(
-                  Icons.touch_app,
-                  color: Color(0xFF5B73FF),
-                  size: 16,
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  AppLocalizations.of(context)!.tap_to_cycle ?? 'Tap to cycle currencies',
-                  style: TextStyle(
-                    fontFamily: 'Inter',
-                    fontSize: 12,
-                    color: Colors.white.withValues(alpha: 0.6),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Text(
-                  '${_previewCurrencyIndex + 1}/${displaySequence.length}',
-                  style: const TextStyle(
-                    fontFamily: 'Inter',
-                    fontSize: 12,
-                    color: Color(0xFF5B73FF),
-                    fontWeight: FontWeight.w500,
-                  ),
-                ),
-              ],
-            ),
-        ],
+        ),
       ),
     );
   }
@@ -879,43 +991,5 @@ class _CurrencySettingsScreenState extends State<CurrencySettingsScreen>
     );
   }
 
-  void _toggleCurrency(CurrencySettingsProvider currencyProvider, String currency) {
-    if (currency == 'sats') return; // Can't toggle sats
-    
-    if (currencyProvider.isCurrencySelected(currency)) {
-      currencyProvider.removeCurrency(currency);
-    } else {
-      currencyProvider.addCurrency(currency);
-    }
-  }
 
-  void _cyclePreviewCurrency(List<String> displaySequence) {
-    if (displaySequence.isEmpty) return;
-    
-    setState(() {
-      _previewCurrencyIndex = (_previewCurrencyIndex + 1) % displaySequence.length;
-    });
-  }
-
-  Future<String> _getPreviewBalance(
-    CurrencySettingsProvider currencyProvider, 
-    List<String> displaySequence,
-  ) async {
-    if (displaySequence.isEmpty) return '$_previewBalance sats';
-    
-    final currentCurrency = displaySequence[_previewCurrencyIndex];
-    
-    if (currentCurrency == 'sats') {
-      return '$_previewBalance sats';
-    }
-    
-    final converted = await currencyProvider.convertSatsToFiat(_previewBalance, currentCurrency);
-    final symbol = currencyProvider.getCurrencySymbol(currentCurrency);
-    
-    if (symbol.startsWith(currentCurrency)) {
-      return '$converted $currentCurrency';
-    } else {
-      return '$symbol$converted';
-    }
-  }
 }
