@@ -119,6 +119,7 @@ class LNAddress {
     int minAmount = 1,
     int maxAmount = 2100000000,
     int commentChars = 500,
+    bool zapsEnabled = true,
     String? successUrl,
     String? webhookHeaders,
     String? webhookBody,
@@ -130,6 +131,7 @@ class LNAddress {
       'min': minAmount,
       'comment_chars': commentChars,
       'username': username,
+      'zaps': zapsEnabled,
     };
     
     if (successUrl != null && successUrl.startsWith('https://')) {
