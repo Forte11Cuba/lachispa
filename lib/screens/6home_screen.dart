@@ -6,7 +6,7 @@ import '../providers/auth_provider.dart';
 import '../providers/wallet_provider.dart';
 import '../providers/language_provider.dart';
 import '../services/transaction_detector.dart';
-import '../services/yadio_service.dart';
+import '../providers/currency_settings_provider.dart';
 import '../services/app_info_service.dart';
 import '../l10n/generated/app_localizations.dart';
 import '7history_screen.dart';
@@ -15,6 +15,7 @@ import '9receive_screen.dart';
 import '10send_screen.dart';
 import '14fixed_float_screen.dart';
 import '15boltz_screen.dart';
+import '16currency_settings_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -32,24 +33,17 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver, Ti
   Timer? _autoRefreshTimer;
   bool _isRefreshing = false;
   
-  // Currency toggle
+  // Currency toggle with new system
   int _currentCurrencyIndex = 0;
-  final List<String> _currencies = ['sats', 'USD', 'CUP'];
+  
+  // Currency conversion state management
+  final Map<String, String> _conversionResults = {};
+  final Set<String> _activeConversions = {};
+  final Map<String, Future<String>?> _conversionFutures = {};
   
   // Transaction detector
   final TransactionDetector _transactionDetector = TransactionDetector();
   late StreamSubscription _sparkSubscription;
-  
-  // Currency conversion service
-  final YadioService _yadioService = YadioService();
-  
-  // Currency conversion cache to avoid multiple API calls
-  Map<String, String> _conversionCache = {};
-  
-  // Timer to update conversions every 5 minutes
-  Timer? _conversionTimer;
-  DateTime? _lastConversionUpdate;
-  int? _lastKnownBalance;
   
   // Staggered animations
   late AnimationController _staggerController;
@@ -90,7 +84,6 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver, Ti
       _initializeWallets();
       _startAutoRefresh(); // Only starts when HomeScreen is active
       _initializeSparkEffect();
-      _startConversionTimer();
     });
   }
 
@@ -227,7 +220,6 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver, Ti
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
     _autoRefreshTimer?.cancel();
-    _conversionTimer?.cancel();
     _staggerController.dispose();
     _flashController.dispose();
     _glowController.dispose();
@@ -236,7 +228,6 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver, Ti
     _sparkTimer.cancel();
     _sparkSubscription.cancel();
     _particles.clear(); // Memory leak prevention
-    _yadioService.dispose();
     super.dispose();
   }
 
@@ -245,10 +236,8 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver, Ti
     // Handle auto-refresh according to app state
     if (state == AppLifecycleState.resumed) {
       _startAutoRefresh();
-      _startConversionTimer();
     } else if (state == AppLifecycleState.paused) {
       _stopAutoRefresh();
-      _stopConversionTimer();
     }
   }
 
@@ -293,18 +282,6 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver, Ti
     _autoRefreshTimer?.cancel();
   }
 
-  // Start conversion timer every 5 minutes
-  void _startConversionTimer() {
-    _conversionTimer?.cancel();
-    _conversionTimer = Timer.periodic(const Duration(minutes: 5), (_) {
-      print('[HOME_SCREEN] Updating conversions by timer (5min)');
-      _updateConversionsIfNeeded(force: true);
-    });
-  }
-
-  void _stopConversionTimer() {
-    _conversionTimer?.cancel();
-  }
 
   void _toggleBalanceVisibility() {
     setState(() {
@@ -318,19 +295,6 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver, Ti
     final walletProvider = context.read<WalletProvider>();
     
     if (!authProvider.isLoggedIn || _isRefreshing) return;
-    
-    // Detect balance change
-    final currentBalance = walletProvider.primaryBalance;
-    final balanceChanged = _lastKnownBalance != null && _lastKnownBalance != currentBalance;
-    
-    if (balanceChanged) {
-      print('[HOME_SCREEN] Balance changed from $_lastKnownBalance to $currentBalance - updating conversions');
-      // Clear cache and force conversion update
-      _clearConversionCache();
-      _updateConversionsIfNeeded(force: true);
-    }
-    
-    _lastKnownBalance = currentBalance;
     
     if (showFeedback) {
       setState(() {
@@ -389,138 +353,132 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver, Ti
     });
   }
 
-  // Get conversion with cache to avoid multiple API calls
-  Future<String> _getCachedConversion(int balanceSats, String currency) async {
-    final cacheKey = '${balanceSats}_$currency';
-    
-    // Check cache first
-    if (_conversionCache.containsKey(cacheKey)) {
-      return _conversionCache[cacheKey]!;
-    }
-    
-    try {
-      // Make conversion using YadioService
-      final result = await _yadioService.convertSatsToFiat(
-        sats: balanceSats,
-        currency: currency,
-      );
-      
-      // Save to cache
-      _conversionCache[cacheKey] = result;
-      return result;
-    } catch (e) {
-      print('[HOME_SCREEN] Error converting $balanceSats sats to $currency: $e');
-      return '--';
-    }
-  }
-  
-  // Clear cache when balance changes
-  void _clearConversionCache() {
-    _conversionCache.clear();
-  }
 
-  // Cyclic denomination toggle with animation
+  // Cyclic denomination toggle with animation using new system
   void _toggleCurrency() {
+    final currencyProvider = context.read<CurrencySettingsProvider>();
+    final displaySequence = currencyProvider.displaySequence;
+    
+    if (displaySequence.isEmpty) {
+      // No currencies available (server failed) - stay in sats
+      print('[HOME_SCREEN] No currencies available, staying in sats mode');
+      return;
+    }
+    
+    if (displaySequence.length == 1) {
+      // Only sats available - no toggle needed
+      print('[HOME_SCREEN] Only sats available, no toggle needed');
+      return;
+    }
+    
     _flashController.forward().then((_) {
       setState(() {
-        _currentCurrencyIndex = (_currentCurrencyIndex + 1) % _currencies.length;
+        _currentCurrencyIndex = (_currentCurrencyIndex + 1) % displaySequence.length;
+        // Clear conversion cache when currency changes
+        _conversionResults.clear();
+        _activeConversions.clear();
+        _conversionFutures.clear();
       });
       _flashController.reverse();
       
-      // Update conversions for new currency (only if not in cache)
-      _updateConversionsIfNeeded();
+      print('[HOME_SCREEN] Toggled to currency: ${displaySequence[_currentCurrencyIndex]}');
     });
   }
 
-  // Format main balance according to selected currency (sync)
-  String _formatMainBalanceSync(int balanceSats) {
-    if (!_balanceVisible) return '••• ${_currencies[_currentCurrencyIndex]}';
+  // Format main balance according to selected currency using new system
+  String _formatMainBalanceSync(int balanceSats, CurrencySettingsProvider currencyProvider) {
+    final displaySequence = currencyProvider.displaySequence;
     
-    final currency = _currencies[_currentCurrencyIndex];
+    if (displaySequence.isEmpty) {
+      // Server failed - show only sats
+      return _balanceVisible ? '$balanceSats sats' : '••• sats';
+    }
+    
+    final currency = displaySequence[_currentCurrencyIndex];
+    
+    if (!_balanceVisible) {
+      final symbol = currencyProvider.getCurrencySymbol(currency);
+      return currency == 'sats' ? '••• sats' : '••• $symbol';
+    }
+    
     if (currency == 'sats') {
       return '$balanceSats sats';
     }
     
-    // If balance is 0, show 0 directly in fiat currency
-    if (balanceSats == 0) {
-      return currency == 'USD' ? '\$0' : '0 $currency';
-    }
-    
-    // For fiat currencies, show value from cache or "Calculating..."
-    final cacheKey = '${balanceSats}_$currency';
-    if (_conversionCache.containsKey(cacheKey)) {
-      final value = _conversionCache[cacheKey]!;
-      return currency == 'USD' ? '\$$value' : '$value $currency';
-    }
-    
-    return AppLocalizations.of(context)!.calculating_text;
+    // For fiat currencies, we'll use FutureBuilder in the UI
+    // This function is just for the loading state
+    return AppLocalizations.of(context)!.calculating_text ?? 'Loading...';
   }
 
-  // Format secondary balance (sats) to show below when not in sats
-  String? _formatSecondaryBalance(int balanceSats) {
+  // Format secondary balance (sats) to show below when not in sats using new system
+  String? _formatSecondaryBalance(int balanceSats, CurrencySettingsProvider currencyProvider) {
     if (!_balanceVisible) return null;
     
+    final displaySequence = currencyProvider.displaySequence;
+    if (displaySequence.isEmpty) return null;
+    
+    final currency = displaySequence[_currentCurrencyIndex];
+    
     // Only show sats below when we're in another currency
-    if (_currencies[_currentCurrencyIndex] == 'sats') {
+    if (currency == 'sats') {
       return null;
     }
     
     return '$balanceSats sats';
   }
 
-  /// Determines balance font size based on selected currency
-  double _getBalanceFontSize(bool isMobile) {
-    final currency = _currencies[_currentCurrencyIndex];
+  /// Determines balance font size based on selected currency using new system
+  double _getBalanceFontSize(bool isMobile, CurrencySettingsProvider currencyProvider) {
+    final displaySequence = currencyProvider.displaySequence;
+    if (displaySequence.isEmpty) {
+      return isMobile ? 36 : 42; // Default to sats size
+    }
+    
+    final currency = displaySequence[_currentCurrencyIndex];
     
     // For sats, use normal size
     if (currency == 'sats') {
       return isMobile ? 36 : 42;
     }
     
-    // For CUP and USD, use smaller size
+    // For fiat currencies, use smaller size
     return isMobile ? 28 : 34;
   }
 
-  // Check if conversions need updating
-  bool _needsConversionUpdate(int balanceSats, {bool force = false}) {
-    if (force) return true;
-    
-    final currency = _currencies[_currentCurrencyIndex];
-    if (currency == 'sats') return false;
-    
-    final cacheKey = '${balanceSats}_$currency';
-    if (!_conversionCache.containsKey(cacheKey)) return true;
-    
-    // Check if more than 5 minutes have passed since last update
-    if (_lastConversionUpdate != null) {
-      final timeSinceUpdate = DateTime.now().difference(_lastConversionUpdate!);
-      return timeSinceUpdate.inMinutes >= 5;
-    }
-    
-    return true;
+  /// Build balance display widget (main + optional secondary balance)
+  Widget _buildBalanceDisplay(String mainBalance, String? secondaryBalance, bool isMobile, CurrencySettingsProvider currencyProvider) {
+    return Column(
+      key: ValueKey('${_currentCurrencyIndex}_${DateTime.now().millisecondsSinceEpoch}'),
+      children: [
+        // Main balance
+        Text(
+          mainBalance,
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontFamily: 'Inter',
+            fontSize: _getBalanceFontSize(isMobile, currencyProvider),
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
+          ),
+        ),
+        // Secondary balance (sats) when not in sats mode
+        if (secondaryBalance != null) ...[
+          const SizedBox(height: 4),
+          Text(
+            secondaryBalance,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontFamily: 'Inter',
+              fontSize: isMobile ? 16 : 18,
+              fontWeight: FontWeight.w500,
+              color: Colors.white.withValues(alpha: 0.7),
+            ),
+          ),
+        ],
+      ],
+    );
   }
 
-  // Update conversions only when necessary
-  Future<void> _updateConversionsIfNeeded({bool force = false}) async {
-    final walletProvider = context.read<WalletProvider>();
-    if (walletProvider.primaryWallet == null) return;
-    
-    final balanceSats = walletProvider.primaryBalance;
-    final currency = _currencies[_currentCurrencyIndex];
-    
-    if (currency != 'sats' && balanceSats > 0 && _needsConversionUpdate(balanceSats, force: force)) {
-      try {
-        print('[HOME_SCREEN] Updating conversion $balanceSats sats → $currency');
-        await _getCachedConversion(balanceSats, currency);
-        _lastConversionUpdate = DateTime.now();
-        
-        // Update UI after getting conversion
-        if (mounted) setState(() {});
-      } catch (e) {
-        print('[HOME_SCREEN] Error updating conversion: $e');
-      }
-    }
-  }
 
   // Initialize spark effects system
   void _initializeSparkEffect() {
@@ -666,13 +624,90 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver, Ti
     createDepositSpark();
   }
 
+  /// Get stable future for currency conversion
+  Future<String> _getStableConversionFuture(
+    int sats,
+    String currency,
+    CurrencySettingsProvider currencyProvider,
+    AuthProvider authProvider,
+  ) {
+    final key = '${sats}_$currency';
+    
+    // Return existing future if available
+    if (_conversionFutures[key] != null) {
+      return _conversionFutures[key]!;
+    }
+    
+    // Create new future and cache it
+    final future = _performConversion(sats, currency, currencyProvider, authProvider);
+    _conversionFutures[key] = future;
+    return future;
+  }
+
+  /// Perform the actual conversion using CurrencyProvider
+  Future<String> _performConversion(
+    int sats, 
+    String currency, 
+    CurrencySettingsProvider currencyProvider,
+    AuthProvider authProvider,
+  ) async {
+    final key = '${sats}_$currency';
+    
+    // Return cached result if available
+    if (_conversionResults.containsKey(key)) {
+      print('[HOME_SCREEN] 📋 Using cached result for $currency: ${_conversionResults[key]}');
+      return _conversionResults[key]!;
+    }
+    
+    // Prevent multiple concurrent calls for same conversion
+    if (_activeConversions.contains(key)) {
+      print('[HOME_SCREEN] ⏳ Conversion already in progress for $currency');
+      // Wait a bit for the active conversion to complete
+      for (int i = 0; i < 10; i++) {
+        await Future.delayed(const Duration(milliseconds: 100));
+        if (_conversionResults.containsKey(key)) {
+          return _conversionResults[key]!;
+        }
+      }
+      return '--';
+    }
+    
+    _activeConversions.add(key);
+    
+    try {
+      print('[HOME_SCREEN] 🔄 Starting conversion: $sats sats to $currency');
+      
+      // Use the proper CurrencySettingsProvider method that handles all API logic
+      final result = await currencyProvider.convertSatsToFiat(sats, currency)
+          .timeout(
+        const Duration(seconds: 10), // Reasonable timeout for API calls
+        onTimeout: () {
+          print('[HOME_SCREEN] ⏰ Provider conversion timeout for $currency');
+          return '--';
+        },
+      );
+      
+      _conversionResults[key] = result;
+      print('[HOME_SCREEN] ✅ Conversion completed for $currency: $result');
+      return result;
+      
+    } catch (e) {
+      print('[HOME_SCREEN] ❌ Conversion failed for $currency: $e');
+      _conversionResults[key] = '--';
+      return '--';
+    } finally {
+      _activeConversions.remove(key);
+    }
+  }
+  
+
   @override
   Widget build(BuildContext context) {
     // Determine if it's mobile
     final isMobile = MediaQuery.of(context).size.width < 600;
 
-    return Consumer2<AuthProvider, WalletProvider>(
-      builder: (context, authProvider, walletProvider, child) {
+    return Consumer3<AuthProvider, WalletProvider, CurrencySettingsProvider>(
+      builder: (context, authProvider, walletProvider, currencyProvider, child) {
         return Scaffold(
           backgroundColor: Colors.transparent,
           body: Container(
@@ -1070,56 +1105,71 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver, Ti
                                   onTap: _toggleCurrency,
                                   child: AnimatedSwitcher(
                                     duration: const Duration(milliseconds: 300),
-                                    child: Consumer<WalletProvider>(
-                                      builder: (context, walletProvider, child) {
-                                        // Show balance with dual format (fiat + sats)
+                                    child: Consumer2<WalletProvider, CurrencySettingsProvider>(
+                                      builder: (context, walletProvider, currencyProvider, child) {
                                         final balance = walletProvider.primaryBalance;
-                                        final mainBalance = walletProvider.primaryWallet != null
-                                            ? _formatMainBalanceSync(balance)
-                                            : walletProvider.isLoading
-                                                ? AppLocalizations.of(context)!.loading_text
-                                                : '0 sats';
+                                        final displaySequence = currencyProvider.displaySequence;
                                         
-                                        // Activate conversions if necessary
-                                        if (walletProvider.primaryWallet != null && 
-                                            _currencies[_currentCurrencyIndex] != 'sats') {
-                                          WidgetsBinding.instance.addPostFrameCallback((_) {
-                                            _updateConversionsIfNeeded();
-                                          });
+                                        // Show balance with new system
+                                        if (walletProvider.primaryWallet == null) {
+                                          final mainBalance = walletProvider.isLoading
+                                              ? (AppLocalizations.of(context)!.loading_text ?? 'Loading...')
+                                              : '0 sats';
+                                          return _buildBalanceDisplay(mainBalance, null, isMobile, currencyProvider);
                                         }
-                                        final secondaryBalance = walletProvider.primaryWallet != null
-                                            ? _formatSecondaryBalance(balance)
-                                            : null;
-
-                                        return Column(
-                                          key: ValueKey('${_currentCurrencyIndex}_$balance'),
-                                          children: [
-                                            // Balance principal
-                                            Text(
-                                              mainBalance,
-                                              textAlign: TextAlign.center,
-                                              style: TextStyle(
-                                                fontFamily: 'Inter',
-                                                fontSize: _getBalanceFontSize(isMobile),
-                                                fontWeight: FontWeight.bold,
-                                                color: Colors.white,
-                                              ),
-                                            ),
-                                            // Secondary balance (sats) when not in sats mode
-                                            if (secondaryBalance != null) ...[
-                                              const SizedBox(height: 4),
-                                              Text(
-                                                secondaryBalance,
-                                                textAlign: TextAlign.center,
-                                                style: TextStyle(
-                                                  fontFamily: 'Inter',
-                                                  fontSize: isMobile ? 16 : 18,
-                                                  fontWeight: FontWeight.w500,
-                                                  color: Colors.white.withValues(alpha: 0.7),
-                                                ),
-                                              ),
-                                            ],
-                                          ],
+                                        
+                                        // Server failed or no currencies - show only sats
+                                        if (displaySequence.isEmpty) {
+                                          final mainBalance = _balanceVisible ? '$balance sats' : '••• sats';
+                                          return _buildBalanceDisplay(mainBalance, null, isMobile, currencyProvider);
+                                        }
+                                        
+                                        final currency = displaySequence[_currentCurrencyIndex];
+                                        
+                                        // Sats mode
+                                        if (currency == 'sats') {
+                                          final mainBalance = _balanceVisible ? '$balance sats' : '••• sats';
+                                          return _buildBalanceDisplay(mainBalance, null, isMobile, currencyProvider);
+                                        }
+                                        
+                                        // Fiat mode - use FutureBuilder for conversion with stable future
+                                        return FutureBuilder<String>(
+                                          future: _getStableConversionFuture(balance, currency, currencyProvider, context.read<AuthProvider>()),
+                                          builder: (context, snapshot) {
+                                            String mainBalance;
+                                            
+                                            if (!_balanceVisible) {
+                                              final symbol = currencyProvider.getCurrencySymbol(currency);
+                                              mainBalance = '••• $symbol';
+                                            } else if (snapshot.connectionState == ConnectionState.waiting) {
+                                              // Still loading
+                                              mainBalance = AppLocalizations.of(context)!.calculating_text ?? 'Calculando...';
+                                            } else if (snapshot.hasError) {
+                                              // Show error message instead of resetting
+                                              print('[HOME_SCREEN] Currency conversion error for $currency: ${snapshot.error}');
+                                              final symbol = currencyProvider.getCurrencySymbol(currency);
+                                              mainBalance = _balanceVisible ? 'Error $symbol' : '••• $symbol';
+                                            } else if (snapshot.hasData) {
+                                              final value = snapshot.data!;
+                                              if (value == '--') {
+                                                // Show error message instead of resetting
+                                                print('[HOME_SCREEN] Currency conversion failed for $currency');
+                                                final symbol = currencyProvider.getCurrencySymbol(currency);
+                                                mainBalance = _balanceVisible ? 'Error $symbol' : '••• $symbol';
+                                              } else {
+                                                // Successful conversion
+                                                final symbol = currencyProvider.getCurrencySymbol(currency);
+                                                mainBalance = symbol.startsWith(currency) ? '$value $currency' : '$symbol$value';
+                                              }
+                                            } else {
+                                              // Fallback case
+                                              print('[HOME_SCREEN] FutureBuilder in unexpected state for $currency');
+                                              mainBalance = _balanceVisible ? '$balance sats' : '••• sats';
+                                            }
+                                            
+                                            final secondaryBalance = _formatSecondaryBalance(balance, currencyProvider);
+                                            return _buildBalanceDisplay(mainBalance, secondaryBalance, isMobile, currencyProvider);
+                                          },
                                         );
                                       },
                                     ),
@@ -1761,6 +1811,25 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver, Ti
                           MaterialPageRoute(
                             builder: (context) => const FixedFloatScreen(),
                           ),
+                        );
+                      },
+                    ),
+                    
+                    Consumer<CurrencySettingsProvider>(
+                      builder: (context, currencyProvider, child) {
+                        return _buildDrawerItem(
+                          icon: Icons.attach_money,
+                          title: AppLocalizations.of(context)!.currency_settings_title ?? 'Currency Settings',
+                          subtitle: '${currencyProvider.selectedCurrencies.length + 1} currencies', // +1 for sats
+                          onTap: () {
+                            Navigator.pop(context);
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const CurrencySettingsScreen(),
+                              ),
+                            );
+                          },
                         );
                       },
                     ),

@@ -703,7 +703,7 @@ abstract class AppLocalizations {
   /// No description provided for @calculating_text.
   ///
   /// In es, this message translates to:
-  /// **'calculando...'**
+  /// **'Calculando...'**
   String get calculating_text;
 
   /// No description provided for @loading_rates_text.
@@ -1275,6 +1275,54 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Añadir una nota (opcional)'**
   String get add_note_optional;
+
+  /// No description provided for @currency_settings_title.
+  ///
+  /// In es, this message translates to:
+  /// **'Configuración de Monedas'**
+  String get currency_settings_title;
+
+  /// No description provided for @currency_settings_subtitle.
+  ///
+  /// In es, this message translates to:
+  /// **'Selecciona tus monedas preferidas'**
+  String get currency_settings_subtitle;
+
+  /// No description provided for @available_currencies.
+  ///
+  /// In es, this message translates to:
+  /// **'Monedas Disponibles'**
+  String get available_currencies;
+
+  /// No description provided for @selected_currencies.
+  ///
+  /// In es, this message translates to:
+  /// **'Monedas Seleccionadas'**
+  String get selected_currencies;
+
+  /// No description provided for @no_currencies_available.
+  ///
+  /// In es, this message translates to:
+  /// **'No hay monedas disponibles del servidor'**
+  String get no_currencies_available;
+
+  /// No description provided for @select_currencies_hint.
+  ///
+  /// In es, this message translates to:
+  /// **'Selecciona monedas de la lista de arriba'**
+  String get select_currencies_hint;
+
+  /// No description provided for @preview_title.
+  ///
+  /// In es, this message translates to:
+  /// **'Vista Previa'**
+  String get preview_title;
+
+  /// No description provided for @tap_to_cycle.
+  ///
+  /// In es, this message translates to:
+  /// **'Toca para cambiar monedas'**
+  String get tap_to_cycle;
 }
 
 class _AppLocalizationsDelegate
