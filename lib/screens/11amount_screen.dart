@@ -5,6 +5,7 @@ import '../services/yadio_service.dart';
 import '../services/invoice_service.dart';
 import '../providers/auth_provider.dart';
 import '../providers/wallet_provider.dart';
+import '../providers/currency_settings_provider.dart';
 import '../l10n/generated/app_localizations.dart';
 
 class AmountScreen extends StatefulWidget {
@@ -27,7 +28,7 @@ class _AmountScreenState extends State<AmountScreen> {
   
   String _amount = '0';
   String _selectedCurrency = 'sats';
-  final List<String> _currencies = ['sats', 'USD', 'CUP'];
+  List<String> _currencies = ['sats'];
   
   final TextEditingController _commentController = TextEditingController();
   final FocusNode _commentFocusNode = FocusNode();
@@ -37,7 +38,7 @@ class _AmountScreenState extends State<AmountScreen> {
   bool _isProcessingPayment = false;
   
   // Real-time conversion cache to avoid API calls on every input change
-  double _cachedSatsAmount = 0.0;
+  int _cachedSatsAmount = 0;
   bool _isConverting = false;
   
   // Debounce timer for currency conversions to reduce API load
@@ -46,8 +47,45 @@ class _AmountScreenState extends State<AmountScreen> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _initializeCurrencies();
+    });
     _loadExchangeRates();
     _updateConversion();
+  }
+  
+  void _initializeCurrencies() async {
+    final currencyProvider = context.read<CurrencySettingsProvider>();
+    final authProvider = context.read<AuthProvider>();
+    
+    print('[AMOUNT_SCREEN] Initializing currencies...');
+    print('[AMOUNT_SCREEN] Server URL: ${authProvider.currentServer}');
+    
+    // Ensure provider has server URL configured
+    if (authProvider.currentServer != null) {
+      await currencyProvider.updateServerUrl(authProvider.currentServer);
+      
+      // Force load exchange rates to ensure they're available
+      await currencyProvider.loadExchangeRates(forceRefresh: true);
+      
+      print('[AMOUNT_SCREEN] Available currencies: ${currencyProvider.availableCurrencies}');
+      print('[AMOUNT_SCREEN] Exchange rates loaded: ${currencyProvider.availableCurrencies.isNotEmpty}');
+    }
+    
+    final displaySequence = currencyProvider.displaySequence;
+    
+    if (mounted) {
+      setState(() {
+        _currencies = displaySequence.isNotEmpty ? displaySequence : ['sats'];
+        // Ensure selected currency is valid
+        if (!_currencies.contains(_selectedCurrency)) {
+          _selectedCurrency = _currencies.first;
+        }
+      });
+    }
+    
+    print('[AMOUNT_SCREEN] Final currencies: $_currencies');
+    print('[AMOUNT_SCREEN] Selected currency: $_selectedCurrency');
   }
 
   @override
@@ -102,7 +140,7 @@ class _AmountScreenState extends State<AmountScreen> {
   void _onClearPressed() {
     setState(() {
       _amount = '0';
-      _cachedSatsAmount = 0.0;
+      _cachedSatsAmount = 0;
     });
   }
 
@@ -129,7 +167,21 @@ class _AmountScreenState extends State<AmountScreen> {
   }
 
   void _toggleCurrency() {
+    // Get fresh currency list from provider
+    final currencyProvider = context.read<CurrencySettingsProvider>();
+    final availableCurrencies = currencyProvider.displaySequence;
+    
+    if (availableCurrencies.isEmpty) {
+      // Fallback to sats only
+      setState(() {
+        _currencies = ['sats'];
+        _selectedCurrency = 'sats';
+      });
+      return;
+    }
+    
     setState(() {
+      _currencies = availableCurrencies;
       final currentIndex = _currencies.indexOf(_selectedCurrency);
       final nextIndex = (currentIndex + 1) % _currencies.length;
       _selectedCurrency = _currencies[nextIndex];
@@ -137,23 +189,65 @@ class _AmountScreenState extends State<AmountScreen> {
     _updateConversion();
   }
 
-  Future<double> _getAmountInSats() async {
+  Future<int> _getAmountInSats() async {
     final amount = double.tryParse(_amount) ?? 0.0;
     
+    print('[AMOUNT_SCREEN] Converting $amount $_selectedCurrency to sats');
+    
     if (_selectedCurrency == 'sats') {
-      return amount;
+      return amount.round();
     }
     
-    // Use YadioService for direct currency conversion
+    // Use INVERSE conversion from the working convertSatsToFiat method
+    // This ensures we use exactly the same rates as home_screen
     try {
-      final sats = await _yadioService.convertToSats(
-        amount: amount,
-        currency: _selectedCurrency,
-      );
-      return sats.toDouble();
+      final currencyProvider = context.read<CurrencySettingsProvider>();
+      
+      print('[AMOUNT_SCREEN] Using inverse conversion method for consistency');
+      
+      // Step 1: Get rate by converting 1 BTC (100M sats) to fiat
+      const oneBtcInSats = 100000000; // 1 BTC = 100M sats
+      final oneBtcInFiat = await currencyProvider.convertSatsToFiat(oneBtcInSats, _selectedCurrency);
+      
+      print('[AMOUNT_SCREEN] Rate check: $oneBtcInSats sats = $oneBtcInFiat $_selectedCurrency');
+      
+      // Step 2: Parse the result to get numeric rate
+      final fiatString = oneBtcInFiat.replaceAll(RegExp(r'[^\d.]'), ''); // Remove non-numeric chars
+      final oneBtcRate = double.tryParse(fiatString);
+      
+      if (oneBtcRate == null || oneBtcRate <= 0) {
+        throw Exception('Invalid rate obtained: $oneBtcInFiat');
+      }
+      
+      print('[AMOUNT_SCREEN] Parsed rate: 1 BTC = $oneBtcRate $_selectedCurrency');
+      
+      // Step 3: Calculate sats using inverse proportion
+      // If 1 BTC = oneBtcRate fiat, then amount fiat = ? sats
+      // sats = (amount / oneBtcRate) * 100000000
+      final btcAmount = amount / oneBtcRate;
+      final satsAmount = (btcAmount * 100000000).round();
+      
+      print('[AMOUNT_SCREEN] Conversion successful: $amount $_selectedCurrency = $satsAmount sats');
+      print('[AMOUNT_SCREEN] Math: ($amount / $oneBtcRate) * 100000000 = $satsAmount');
+      
+      return satsAmount;
+      
     } catch (e) {
-      print('Error converting to sats: $e');
-      return 0.0;
+      print('[AMOUNT_SCREEN] Error with inverse conversion: $e');
+      
+      // Fallback to YadioService as last resort
+      try {
+        print('[AMOUNT_SCREEN] Trying YadioService fallback');
+        final sats = await _yadioService.convertToSats(
+          amount: amount,
+          currency: _selectedCurrency,
+        );
+        print('[AMOUNT_SCREEN] YadioService conversion: $amount $_selectedCurrency = $sats sats');
+        return sats;
+      } catch (fallbackError) {
+        print('[AMOUNT_SCREEN] All conversion methods failed: $fallbackError');
+        return 0;
+      }
     }
   }
 
@@ -170,7 +264,7 @@ class _AmountScreenState extends State<AmountScreen> {
   void _updateConversion() {
     if (_selectedCurrency == 'sats') {
       setState(() {
-        _cachedSatsAmount = double.tryParse(_amount) ?? 0.0;
+        _cachedSatsAmount = (double.tryParse(_amount) ?? 0.0).round();
       });
       return;
     }
@@ -216,7 +310,7 @@ class _AmountScreenState extends State<AmountScreen> {
     }
     
     if (_cachedSatsAmount > 0) {
-      return ' / ${_cachedSatsAmount.toStringAsFixed(0)} sats';
+      return ' / $_cachedSatsAmount sats';
     }
     
     return ' / -- sats';
@@ -225,13 +319,18 @@ class _AmountScreenState extends State<AmountScreen> {
   Future<void> _processPayment() async {
     if (_isProcessingPayment) return;
     
-    // Use cached amount if available, otherwise calculate
-    double satsAmount = _cachedSatsAmount;
-    if (satsAmount <= 0) {
-      satsAmount = await _getAmountInSats();
-    }
+    print('[AMOUNT_SCREEN] === STARTING PAYMENT PROCESS ===');
+    print('[AMOUNT_SCREEN] Amount: $_amount $_selectedCurrency');
+    print('[AMOUNT_SCREEN] Cached sats: $_cachedSatsAmount');
+    
+    // ALWAYS recalculate sats amount for payment to ensure accuracy
+    // Cache is only for display, payment must use fresh calculation
+    final satsAmount = await _getAmountInSats();
+    
+    print('[AMOUNT_SCREEN] Final sats amount for payment: $satsAmount');
     
     if (satsAmount <= 0) {
+      print('[AMOUNT_SCREEN] Invalid sats amount: $satsAmount');
       _showErrorSnackBar(AppLocalizations.of(context)!.invalid_amount_error);
       return;
     }
@@ -242,10 +341,12 @@ class _AmountScreenState extends State<AmountScreen> {
 
     try {
       // Process payment based on destination type (LNURL vs Lightning Address)
+      print('[AMOUNT_SCREEN] Processing payment with $satsAmount sats');
+      
       if (widget.destinationType == 'lnurl') {
-        await _processLNURLPayment(satsAmount.round());
+        await _processLNURLPayment(satsAmount);
       } else if (widget.destinationType == 'lightning_address') {
-        await _processLightningAddressPayment(satsAmount.round());
+        await _processLightningAddressPayment(satsAmount);
       }
     } catch (e) {
       _showErrorSnackBar('${AppLocalizations.of(context)!.send_error_prefix}$e');
@@ -526,9 +627,11 @@ class _AmountScreenState extends State<AmountScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      resizeToAvoidBottomInset: true,
-      body: LayoutBuilder(
+    return Consumer<CurrencySettingsProvider>(
+      builder: (context, currencyProvider, child) {
+        return Scaffold(
+          resizeToAvoidBottomInset: true,
+          body: LayoutBuilder(
         builder: (context, constraints) {
           final screenWidth = constraints.maxWidth;
           final isMobile = screenWidth < 768;
@@ -648,29 +751,46 @@ class _AmountScreenState extends State<AmountScreen> {
                             padding: const EdgeInsets.symmetric(vertical: 8),
                             child: Column(
                               children: [
-                                Text(
-                                  _formatDisplayAmount(),
-                                  style: TextStyle(
-                                    fontFamily: 'Inter',
-                                    fontSize: isMobile ? 38 : 48,
-                                    fontWeight: FontWeight.w700,
-                                    color: Colors.white,
-                                  ),
-                                  textAlign: TextAlign.center,
-                                ),
-                                if (_selectedCurrency != 'sats') ...[
-                                  const SizedBox(height: 8),
+                                if (_selectedCurrency == 'sats') 
                                   Text(
-                                    '≈ ${_cachedSatsAmount.toStringAsFixed(0)} sats',
+                                    _formatDisplayAmount(),
                                     style: TextStyle(
                                       fontFamily: 'Inter',
-                                      fontSize: isMobile ? 18 : 22,
-                                      fontWeight: FontWeight.w400,
-                                      color: Colors.white.withValues(alpha: 0.7),
+                                      fontSize: isMobile ? 38 : 48,
+                                      fontWeight: FontWeight.w700,
+                                      color: Colors.white,
                                     ),
                                     textAlign: TextAlign.center,
+                                  )
+                                else
+                                  // Display fiat amount with sats conversion side by side
+                                  Wrap(
+                                    alignment: WrapAlignment.center,
+                                    crossAxisAlignment: WrapCrossAlignment.center,
+                                    children: [
+                                      Text(
+                                        _formatDisplayAmount(),
+                                        style: TextStyle(
+                                          fontFamily: 'Inter',
+                                          fontSize: isMobile ? 38 : 48,
+                                          fontWeight: FontWeight.w700,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 12),
+                                      Text(
+                                        _isConverting 
+                                            ? '(${AppLocalizations.of(context)!.calculating_text}...)'
+                                            : '(≈ $_cachedSatsAmount sats)',
+                                        style: TextStyle(
+                                          fontFamily: 'Inter',
+                                          fontSize: isMobile ? 18 : 22,
+                                          fontWeight: FontWeight.w400,
+                                          color: Colors.white.withValues(alpha: 0.7),
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                ],
                               ],
                             ),
                           ),
@@ -910,6 +1030,8 @@ class _AmountScreenState extends State<AmountScreen> {
           );
         },
       ),
+        );
+      },
     );
   }
 }
