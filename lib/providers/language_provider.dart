@@ -9,6 +9,7 @@ class LanguageProvider extends ChangeNotifier {
     Locale('en', ''),
     Locale('pt', ''),
     Locale('de', ''),
+    Locale('fr', ''),
   ];
   
   Locale _currentLocale = const Locale('es', '');
@@ -96,6 +97,8 @@ class LanguageProvider extends ChangeNotifier {
         return 'Português';
       case 'de':
         return 'Deutsch';
+      case 'fr':
+        return 'Français';
       default:
         return 'Español';
     }
@@ -111,6 +114,8 @@ class LanguageProvider extends ChangeNotifier {
         return '🇵🇹';
       case 'de':
         return '🇩🇪';
+      case 'fr':
+        return '🇫🇷';
       default:
         return '🇪🇸';
     }
@@ -121,7 +126,7 @@ class LanguageProvider extends ChangeNotifier {
   }
   
   List<Map<String, String>> getAvailableLanguages() {
-    return supportedLocales.map((locale) {
+    final languages = supportedLocales.map((locale) {
       switch (locale.languageCode) {
         case 'es':
           return {'code': 'es', 'name': 'Español', 'flag': '🇪🇸'};
@@ -131,10 +136,16 @@ class LanguageProvider extends ChangeNotifier {
           return {'code': 'pt', 'name': 'Português', 'flag': '🇵🇹'};
         case 'de':
           return {'code': 'de', 'name': 'Deutsch', 'flag': '🇩🇪'};
+        case 'fr':
+          return {'code': 'fr', 'name': 'Français', 'flag': '🇫🇷'};
         default:
           return {'code': locale.languageCode, 'name': locale.languageCode, 'flag': '🌐'};
       }
     }).toList();
+    
+    // Sort alphabetically by language name
+    languages.sort((a, b) => a['name']!.compareTo(b['name']!));
+    return languages;
   }
   
   Future<void> resetToDefault() async {
