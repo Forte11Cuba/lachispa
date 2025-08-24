@@ -232,5 +232,15 @@
   "boltz_external_browser": "Abrirá Boltz no navegador externo",
   "boltz_within_app": "Abre Boltz dentro da aplicação",
 
-  "add_note_optional": "Adicionar uma nota (opcional)"
+  "add_note_optional": "Adicionar uma nota (opcional)",
+
+  "currency_settings_title": "Configurações de Moeda",
+  "currency_settings_subtitle": "Selecione suas moedas preferidas",
+  "available_currencies": "Moedas Disponíveis",
+  "selected_currencies": "Moedas Selecionadas",
+  "no_currencies_available": "Nenhuma moeda disponível do servidor",
+  "select_currencies_hint": "Selecione moedas da lista acima",
+  "preview_title": "Visualização",
+  "tap_to_cycle": "Toque para alternar moedas",
+  "calculating_text": "Calculando..."
 }

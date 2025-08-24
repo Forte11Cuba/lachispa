@@ -316,7 +316,7 @@ class AppLocalizationsEs extends AppLocalizations {
   String get decimal_button => '.';
 
   @override
-  String get calculating_text => 'calculando...';
+  String get calculating_text => 'Calculando...';
 
   @override
   String get loading_rates_text => 'Loading rates...';
@@ -628,4 +628,30 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get add_note_optional => 'Añadir una nota (opcional)';
+
+  @override
+  String get currency_settings_title => 'Configuración de Monedas';
+
+  @override
+  String get currency_settings_subtitle => 'Selecciona tus monedas preferidas';
+
+  @override
+  String get available_currencies => 'Monedas Disponibles';
+
+  @override
+  String get selected_currencies => 'Monedas Seleccionadas';
+
+  @override
+  String get no_currencies_available =>
+      'No hay monedas disponibles del servidor';
+
+  @override
+  String get select_currencies_hint =>
+      'Selecciona monedas de la lista de arriba';
+
+  @override
+  String get preview_title => 'Vista Previa';
+
+  @override
+  String get tap_to_cycle => 'Toca para cambiar monedas';
 }

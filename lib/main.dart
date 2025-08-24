@@ -6,6 +6,7 @@ import 'providers/auth_provider.dart';
 import 'providers/wallet_provider.dart';
 import 'providers/ln_address_provider.dart';
 import 'providers/language_provider.dart';
+import 'providers/currency_settings_provider.dart';
 import 'services/wallet_service.dart';
 import 'services/ln_address_service.dart';
 import 'services/app_info_service.dart';
@@ -52,6 +53,32 @@ class LaChispaApp extends StatelessWidget {
           update: (_, lnAddressService, serverProvider, previous) {
             final provider = previous ?? LNAddressProvider(lnAddressService);
             provider.setServerUrl(serverProvider.selectedServer);
+            return provider;
+          },
+        ),
+        
+        // Currency settings provider - depends on server provider
+        ChangeNotifierProxyProvider<ServerProvider, CurrencySettingsProvider>(
+          create: (context) {
+            final provider = CurrencySettingsProvider();
+            final serverUrl = context.read<ServerProvider>().selectedServer;
+            if (serverUrl.isNotEmpty) {
+              // Initialize asynchronously
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                provider.initialize(serverUrl: serverUrl);
+              });
+            }
+            return provider;
+          },
+          update: (_, serverProvider, previous) {
+            final provider = previous ?? CurrencySettingsProvider();
+            final serverUrl = serverProvider.selectedServer;
+            if (serverUrl.isNotEmpty) {
+              // Update server URL if changed
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                provider.updateServerUrl(serverUrl);
+              });
+            }
             return provider;
           },
         ),
