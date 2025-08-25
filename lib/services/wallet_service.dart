@@ -340,6 +340,31 @@ class WalletService {
           if (response.statusCode == 200 && response.data != null) {
             print('[WALLET_SERVICE] Successful response from $endpoint');
             
+            // DEBUG: Log raw API response for fiat analysis
+            print('=== RAW API RESPONSE DEBUG ===');
+            print('Response from: $endpoint');
+            print('Response type: ${response.data.runtimeType}');
+            if (response.data is List && (response.data as List).isNotEmpty) {
+              print('First transaction raw data:');
+              print((response.data as List).first);
+              if ((response.data as List).length > 1) {
+                print('Second transaction raw data:');
+                print((response.data as List)[1]);
+              }
+            } else if (response.data is Map<String, dynamic>) {
+              print('Response map keys: ${(response.data as Map).keys.toList()}');
+              final data = response.data as Map<String, dynamic>;
+              if (data.containsKey('payments') && data['payments'] is List && (data['payments'] as List).isNotEmpty) {
+                print('First payment raw data:');
+                print((data['payments'] as List).first);
+                if ((data['payments'] as List).length > 1) {
+                  print('Second payment raw data:');
+                  print((data['payments'] as List)[1]);
+                }
+              }
+            }
+            print('=== END RAW RESPONSE DEBUG ===');
+            
             final responseData = response.data;
             List<TransactionInfo> transactions = [];
 
