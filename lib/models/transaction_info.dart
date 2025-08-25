@@ -13,6 +13,18 @@ class TransactionInfo {
   final String? invoice;
   final int? fee;
   final String? description;
+  
+  // Fiat currency information from LNBits extra field
+  final String? fiatCurrency;     // Wallet default currency (USD)
+  final double? fiatAmount;       // Amount in wallet currency
+  final double? fiatRate;         // sats per wallet currency unit
+  final double? btcRate;          // wallet currency per BTC
+  
+  // Original request fiat information
+  final String? originalFiatCurrency;  // Original request currency (ZAR, AUD, etc.)
+  final double? originalFiatAmount;    // Original requested amount
+  final double? originalFiatRate;      // sats per original currency unit
+  final double? originalBtcRate;       // original currency per BTC
 
   TransactionInfo({
     required this.id,
@@ -26,11 +38,29 @@ class TransactionInfo {
     this.invoice,
     this.fee,
     this.description,
+    this.fiatCurrency,
+    this.fiatAmount,
+    this.fiatRate,
+    this.btcRate,
+    this.originalFiatCurrency,
+    this.originalFiatAmount,
+    this.originalFiatRate,
+    this.originalBtcRate,
   });
 
   int get amountSats => amount ~/ 1000;
   String get amountFormatted => '${amountSats.abs()} sats';
-  String get displayAmount => type == TransactionType.incoming ? '+$amountFormatted' : '-$amountFormatted';
+  
+  String get displayAmount {
+    final satsAmount = type == TransactionType.incoming ? '+$amountFormatted' : '-$amountFormatted';
+    
+    if (fiatAmount != null && fiatCurrency != null) {
+      final fiatSign = type == TransactionType.incoming ? '+' : '-';
+      return '$satsAmount\n$fiatSign${fiatAmount!.toStringAsFixed(2)} $fiatCurrency';
+    }
+    
+    return satsAmount;
+  }
   bool get isPending => status == TransactionStatus.pending;
   bool get isCompleted => status == TransactionStatus.completed;
   bool get isFailed => status == TransactionStatus.failed;
@@ -77,6 +107,32 @@ class TransactionInfo {
         status = TransactionStatus.failed;
       }
 
+      // Extract fiat information from extra field
+      String? fiatCurrency;
+      double? fiatAmount;
+      double? fiatRate;
+      double? btcRate;
+      String? originalFiatCurrency;
+      double? originalFiatAmount;
+      double? originalFiatRate;
+      double? originalBtcRate;
+      
+      if (json['extra'] is Map<String, dynamic>) {
+        final extra = json['extra'] as Map<String, dynamic>;
+        
+        // Wallet default currency information
+        fiatCurrency = extra['wallet_fiat_currency']?.toString();
+        fiatAmount = extra['wallet_fiat_amount']?.toDouble();
+        fiatRate = extra['wallet_fiat_rate']?.toDouble();
+        btcRate = extra['wallet_btc_rate']?.toDouble();
+        
+        // Original request currency information
+        originalFiatCurrency = extra['fiat_currency']?.toString();
+        originalFiatAmount = extra['fiat_amount']?.toDouble();
+        originalFiatRate = extra['fiat_rate']?.toDouble();
+        originalBtcRate = extra['btc_rate']?.toDouble();
+      }
+
       return TransactionInfo(
         id: json['payment_hash']?.toString() ?? json['id']?.toString() ?? '',
         walletId: json['wallet_id']?.toString() ?? '',
@@ -89,6 +145,14 @@ class TransactionInfo {
         invoice: json['bolt11']?.toString(),
         fee: json['fee']?.toInt(),
         description: json['description']?.toString(),
+        fiatCurrency: fiatCurrency,
+        fiatAmount: fiatAmount,
+        fiatRate: fiatRate,
+        btcRate: btcRate,
+        originalFiatCurrency: originalFiatCurrency,
+        originalFiatAmount: originalFiatAmount,
+        originalFiatRate: originalFiatRate,
+        originalBtcRate: originalBtcRate,
       );
     } catch (e) {
       print('[TRANSACTION_INFO] Error parsing JSON: $e');
@@ -109,12 +173,26 @@ class TransactionInfo {
       'bolt11': invoice,
       'fee': fee,
       'description': description,
+      'fiat_currency': fiatCurrency,
+      'fiat_amount': fiatAmount,
+      'fiat_rate': fiatRate,
+      'btc_rate': btcRate,
+      'original_fiat_currency': originalFiatCurrency,
+      'original_fiat_amount': originalFiatAmount,
+      'original_fiat_rate': originalFiatRate,
+      'original_btc_rate': originalBtcRate,
     };
   }
 
   @override
   String toString() {
-    return 'TransactionInfo(id: $id, amount: $amountFormatted, type: $type, status: $status, memo: $memo)';
+    final fiatInfo = fiatAmount != null && fiatCurrency != null 
+        ? ', fiat: ${fiatAmount!.toStringAsFixed(2)} $fiatCurrency' 
+        : '';
+    final originalInfo = originalFiatAmount != null && originalFiatCurrency != null 
+        ? ', original: ${originalFiatAmount!.toStringAsFixed(2)} $originalFiatCurrency'
+        : '';
+    return 'TransactionInfo(id: $id, amount: $amountFormatted$fiatInfo$originalInfo, type: $type, status: $status, memo: $memo)';
   }
 
   @override

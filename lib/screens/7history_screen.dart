@@ -112,12 +112,33 @@ class _HistoryScreenState extends State<HistoryScreen> with TickerProviderStateM
         throw Exception('No active session or primary wallet');
       }
 
+      print('=== DEBUG TRANSACTION RESPONSE ===');
+      print('Server URL: ${authProvider.currentServer}');
+      print('Wallet ID: ${walletProvider.primaryWallet!.id}');
+      
       final transactions = await walletService.getWalletTransactions(
         serverUrl: authProvider.currentServer ?? '',
         walletId: walletProvider.primaryWallet!.id,
         adminKey: walletProvider.primaryWallet!.adminKey,
         limit: 50,
       );
+
+      print('=== PARSED TRANSACTIONS DEBUG ===');
+      print('Total transactions: ${transactions.length}');
+      
+      for (int i = 0; i < transactions.length && i < 3; i++) {
+        final tx = transactions[i];
+        print('--- Transaction $i ---');
+        print('Amount: ${tx.amount} msat (${tx.amountSats} sats)');
+        print('Memo: ${tx.memo}');
+        print('Type: ${tx.type}');
+        print('Status: ${tx.status}');
+        print('Wallet Fiat: ${tx.fiatAmount} ${tx.fiatCurrency} (rate: ${tx.fiatRate})');
+        print('Original Fiat: ${tx.originalFiatAmount} ${tx.originalFiatCurrency} (rate: ${tx.originalFiatRate})');
+        print('Display: ${tx.displayAmount}');
+        print('JSON toString: ${tx.toString()}');
+      }
+      print('=== END DEBUG ===');
 
       if (mounted) {
         setState(() {
@@ -126,6 +147,10 @@ class _HistoryScreenState extends State<HistoryScreen> with TickerProviderStateM
         });
       }
     } catch (e) {
+      print('=== ERROR LOADING TRANSACTIONS ===');
+      print('Error: $e');
+      print('=== END ERROR ===');
+      
       if (mounted) {
         setState(() {
           _isLoading = false;
@@ -606,83 +631,115 @@ class _HistoryScreenState extends State<HistoryScreen> with TickerProviderStateM
           color: Colors.white.withValues(alpha: 0.1),
         ),
       ),
-      child: ListTile(
-        contentPadding: const EdgeInsets.all(16),
-        leading: Container(
-          width: 48,
-          height: 48,
-          decoration: BoxDecoration(
-            color: _getTransactionIconColor(transaction).withValues(alpha: 0.2),
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Icon(
-            _getTransactionIcon(transaction),
-            color: _getTransactionIconColor(transaction),
-            size: 24,
-          ),
-        ),
-        title: Row(
-          children: [
-            Expanded(
-              child: Text(
-                transaction.memo.isEmpty ? AppLocalizations.of(context)!.no_description_text : transaction.memo,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
+      child: InkWell(
+        onTap: () => _showTransactionDetails(transaction),
+        borderRadius: BorderRadius.circular(16),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            children: [
+              // Leading icon
+              Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  color: _getTransactionIconColor(transaction).withValues(alpha: 0.2),
+                  borderRadius: BorderRadius.circular(12),
                 ),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
+                child: Icon(
+                  _getTransactionIcon(transaction),
+                  color: _getTransactionIconColor(transaction),
+                  size: 24,
+                ),
               ),
-            ),
-            Text(
-              transaction.displayAmount,
-              style: TextStyle(
-                color: _getTransactionIconColor(transaction),
-                fontSize: 16,
-                fontWeight: FontWeight.w700,
+              
+              const SizedBox(width: 16),
+              
+              // Content
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      transaction.memo.isEmpty ? AppLocalizations.of(context)!.no_description_text : transaction.memo,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                    Text(
+                      transaction.formattedDate,
+                      style: TextStyle(
+                        color: Colors.white.withValues(alpha: 0.6),
+                        fontSize: 12,
+                      ),
+                    ),
+                    if (transaction.isPending) ...[
+                      const SizedBox(height: 4),
+                      Row(
+                        children: [
+                          Container(
+                            width: 8,
+                            height: 8,
+                            decoration: BoxDecoration(
+                              color: Colors.orange,
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                          ),
+                          const SizedBox(width: 6),
+                          Text(
+                            AppLocalizations.of(context)!.pending_label,
+                            style: TextStyle(
+                              color: Colors.orange,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ],
+                ),
               ),
-            ),
-          ],
-        ),
-        subtitle: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: 4),
-            Text(
-              transaction.formattedDate,
-              style: TextStyle(
-                color: Colors.white.withValues(alpha: 0.6),
-                fontSize: 12,
-              ),
-            ),
-            if (transaction.isPending) ...[
-              const SizedBox(height: 4),
-              Row(
+              
+              // Amount column
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  Container(
-                    width: 8,
-                    height: 8,
-                    decoration: BoxDecoration(
-                      color: Colors.orange,
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                  ),
-                  const SizedBox(width: 6),
                   Text(
-                    AppLocalizations.of(context)!.pending_label,
+                    transaction.displayAmount.split('\n').first, // Show sats amount
                     style: TextStyle(
-                      color: Colors.orange,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w500,
+                      color: _getTransactionIconColor(transaction),
+                      fontSize: 16,
+                      fontWeight: FontWeight.w700,
                     ),
                   ),
+                  if (transaction.fiatAmount != null && transaction.fiatCurrency != null)
+                    Text(
+                      '${transaction.type == TransactionType.incoming ? '+' : '-'}${transaction.fiatAmount!.toStringAsFixed(2)} ${transaction.fiatCurrency}',
+                      style: TextStyle(
+                        color: _getTransactionIconColor(transaction).withValues(alpha: 0.8),
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  if (transaction.originalFiatAmount != null && transaction.originalFiatCurrency != null)
+                    Text(
+                      '${transaction.originalFiatAmount!.toStringAsFixed(2)} ${transaction.originalFiatCurrency}',
+                      style: TextStyle(
+                        color: Colors.white.withValues(alpha: 0.7),
+                        fontSize: 15,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
                 ],
               ),
             ],
-          ],
+          ),
         ),
-        onTap: () => _showTransactionDetails(transaction),
       ),
     );
   }
@@ -732,13 +789,36 @@ class _HistoryScreenState extends State<HistoryScreen> with TickerProviderStateM
                           fontWeight: FontWeight.w600,
                         ),
                       ),
-                      Text(
-                        transaction.displayAmount,
-                        style: TextStyle(
-                          color: _getTransactionIconColor(transaction),
-                          fontSize: 24,
-                          fontWeight: FontWeight.w700,
-                        ),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            transaction.displayAmount.split('\n').first, // Show sats amount
+                            style: TextStyle(
+                              color: _getTransactionIconColor(transaction),
+                              fontSize: 24,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                          if (transaction.fiatAmount != null && transaction.fiatCurrency != null)
+                            Text(
+                              '${transaction.type == TransactionType.incoming ? '+' : '-'}${transaction.fiatAmount!.toStringAsFixed(2)} ${transaction.fiatCurrency}',
+                              style: TextStyle(
+                                color: _getTransactionIconColor(transaction).withValues(alpha: 0.8),
+                                fontSize: 18,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          if (transaction.originalFiatAmount != null && transaction.originalFiatCurrency != null)
+                            Text(
+                              '${transaction.originalFiatAmount!.toStringAsFixed(2)} ${transaction.originalFiatCurrency}',
+                              style: TextStyle(
+                                color: Colors.white.withValues(alpha: 0.6),
+                                fontSize: 16,
+                                fontWeight: FontWeight.w400,
+                              ),
+                            ),
+                        ],
                       ),
                     ],
                   ),
@@ -748,8 +828,18 @@ class _HistoryScreenState extends State<HistoryScreen> with TickerProviderStateM
             
             const SizedBox(height: 24),
             
-            _buildDetailRow(AppLocalizations.of(context)!.invoice_description_label, transaction.formattedDate),
-            _buildDetailRow(AppLocalizations.of(context)!.invoice_description_label, transaction.memo.isEmpty ? AppLocalizations.of(context)!.no_description_text : transaction.memo),
+            _buildDetailRow('Date', transaction.formattedDate),
+            _buildDetailRow('Description', transaction.memo.isEmpty ? AppLocalizations.of(context)!.no_description_text : transaction.memo),
+            if (transaction.originalFiatAmount != null && transaction.originalFiatCurrency != null) ...[
+              _buildDetailRow('Original Amount', '${transaction.originalFiatAmount!.toStringAsFixed(2)} ${transaction.originalFiatCurrency}'),
+              if (transaction.originalFiatRate != null)
+                _buildDetailRow('Original Rate', '${transaction.originalFiatRate!.toStringAsFixed(4)} sats/${transaction.originalFiatCurrency}'),
+            ],
+            if (transaction.fiatAmount != null && transaction.fiatCurrency != null) ...[
+              _buildDetailRow('Wallet Amount', '${transaction.fiatAmount!.toStringAsFixed(2)} ${transaction.fiatCurrency}'),
+              if (transaction.fiatRate != null)
+                _buildDetailRow('Wallet Rate', '${transaction.fiatRate!.toStringAsFixed(2)} sats/${transaction.fiatCurrency}'),
+            ],
             if (transaction.paymentHash != null)
               _buildDetailRow('Hash', transaction.paymentHash!, copyable: true),
             if (transaction.fee != null)
