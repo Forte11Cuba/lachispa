@@ -347,19 +347,12 @@ class WalletService {
             if (response.data is List && (response.data as List).isNotEmpty) {
               print('First transaction raw data:');
               print((response.data as List).first);
-              if ((response.data as List).length > 1) {
-                print('Second transaction raw data:');
-                print((response.data as List)[1]);
-              }
-            } else if (response.data is Map<String, dynamic>) {
-              print('Response map keys: ${(response.data as Map).keys.toList()}');
-              final data = response.data as Map<String, dynamic>;
-              if (data.containsKey('payments') && data['payments'] is List && (data['payments'] as List).isNotEmpty) {
-                print('First payment raw data:');
-                print((data['payments'] as List).first);
-                if ((data['payments'] as List).length > 1) {
-                  print('Second payment raw data:');
-                  print((data['payments'] as List)[1]);
+              // Look specifically for our new invoices in the first few transactions
+              for (int i = 0; i < (response.data as List).length && i < 5; i++) {
+                final tx = (response.data as List)[i];
+                if (tx is Map && tx['extra'] != null) {
+                  print('--- Transaction $i extra field ---');
+                  print(tx['extra']);
                 }
               }
             }

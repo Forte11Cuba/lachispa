@@ -1407,14 +1407,29 @@ class _ReceiveScreenState extends State<ReceiveScreen> {
       print('[RECEIVE_SCREEN] Generando factura: $amountInSats sats');
       print('[RECEIVE_SCREEN] Server: $serverUrl');
       print('[RECEIVE_SCREEN] Wallet: ${wallet.name}');
+      print('[RECEIVE_SCREEN] Original currency: $_selectedCurrency');
+      print('[RECEIVE_SCREEN] Original amount: $amount');
+      print('[RECEIVE_SCREEN] Original rate: ${_selectedCurrency != 'sats' ? (amountInSats / amount) : 'N/A'}');
 
-      // Generate invoice with amount in satoshis
+      // Prepare memo with fiat info as fallback for LNBits limitations
+      String? finalMemo;
+      if (_noteController.text.trim().isNotEmpty) {
+        finalMemo = _noteController.text.trim();
+      } else if (_selectedCurrency != 'sats') {
+        // Use fiat amount as memo when no custom note (fallback for LNBits)
+        finalMemo = '${amount.toStringAsFixed(amount.truncateToDouble() == amount ? 0 : 2)} $_selectedCurrency';
+      }
+
+      // Generate invoice with amount in satoshis and original fiat information
       final invoice = await _invoiceService.createInvoice(
         serverUrl: serverUrl,
         adminKey: wallet.adminKey,
         amount: amountInSats,
-        memo: _noteController.text.trim().isNotEmpty ? _noteController.text.trim() : null,
+        memo: finalMemo,
         comment: _noteController.text.trim().isNotEmpty ? _noteController.text.trim() : null,
+        originalFiatCurrency: _selectedCurrency != 'sats' ? _selectedCurrency : null,
+        originalFiatAmount: _selectedCurrency != 'sats' ? amount : null,
+        originalFiatRate: _selectedCurrency != 'sats' ? (amountInSats / amount) : null,
       );
 
       // Update state
