@@ -126,11 +126,31 @@ class TransactionInfo {
         fiatRate = extra['wallet_fiat_rate']?.toDouble();
         btcRate = extra['wallet_btc_rate']?.toDouble();
         
-        // Original request currency information
+        // Original request currency information (if available from LNBits)
         originalFiatCurrency = extra['fiat_currency']?.toString();
         originalFiatAmount = extra['fiat_amount']?.toDouble();
         originalFiatRate = extra['fiat_rate']?.toDouble();
         originalBtcRate = extra['btc_rate']?.toDouble();
+      }
+      
+      // FALLBACK: Parse original fiat info from memo if LNBits doesn't provide it
+      // This handles cases like "25 ZAR", "100 CUP", etc.
+      if (originalFiatCurrency == null && originalFiatAmount == null) {
+        final memo = json['memo']?.toString() ?? '';
+        final memoMatch = RegExp(r'^(\d+(?:\.\d+)?)\s*([A-Z]{3})$').firstMatch(memo.trim());
+        if (memoMatch != null) {
+          final fiatAmount = double.tryParse(memoMatch.group(1) ?? '');
+          final currency = memoMatch.group(2);
+          if (fiatAmount != null && currency != null && currency != 'USD') {
+            originalFiatAmount = fiatAmount;
+            originalFiatCurrency = currency;
+            // Calculate rate based on sats amount (amount is in msat)
+            final satsAmount = amount ~/ 1000; // Convert msat to sats
+            if (satsAmount > 0 && fiatAmount > 0) {
+              originalFiatRate = satsAmount / fiatAmount;
+            }
+          }
+        }
       }
 
       return TransactionInfo(
