@@ -157,7 +157,7 @@ class LanguageProvider extends ChangeNotifier {
       }
     }).toList();
     
-    // Sort alphabetically by language name
+    // Sort alphabetically by language name  
     languages.sort((a, b) => a['name']!.compareTo(b['name']!));
     return languages;
   }
