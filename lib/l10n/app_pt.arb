@@ -255,5 +255,8 @@
   "checking_currency_availability": "Verificando disponibilidade de {currency}...",
   "currency_added_successfully": "{currency} adicionado com sucesso",
   "currency_not_available_on_server": "{currencyName} ({currency}) não está disponível neste servidor",
-  "error_checking_currency": "Erro ao verificar {currency}: {error}"
+  "error_checking_currency": "Erro ao verificar {currency}: {error}",
+  
+  "deep_link_login_required_title": "Login Necessário",
+  "deep_link_login_required_message": "Você deve fazer login em sua conta LaChispa para processar este pagamento."
 }

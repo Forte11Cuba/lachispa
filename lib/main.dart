@@ -10,7 +10,9 @@ import 'providers/currency_settings_provider.dart';
 import 'services/wallet_service.dart';
 import 'services/ln_address_service.dart';
 import 'services/app_info_service.dart';
+import 'services/deep_link_service.dart';
 import 'screens/1welcome_screen.dart';
+import 'screens/10send_screen.dart';
 import 'l10n/generated/app_localizations.dart';
 
 void main() async {
@@ -19,11 +21,103 @@ void main() async {
   // Initialize app info service to read version from pubspec.yaml
   await AppInfoService.initialize();
   
+  // Initialize deep link service
+  await DeepLinkService().initialize();
+  
   runApp(const LaChispaApp());
 }
 
-class LaChispaApp extends StatelessWidget {
+class LaChispaApp extends StatefulWidget {
   const LaChispaApp({super.key});
+
+  @override
+  State<LaChispaApp> createState() => _LaChispaAppState();
+}
+
+class _LaChispaAppState extends State<LaChispaApp> {
+  final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
+  
+  @override
+  void initState() {
+    super.initState();
+    _setupDeepLinkHandling();
+  }
+  
+  void _setupDeepLinkHandling() {
+    DeepLinkService().setOnLinkReceived((Uri uri) {
+      _handleDeepLink(uri);
+    });
+  }
+  
+  void _handleDeepLink(Uri uri) {
+    // Ensure we have a valid navigation context
+    final context = _navigatorKey.currentContext;
+    if (context == null) return;
+    
+    String? paymentData;
+    
+    switch (uri.scheme.toLowerCase()) {
+      case 'bitcoin':
+        // Extract the address and parameters
+        final params = DeepLinkService().parseBitcoinUri(uri);
+        paymentData = params['address'] ?? '';
+        break;
+      case 'lightning':
+      case 'lnurl':
+      case 'lnurlw':
+      case 'lnurlp':
+      case 'lnurlc':
+        paymentData = DeepLinkService().parseLightningUri(uri);
+        break;
+      case 'lachispa':
+        // Handle app-specific deep links
+        paymentData = uri.path.replaceFirst('/', '');
+        break;
+    }
+    
+    if (paymentData != null && paymentData.isNotEmpty) {
+      // Check if user is logged in
+      try {
+        final authProvider = context.read<AuthProvider>();
+        
+        if (authProvider.isLoggedIn) {
+          // User is logged in, proceed to send screen
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) => SendScreen(initialPaymentData: paymentData),
+            ),
+          );
+        } else {
+          // User is not logged in, show simple message
+          _showLoginRequiredDialog(context);
+        }
+      } catch (e) {
+        print('[DEEP_LINK] Error checking auth state: $e');
+        // Fallback: show login message
+        _showLoginRequiredDialog(context);
+      }
+    }
+  }
+  
+  void _showLoginRequiredDialog(BuildContext context) {
+    final localizations = AppLocalizations.of(context)!;
+    
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(localizations.deep_link_login_required_title),
+          content: Text(localizations.deep_link_login_required_message),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('OK'),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -93,6 +187,7 @@ class LaChispaApp extends StatelessWidget {
           return Consumer<LanguageProvider>(
             builder: (context, languageProvider, child) {
               return MaterialApp(
+                navigatorKey: _navigatorKey,
                 title: 'LaChispa',
                 theme: ThemeData(
                   fontFamily: 'Inter',
