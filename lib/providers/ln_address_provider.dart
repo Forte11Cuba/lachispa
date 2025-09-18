@@ -36,6 +36,8 @@ class LNAddressProvider extends ChangeNotifier {
     if (_serverUrl != serverUrl) {
       _serverUrl = serverUrl;
       _clearServerCache();
+      // Update the underlying service URL to ensure consistency
+      _lnAddressService.updateBaseUrl(serverUrl);
       print('[LN_ADDRESS_PROVIDER] Server configured: $serverUrl');
     }
   }
