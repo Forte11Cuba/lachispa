@@ -256,6 +256,34 @@ class CurrencySettingsProvider extends ChangeNotifier {
     return currencyCode == 'sats' || _selectedCurrencies.contains(currencyCode);
   }
 
+  /// Validate if a currency is actually available on the current server
+  /// Returns true if available, false if not available
+  Future<bool> validateCurrencyAvailability(String currencyCode) async {
+    if (currencyCode == 'sats') return true; // sats is always available
+    
+    if (_serverUrl == null || _serverUrl!.isEmpty) {
+      print('[CURRENCY_SETTINGS_PROVIDER] No server URL - cannot validate $currencyCode');
+      return false;
+    }
+    
+    try {
+      print('[CURRENCY_SETTINGS_PROVIDER] Validating $currencyCode availability on server...');
+      
+      // Test the currency by trying to get its rate
+      final testResult = await _ratesService.testCurrencyAvailability(
+        currency: currencyCode,
+        serverUrl: _serverUrl!,
+      );
+      
+      print('[CURRENCY_SETTINGS_PROVIDER] Currency $currencyCode availability: $testResult');
+      return testResult;
+      
+    } catch (e) {
+      print('[CURRENCY_SETTINGS_PROVIDER] Error validating $currencyCode: $e');
+      return false;
+    }
+  }
+
   /// Get conversion rate for a currency
   double? getRateForCurrency(String currencyCode) {
     return _exchangeRates[currencyCode];

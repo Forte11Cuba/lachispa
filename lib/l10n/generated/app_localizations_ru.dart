@@ -669,4 +669,29 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get about_title => 'Информация';
+
+  @override
+  String get currency_validation_info =>
+      'Al seleccionar una moneda, se verificará si está disponible en este servidor';
+
+  @override
+  String checking_currency_availability(Object currency) {
+    return 'Verificando disponibilidad de $currency...';
+  }
+
+  @override
+  String currency_added_successfully(Object currency) {
+    return '$currency agregado correctamente';
+  }
+
+  @override
+  String currency_not_available_on_server(
+      Object currency, Object currencyName) {
+    return '$currencyName ($currency) no está disponible en este servidor';
+  }
+
+  @override
+  String error_checking_currency(Object currency, Object error) {
+    return 'Error verificando $currency: $error';
+  }
 }

@@ -4,6 +4,7 @@ import '../providers/currency_settings_provider.dart';
 import '../providers/wallet_provider.dart';
 import '../models/currency_info.dart';
 import '../l10n/generated/app_localizations.dart';
+import '../providers/auth_provider.dart';
 
 class CurrencySettingsScreen extends StatefulWidget {
   const CurrencySettingsScreen({super.key});
@@ -71,10 +72,13 @@ class _CurrencySettingsScreenState extends State<CurrencySettingsScreen>
     final currencyProvider = context.read<CurrencySettingsProvider>();
     final query = _searchController.text.toLowerCase();
     
+    // Use all currencies from CurrencyInfo instead of server-specific list
+    final allCurrencies = CurrencyInfo.allCurrencies.keys.toList();
+    
     if (query.isEmpty) {
-      _filteredCurrencies = List.from(currencyProvider.availableCurrencies);
+      _filteredCurrencies = List.from(allCurrencies);
     } else {
-      _filteredCurrencies = currencyProvider.availableCurrencies.where((currency) {
+      _filteredCurrencies = allCurrencies.where((currency) {
         final currencyInfo = currencyProvider.getCurrencyInfo(currency);
         final name = currencyInfo?.name.toLowerCase() ?? currency.toLowerCase();
         final country = currencyInfo?.country.toLowerCase() ?? '';
@@ -97,18 +101,120 @@ class _CurrencySettingsScreenState extends State<CurrencySettingsScreen>
     });
   }
 
-  void _selectCurrency(String currency, CurrencySettingsProvider currencyProvider) {
+  void _selectCurrency(String currency, CurrencySettingsProvider currencyProvider) async {
     if (currency == 'sats') return; // Can't select sats
     
-    if (!currencyProvider.isCurrencySelected(currency)) {
-      currencyProvider.addCurrency(currency);
+    if (currencyProvider.isCurrencySelected(currency)) {
+      // Currency already selected
+      setState(() {
+        _isDropdownOpen = false;
+        _searchController.clear();
+      });
+      return;
     }
     
-    // Close dropdown and clear search
+    // Show loading state
     setState(() {
       _isDropdownOpen = false;
       _searchController.clear();
     });
+    
+    // Show loading dialog
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => AlertDialog(
+        backgroundColor: const Color(0xFF1A1D47),
+        content: Row(
+          children: [
+            const CircularProgressIndicator(
+              valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF5B73FF)),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Text(
+                AppLocalizations.of(context)!.checking_currency_availability(currency),
+                style: const TextStyle(color: Colors.white),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+    
+    try {
+      // Validate currency availability on the current server
+      final isAvailable = await currencyProvider.validateCurrencyAvailability(currency);
+      
+      // Close loading dialog
+      if (mounted) {
+        Navigator.pop(context);
+      }
+      
+      if (isAvailable) {
+        // Currency is available, add it
+        await currencyProvider.addCurrency(currency);
+        
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Row(
+                children: [
+                  const Icon(Icons.check_circle, color: Colors.green),
+                  const SizedBox(width: 8),
+                  Text(AppLocalizations.of(context)!.currency_added_successfully(currency)),
+                ],
+              ),
+              backgroundColor: Colors.green.withValues(alpha: 0.9),
+              duration: const Duration(seconds: 2),
+            ),
+          );
+        }
+      } else {
+        // Currency is not available on this server
+        if (mounted) {
+          final currencyInfo = CurrencyInfo.getInfo(currency);
+          final currencyName = currencyInfo?.name ?? currency;
+          
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Row(
+                children: [
+                  const Icon(Icons.error, color: Colors.red),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(AppLocalizations.of(context)!.currency_not_available_on_server(currencyName, currency)),
+                  ),
+                ],
+              ),
+              backgroundColor: Colors.red.withValues(alpha: 0.9),
+              duration: const Duration(seconds: 3),
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      // Close loading dialog if still open
+      if (mounted) {
+        Navigator.pop(context);
+        
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                const Icon(Icons.error, color: Colors.red),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(AppLocalizations.of(context)!.error_checking_currency(currency, e.toString())),
+                ),
+              ],
+            ),
+            backgroundColor: Colors.red.withValues(alpha: 0.9),
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      }
+    }
   }
 
   @override
@@ -308,9 +414,8 @@ class _CurrencySettingsScreenState extends State<CurrencySettingsScreen>
           // Search bar / Dropdown trigger
           GestureDetector(
             onTap: () {
-              if (currencyProvider.availableCurrencies.isNotEmpty) {
-                _toggleDropdown();
-              }
+              // Always allow opening dropdown since we show all currencies now
+              _toggleDropdown();
             },
             child: Container(
               width: double.infinity,
@@ -418,29 +523,28 @@ class _CurrencySettingsScreenState extends State<CurrencySettingsScreen>
             ),
           ],
           
-          // No currencies available warning
-          if (currencyProvider.availableCurrencies.isEmpty && !currencyProvider.isLoadingCurrencies)
-            Container(
-              margin: const EdgeInsets.only(top: 12),
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.orange.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: Colors.orange.withValues(alpha: 0.3)),
-              ),
-              child: Row(
-                children: [
-                  const Icon(Icons.warning_amber, color: Colors.orange, size: 20),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      AppLocalizations.of(context)!.no_currencies_available ?? 'No currencies available',
-                      style: const TextStyle(color: Colors.orange, fontSize: 14),
-                    ),
-                  ),
-                ],
-              ),
+          // Info about currency validation
+          Container(
+            margin: const EdgeInsets.only(top: 12),
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.blue.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: Colors.blue.withValues(alpha: 0.3)),
             ),
+            child: Row(
+              children: [
+                const Icon(Icons.info_outline, color: Colors.blue, size: 20),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    AppLocalizations.of(context)!.currency_validation_info,
+                    style: const TextStyle(color: Colors.blue, fontSize: 14),
+                  ),
+                ),
+              ],
+            ),
+          ),
         ],
       ),
     );

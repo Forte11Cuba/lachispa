@@ -675,4 +675,29 @@ class AppLocalizationsPt extends AppLocalizations {
 
   @override
   String get about_title => 'Sobre';
+
+  @override
+  String get currency_validation_info =>
+      'Ao selecionar uma moeda, será verificado se está disponível neste servidor';
+
+  @override
+  String checking_currency_availability(Object currency) {
+    return 'Verificando disponibilidade de $currency...';
+  }
+
+  @override
+  String currency_added_successfully(Object currency) {
+    return '$currency adicionado com sucesso';
+  }
+
+  @override
+  String currency_not_available_on_server(
+      Object currency, Object currencyName) {
+    return '$currencyName ($currency) não está disponível neste servidor';
+  }
+
+  @override
+  String error_checking_currency(Object currency, Object error) {
+    return 'Erro ao verificar $currency: $error';
+  }
 }
