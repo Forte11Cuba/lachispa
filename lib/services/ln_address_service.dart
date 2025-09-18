@@ -13,7 +13,7 @@ void _debugLog(String message) {
 
 class LNAddressService {
   final Dio _dio;
-  final String _baseUrl;
+  String _baseUrl;
 
   LNAddressService(this._baseUrl) : _dio = Dio() {
     _configureDio();
@@ -246,9 +246,19 @@ class LNAddressService {
     }
   }
 
+  /// Update base URL dynamically - used when server changes
+  void updateBaseUrl(String newBaseUrl) {
+    _debugLog('[LN_ADDRESS_SERVICE] 🔄 Updating base URL from $_baseUrl to $newBaseUrl');
+    _baseUrl = newBaseUrl;
+    _dio.options.baseUrl = newBaseUrl;
+    _debugLog('[LN_ADDRESS_SERVICE] ✅ Base URL updated successfully');
+  }
+
   // Detect specific server and get optimized endpoints
   List<String> _getOptimizedEndpoints() {
     final serverUrl = _baseUrl.toLowerCase();
+    
+    _debugLog('[LN_ADDRESS_SERVICE] 🔍 Server URL for detection: $serverUrl');
     
     // Detection of specific servers according to official source code
     if (serverUrl.contains('lachispa.me')) {
