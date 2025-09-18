@@ -45,5 +45,64 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>lachispa.bitcoin</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>bitcoin</string>
+			</array>
+		</dict>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>lachispa.lightning</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>lightning</string>
+			</array>
+		</dict>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>lachispa.lnurl</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>lnurl</string>
+			</array>
+		</dict>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>lachispa.lnurlw</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>lnurlw</string>
+			</array>
+		</dict>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>lachispa.lnurlp</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>lnurlp</string>
+			</array>
+		</dict>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>lachispa.lnurlc</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>lnurlc</string>
+			</array>
+		</dict>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>lachispa.app</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>lachispa</string>
+			</array>
+		</dict>
+	</array>
 </dict>
 </plist>

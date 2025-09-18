@@ -249,5 +249,8 @@
   "tap_to_cycle": "Нажмите для переключения валют",
   "calculating_text": "Вычисление...",
   "settings_screen_title": "Настройки",
-  "about_title": "Информация"
+  "about_title": "Информация",
+  
+  "deep_link_login_required_title": "Требуется вход в систему",
+  "deep_link_login_required_message": "Вы должны войти в свою учетную запись LaChispa для обработки этого платежа."
 }

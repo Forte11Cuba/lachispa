@@ -249,5 +249,8 @@
   "tap_to_cycle": "Tocca per scorrere le valute",
   "calculating_text": "Calcolo...",
   "settings_screen_title": "Impostazioni",
-  "about_title": "Informazioni"
+  "about_title": "Informazioni",
+  
+  "deep_link_login_required_title": "Accesso richiesto",
+  "deep_link_login_required_message": "Devi accedere al tuo account LaChispa per elaborare questo pagamento."
 }

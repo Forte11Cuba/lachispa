@@ -10,7 +10,9 @@ import '../widgets/qr_scanner_widget.dart';
 import '../l10n/generated/app_localizations.dart';
 
 class SendScreen extends StatefulWidget {
-  const SendScreen({super.key});
+  final String? initialPaymentData;
+  
+  const SendScreen({super.key, this.initialPaymentData});
 
   @override
   State<SendScreen> createState() => _SendScreenState();
@@ -26,6 +28,24 @@ class _SendScreenState extends State<SendScreen> {
     super.initState();
     // Listen to text changes for automatic validation
     _inputController.addListener(_onTextChanged);
+    
+    // Set initial payment data if provided from deep link
+    if (widget.initialPaymentData != null) {
+      print('[SendScreen] Received initial payment data: ${widget.initialPaymentData}');
+      _inputController.text = widget.initialPaymentData!;
+      // Auto-process if valid payment data
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        print('[SendScreen] Checking if input is valid...');
+        if (_hasValidInput()) {
+          print('[SendScreen] Valid input detected, processing payment...');
+          _processPayment();
+        } else {
+          print('[SendScreen] Invalid input: ${widget.initialPaymentData}');
+        }
+      });
+    } else {
+      print('[SendScreen] No initial payment data provided');
+    }
   }
 
   @override

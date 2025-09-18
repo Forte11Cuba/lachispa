@@ -249,5 +249,8 @@
   "tap_to_cycle": "Appuyez pour parcourir les devises",
   "calculating_text": "Calcul...",
   "settings_screen_title": "Paramètres",
-  "about_title": "À propos"
+  "about_title": "À propos",
+  
+  "deep_link_login_required_title": "Connexion requise",
+  "deep_link_login_required_message": "Vous devez vous connecter à votre compte LaChispa pour traiter ce paiement."
 }

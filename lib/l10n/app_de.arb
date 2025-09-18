@@ -249,5 +249,8 @@
   "tap_to_cycle": "Tippen, um Währungen zu wechseln",
   "calculating_text": "Berechne...",
   "settings_screen_title": "Einstellungen",
-  "about_title": "Über"
+  "about_title": "Über",
+  
+  "deep_link_login_required_title": "Anmeldung erforderlich",
+  "deep_link_login_required_message": "Sie müssen sich in Ihr LaChispa-Konto einloggen, um diese Zahlung zu verarbeiten."
 }
