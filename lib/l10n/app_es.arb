@@ -249,5 +249,11 @@
   "tap_to_cycle": "Toca para cambiar monedas",
   "calculating_text": "Calculando...",
   "settings_screen_title": "Configuración",
-  "about_title": "Acerca de"
+  "about_title": "Acerca de",
+  
+  "currency_validation_info": "Al seleccionar una moneda, se verificará si está disponible en este servidor",
+  "checking_currency_availability": "Verificando disponibilidad de {currency}...",
+  "currency_added_successfully": "{currency} agregado correctamente",
+  "currency_not_available_on_server": "{currencyName} ({currency}) no está disponible en este servidor",
+  "error_checking_currency": "Error verificando {currency}: {error}"
 }

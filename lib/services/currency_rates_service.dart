@@ -635,6 +635,63 @@ class CurrencyRatesService {
   }
 
 
+  /// Test if a specific currency is available on the server
+  /// Returns true if the currency works, false if not
+  Future<bool> testCurrencyAvailability({
+    required String currency,
+    required String serverUrl,
+  }) async {
+    if (currency == 'sats') return true; // sats is always available
+    
+    try {
+      print('[CURRENCY_RATES_SERVICE] Testing currency $currency on server $serverUrl');
+      
+      final endpoint = '$serverUrl/lnurlp/api/v1/rate/$currency';
+      final response = await _dio.get(
+        endpoint,
+        options: Options(
+          validateStatus: (status) => status! < 500, // Accept 4xx as valid response
+          sendTimeout: const Duration(seconds: 5),
+          receiveTimeout: const Duration(seconds: 5),
+        ),
+      );
+      
+      if (response.statusCode == 200) {
+        // Check if the response contains a valid rate
+        if (response.data != null && response.data is Map) {
+          final data = response.data as Map<String, dynamic>;
+          if (data.containsKey('rate') && data['rate'] is num && data['rate'] > 0) {
+            print('[CURRENCY_RATES_SERVICE] ✅ $currency is available (rate: ${data['rate']})');
+            return true;
+          } else {
+            print('[CURRENCY_RATES_SERVICE] ❌ $currency returned invalid rate: ${data['rate']}');
+            return false;
+          }
+        } else {
+          print('[CURRENCY_RATES_SERVICE] ❌ $currency returned invalid response format');
+          return false;
+        }
+      } else if (response.statusCode == 400 || response.statusCode == 404) {
+        // Check if the response indicates the currency is not allowed
+        if (response.data != null && response.data is Map) {
+          final data = response.data as Map<String, dynamic>;
+          if (data.containsKey('detail') && data['detail'].toString().toLowerCase().contains('not allowed')) {
+            print('[CURRENCY_RATES_SERVICE] ❌ $currency not allowed on this server');
+          } else {
+            print('[CURRENCY_RATES_SERVICE] ❌ $currency not available (${response.statusCode})');
+          }
+        }
+        return false;
+      } else {
+        print('[CURRENCY_RATES_SERVICE] ❌ $currency unexpected status: ${response.statusCode}');
+        return false;
+      }
+    } catch (e) {
+      print('[CURRENCY_RATES_SERVICE] ❌ $currency test failed: $e');
+      return false;
+    }
+  }
+
   void dispose() {
     _dio.close();
   }

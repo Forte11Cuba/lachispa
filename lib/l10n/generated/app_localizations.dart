@@ -1373,6 +1373,36 @@ abstract class AppLocalizations {
   /// In es, this message translates to:
   /// **'Acerca de'**
   String get about_title;
+
+  /// No description provided for @currency_validation_info.
+  ///
+  /// In es, this message translates to:
+  /// **'Al seleccionar una moneda, se verificará si está disponible en este servidor'**
+  String get currency_validation_info;
+
+  /// No description provided for @checking_currency_availability.
+  ///
+  /// In es, this message translates to:
+  /// **'Verificando disponibilidad de {currency}...'**
+  String checking_currency_availability(Object currency);
+
+  /// No description provided for @currency_added_successfully.
+  ///
+  /// In es, this message translates to:
+  /// **'{currency} agregado correctamente'**
+  String currency_added_successfully(Object currency);
+
+  /// No description provided for @currency_not_available_on_server.
+  ///
+  /// In es, this message translates to:
+  /// **'{currencyName} ({currency}) no está disponible en este servidor'**
+  String currency_not_available_on_server(Object currency, Object currencyName);
+
+  /// No description provided for @error_checking_currency.
+  ///
+  /// In es, this message translates to:
+  /// **'Error verificando {currency}: {error}'**
+  String error_checking_currency(Object currency, Object error);
 }
 
 class _AppLocalizationsDelegate
