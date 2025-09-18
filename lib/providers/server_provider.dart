@@ -9,7 +9,6 @@ class ServerProvider with ChangeNotifier {
 
   static const Map<String, String> _defaultServers = {
     'LaChispa': 'https://lachispa.me',
-    'BTC Lake': 'https://lnbits.btclake.org',
   };
 
   String get selectedServer => _selectedServer;
