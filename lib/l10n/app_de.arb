@@ -251,6 +251,66 @@
   "settings_screen_title": "Einstellungen",
   "about_title": "Über",
   
+  "voucher_scan_title": "Voucher scannen",
+  "voucher_scan_instructions": "Richten Sie Ihre Kamera auf den LNURL-withdraw Voucher QR-Code",
+  "voucher_scan_subtitle": "Die App erkennt automatisch den Voucher und ermöglicht es Ihnen, ihn einzulösen",
+  "voucher_scan_button": "QR scannen",
+  "voucher_tap_to_scan": "Tippen Sie, um die Kamera zu öffnen",
+  "voucher_manual_input": "Code manuell eingeben",
+  "voucher_processing": "Verarbeitung...",
+  "voucher_manual_input_hint": "Fügen Sie den LNURL-withdraw Voucher-Code ein:",
+  "voucher_manual_input_placeholder": "lnurl1...",
+  "process_button": "Verarbeiten",
+  
+  "voucher_detected_title": "Voucher erkannt",
+  "voucher_fixed_amount": "Fester Betrag:",
+  "voucher_amount_range": "Verfügbarer Bereich:",
+  "voucher_amount_to_claim": "Zu beanspruchender Betrag:",
+  "voucher_min_max_hint": "Min: {min} Sats • Max: {max} Sats",
+  "@voucher_min_max_hint": {
+    "placeholders": {
+      "min": {"type": "int"},
+      "max": {"type": "int"}
+    }
+  },
+  "voucher_claim_button": "Voucher einlösen",
+  "voucher_amount_invalid": "Ungültiger Betrag. Muss zwischen {min} und {max} Sats liegen",
+  "@voucher_amount_invalid": {
+    "placeholders": {
+      "min": {"type": "int"},
+      "max": {"type": "int"}
+    }
+  },
+  
+  "voucher_claimed_title": "Voucher eingelöst!",
+  "voucher_claimed_subtitle": "Die Mittel werden in Kürze in Ihrer Wallet erscheinen.",
+  "voucher_invalid_code": "Ungültiger Code",
+  "voucher_not_valid_lnurl": "Der gescannte Code ist kein gültiger LNURL-withdraw Voucher.",
+  "voucher_processing_error": "Fehler beim Verarbeiten des Vouchers",
+  
+  "voucher_already_claimed": "Voucher bereits eingelöst",
+  "voucher_already_claimed_desc": "Dieser Voucher wurde bereits verwendet und kann nicht erneut eingelöst werden.",
+  "voucher_expired": "Voucher abgelaufen",
+  "voucher_expired_desc": "Dieser Voucher ist abgelaufen und nicht mehr gültig.",
+  "voucher_not_found": "Voucher nicht gefunden",
+  "voucher_not_found_desc": "Dieser Voucher konnte nicht gefunden werden oder wurde möglicherweise entfernt.",
+  "voucher_server_error": "Server-Fehler",
+  "voucher_server_error_desc": "Es gab ein Problem mit dem Voucher-Server. Bitte versuchen Sie es später erneut.",
+  "voucher_connection_error": "Verbindungsfehler",
+  "voucher_connection_error_desc": "Bitte überprüfen Sie Ihre Internetverbindung und versuchen Sie es erneut.",
+  "voucher_invalid_amount": "Ungültiger Betrag",
+  "voucher_invalid_amount_desc": "Der Voucher-Betrag ist nicht gültig oder wurde beschädigt.",
+  "voucher_insufficient_funds": "Unzureichende Mittel",
+  "voucher_insufficient_funds_desc": "Der Voucher hat nicht genügend verfügbare Mittel.",
+  "voucher_generic_error": "Voucher kann nicht verarbeitet werden",
+  "voucher_generic_error_desc": "Es gab einen unerwarteten Fehler beim Verarbeiten dieses Vouchers. Bitte versuchen Sie es erneut oder kontaktieren Sie den Support.",
+  
+  "currency_validation_info": "Bei der Auswahl einer Währung wird überprüft, ob sie auf diesem Server verfügbar ist",
+  "checking_currency_availability": "Überprüfung der Verfügbarkeit von {currency}...",
+  "currency_added_successfully": "{currency} erfolgreich hinzugefügt",
+  "currency_not_available_on_server": "{currencyName} ({currency}) ist auf diesem Server nicht verfügbar",
+  "error_checking_currency": "Fehler beim Überprüfen von {currency}: {error}",
+  
   "deep_link_login_required_title": "Anmeldung erforderlich",
   "deep_link_login_required_message": "Sie müssen sich in Ihr LaChispa-Konto einloggen, um diese Zahlung zu verarbeiten."
 }
