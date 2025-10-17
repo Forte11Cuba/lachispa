@@ -11,7 +11,7 @@ import 'services/wallet_service.dart';
 import 'services/ln_address_service.dart';
 import 'services/app_info_service.dart';
 import 'services/deep_link_service.dart';
-import 'screens/1welcome_screen.dart';
+import 'screens/auth_checker.dart';
 import 'screens/10send_screen.dart';
 import 'l10n/generated/app_localizations.dart';
 
@@ -209,7 +209,7 @@ class _LaChispaAppState extends State<LaChispaApp> {
                   Locale('it', ''),
                   Locale('ru', ''),
                 ],
-                home: const WelcomeScreen(),
+                home: const AuthChecker(),
                 debugShowCheckedModeBanner: false,
               );
             },
@@ -223,10 +223,9 @@ class _LaChispaAppState extends State<LaChispaApp> {
   void _initializeProvidersInParallel(BuildContext context) {
     try {
       final serverProvider = context.read<ServerProvider>();
-      final authProvider = context.read<AuthProvider>();
+      // Note: AuthProvider is now initialized by AuthChecker, not here
       Future.wait([
         serverProvider.initialize(),
-        authProvider.initialize(),
       ]).catchError((error) {
         print('[MAIN] Error initializing providers: $error');
       });

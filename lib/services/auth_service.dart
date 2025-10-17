@@ -237,16 +237,22 @@ class AuthService {
     required String serverUrl,
     required String username,
   }) async {
+    final now = DateTime.now();
+    final expiryTime = now.add(const Duration(days: 5));
+    
     await Future.wait([
       _storage.write(key: 'auth_token', value: token),
       _storage.write(key: 'user_id', value: userId),
       _storage.write(key: 'server_url', value: serverUrl),
       _storage.write(key: 'username', value: username),
-      _storage.write(key: 'login_time', value: DateTime.now().toIso8601String()),
+      _storage.write(key: 'login_time', value: now.toIso8601String()),
+      _storage.write(key: 'session_expires', value: expiryTime.toIso8601String()),
     ]);
+    
+    _debugLog('[AUTH_SERVICE] Session saved with 5-day expiry: ${expiryTime.toIso8601String()}');
   }
 
-  /// Get session data with optimized parallel reads
+  /// Get session data with optimized parallel reads and expiry check
   Future<SessionData?> getSession() async {
     try {
       // Check token first for early return
@@ -259,7 +265,18 @@ class AuthService {
         _storage.read(key: 'server_url'),
         _storage.read(key: 'username'),
         _storage.read(key: 'login_time'),
+        _storage.read(key: 'session_expires'),
       ]);
+
+      // Check if session has expired locally
+      if (results[4] != null) {
+        final expiryTime = DateTime.parse(results[4]!);
+        if (DateTime.now().isAfter(expiryTime)) {
+          _debugLog('[AUTH_SERVICE] Session expired locally, clearing storage');
+          await logout();
+          return null;
+        }
+      }
 
       return SessionData(
         token: token,
@@ -269,6 +286,7 @@ class AuthService {
         loginTime: results[3] != null ? DateTime.parse(results[3]!) : DateTime.now(),
       );
     } catch (e) {
+      _debugLog('[AUTH_SERVICE] Error getting session: $e');
       return null;
     }
   }
@@ -465,9 +483,39 @@ class AuthService {
 
   Future<bool> isLoggedIn() async {
     try {
-      final token = await _storage.read(key: 'auth_token');
-      return token != null && token.isNotEmpty;
+      final session = await getSession();
+      return session != null;
     } catch (e) {
+      return false;
+    }
+  }
+
+  /// Validate session token with server
+  Future<bool> validateSession(String token, String serverUrl) async {
+    try {
+      String baseUrl = serverUrl;
+      if (!baseUrl.startsWith('http')) {
+        baseUrl = 'https://$baseUrl';
+      }
+      
+      _debugLog('[AUTH_SERVICE] Validating session with server: $baseUrl');
+      
+      final response = await _dio.get(
+        '$baseUrl/api/v1/auth',
+        options: Options(
+          headers: {
+            'Authorization': 'Bearer $token',
+            'X-API-KEY': token,
+          },
+        ),
+      );
+      
+      final isValid = response.statusCode == 200;
+      _debugLog('[AUTH_SERVICE] Session validation result: $isValid');
+      return isValid;
+      
+    } catch (e) {
+      _debugLog('[AUTH_SERVICE] Session validation failed: $e');
       return false;
     }
   }
