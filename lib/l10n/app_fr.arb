@@ -251,6 +251,66 @@
   "settings_screen_title": "Paramètres",
   "about_title": "À propos",
   
+  "voucher_scan_title": "Scanner le voucher",
+  "voucher_scan_instructions": "Pointez votre caméra vers le code QR du voucher LNURL-withdraw",
+  "voucher_scan_subtitle": "L'application détectera automatiquement le voucher et vous permettra de l'encaisser",
+  "voucher_scan_button": "Scanner QR",
+  "voucher_tap_to_scan": "Appuyez pour ouvrir la caméra",
+  "voucher_manual_input": "Saisir le code manuellement",
+  "voucher_processing": "Traitement...",
+  "voucher_manual_input_hint": "Collez le code LNURL-withdraw du voucher :",
+  "voucher_manual_input_placeholder": "lnurl1...",
+  "process_button": "Traiter",
+  
+  "voucher_detected_title": "Voucher détecté",
+  "voucher_fixed_amount": "Montant fixe :",
+  "voucher_amount_range": "Plage disponible :",
+  "voucher_amount_to_claim": "Montant à réclamer :",
+  "voucher_min_max_hint": "Min : {min} sats • Max : {max} sats",
+  "@voucher_min_max_hint": {
+    "placeholders": {
+      "min": {"type": "int"},
+      "max": {"type": "int"}
+    }
+  },
+  "voucher_claim_button": "Réclamer le voucher",
+  "voucher_amount_invalid": "Montant invalide. Doit être entre {min} et {max} sats",
+  "@voucher_amount_invalid": {
+    "placeholders": {
+      "min": {"type": "int"},
+      "max": {"type": "int"}
+    }
+  },
+  
+  "voucher_claimed_title": "Voucher réclamé !",
+  "voucher_claimed_subtitle": "Les fonds apparaîtront dans votre portefeuille sous peu.",
+  "voucher_invalid_code": "Code invalide",
+  "voucher_not_valid_lnurl": "Le code scanné n'est pas un voucher LNURL-withdraw valide.",
+  "voucher_processing_error": "Erreur lors du traitement du voucher",
+  
+  "voucher_already_claimed": "Voucher déjà réclamé",
+  "voucher_already_claimed_desc": "Ce voucher a déjà été utilisé et ne peut pas être réclamé à nouveau.",
+  "voucher_expired": "Voucher expiré",
+  "voucher_expired_desc": "Ce voucher a expiré et n'est plus valide.",
+  "voucher_not_found": "Voucher non trouvé",
+  "voucher_not_found_desc": "Ce voucher n'a pas pu être trouvé ou a peut-être été supprimé.",
+  "voucher_server_error": "Erreur serveur",
+  "voucher_server_error_desc": "Il y a eu un problème avec le serveur du voucher. Veuillez réessayer plus tard.",
+  "voucher_connection_error": "Erreur de connexion",
+  "voucher_connection_error_desc": "Veuillez vérifier votre connexion internet et réessayer.",
+  "voucher_invalid_amount": "Montant invalide",
+  "voucher_invalid_amount_desc": "Le montant du voucher n'est pas valide ou a été corrompu.",
+  "voucher_insufficient_funds": "Fonds insuffisants",
+  "voucher_insufficient_funds_desc": "Le voucher n'a pas suffisamment de fonds disponibles.",
+  "voucher_generic_error": "Impossible de traiter le voucher",
+  "voucher_generic_error_desc": "Il y a eu une erreur inattendue lors du traitement de ce voucher. Veuillez réessayer ou contacter le support.",
+  
+  "currency_validation_info": "Lors de la sélection d'une devise, il sera vérifié si elle est disponible sur ce serveur",
+  "checking_currency_availability": "Vérification de la disponibilité de {currency}...",
+  "currency_added_successfully": "{currency} ajouté avec succès",
+  "currency_not_available_on_server": "{currencyName} ({currency}) n'est pas disponible sur ce serveur",
+  "error_checking_currency": "Erreur lors de la vérification de {currency} : {error}",
+  
   "deep_link_login_required_title": "Connexion requise",
   "deep_link_login_required_message": "Vous devez vous connecter à votre compte LaChispa pour traiter ce paiement."
 }

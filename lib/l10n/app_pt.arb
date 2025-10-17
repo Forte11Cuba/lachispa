@@ -239,6 +239,60 @@
 
   "add_note_optional": "Adicionar uma nota (opcional)",
 
+  "voucher_scan_title": "Digitalizar Voucher",
+  "voucher_scan_instructions": "Aponte a sua câmara para o código QR do voucher LNURL-withdraw",
+  "voucher_scan_subtitle": "A aplicação detetará automaticamente o voucher e permitirá que o resgate",
+  "voucher_scan_button": "Digitalizar QR",
+  "voucher_tap_to_scan": "Toque para abrir a câmara",
+  "voucher_manual_input": "Inserir código manualmente",
+  "voucher_processing": "A processar...",
+  "voucher_manual_input_hint": "Cole o código LNURL-withdraw do voucher:",
+  "voucher_manual_input_placeholder": "lnurl1...",
+  "process_button": "Processar",
+  
+  "voucher_detected_title": "Voucher Detetado",
+  "voucher_fixed_amount": "Quantia fixa:",
+  "voucher_amount_range": "Intervalo disponível:",
+  "voucher_amount_to_claim": "Quantia a resgatar:",
+  "voucher_min_max_hint": "Mín: {min} sats • Máx: {max} sats",
+  "@voucher_min_max_hint": {
+    "placeholders": {
+      "min": {"type": "int"},
+      "max": {"type": "int"}
+    }
+  },
+  "voucher_claim_button": "Resgatar Voucher",
+  "voucher_amount_invalid": "Quantia inválida. Deve estar entre {min} e {max} sats",
+  "@voucher_amount_invalid": {
+    "placeholders": {
+      "min": {"type": "int"},
+      "max": {"type": "int"}
+    }
+  },
+  
+  "voucher_claimed_title": "Voucher resgatado!",
+  "voucher_claimed_subtitle": "Os fundos aparecerão na sua carteira em breve.",
+  "voucher_invalid_code": "Código inválido",
+  "voucher_not_valid_lnurl": "O código digitalizado não é um voucher LNURL-withdraw válido.",
+  "voucher_processing_error": "Erro ao processar o voucher",
+  
+  "voucher_already_claimed": "Voucher já resgatado",
+  "voucher_already_claimed_desc": "Este voucher já foi usado e não pode ser resgatado novamente.",
+  "voucher_expired": "Voucher expirado",
+  "voucher_expired_desc": "Este voucher expirou e já não é válido.",
+  "voucher_not_found": "Voucher não encontrado",
+  "voucher_not_found_desc": "Este voucher não pôde ser encontrado ou pode ter sido removido.",
+  "voucher_server_error": "Erro do servidor",
+  "voucher_server_error_desc": "Houve um problema com o servidor do voucher. Tente novamente mais tarde.",
+  "voucher_connection_error": "Erro de ligação",
+  "voucher_connection_error_desc": "Verifique a sua ligação à internet e tente novamente.",
+  "voucher_invalid_amount": "Quantia inválida",
+  "voucher_invalid_amount_desc": "A quantia do voucher não é válida ou foi corrompida.",
+  "voucher_insufficient_funds": "Fundos insuficientes",
+  "voucher_insufficient_funds_desc": "O voucher não tem fundos suficientes disponíveis.",
+  "voucher_generic_error": "Não foi possível processar o voucher",
+  "voucher_generic_error_desc": "Houve um erro inesperado ao processar este voucher. Tente novamente ou contacte o suporte.",
+
   "currency_settings_title": "Seleção de Moedas",
   "currency_settings_subtitle": "Selecione suas moedas preferidas",
   "available_currencies": "Moedas Disponíveis",
