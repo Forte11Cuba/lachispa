@@ -16,6 +16,7 @@ import '../models/wallet_info.dart';
 import '../l10n/generated/app_localizations.dart';
 import '../widgets/universal_screen_wrapper.dart';
 import '7ln_address_screen.dart';
+import 'voucher_scan_screen.dart';
 
 class ReceiveScreen extends StatefulWidget {
   const ReceiveScreen({super.key});
@@ -242,7 +243,7 @@ class _ReceiveScreenState extends State<ReceiveScreen> {
       padding: const EdgeInsets.fromLTRB(24, 16, 24, 8),
       child: Column(
         children: [
-          // Row with back button
+          // Row with back button and QR button
           Row(
             children: [
               // Back button
@@ -274,6 +275,39 @@ class _ReceiveScreenState extends State<ReceiveScreen> {
                     Navigator.pop(context);
                   },
                   padding: EdgeInsets.zero,
+                ),
+              ),
+              
+              const Spacer(),
+              
+              // QR Scan button for vouchers
+              Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.08),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: Colors.white.withValues(alpha: 0.1),
+                    width: 1,
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.1),
+                      blurRadius: 8,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: IconButton(
+                  icon: const Icon(
+                    Icons.qr_code_scanner,
+                    color: Colors.white,
+                    size: 20,
+                  ),
+                  onPressed: _navigateToVoucherScreen,
+                  padding: EdgeInsets.zero,
+                  tooltip: 'Escanear voucher',
                 ),
               ),
             ],
@@ -1777,5 +1811,14 @@ class _ReceiveScreenState extends State<ReceiveScreen> {
         ),
       );
     }
+  }
+
+  void _navigateToVoucherScreen() {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => const VoucherScanScreen(),
+      ),
+    );
   }
 }
