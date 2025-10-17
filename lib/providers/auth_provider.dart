@@ -26,13 +26,34 @@ class AuthProvider with ChangeNotifier {
     try {
       final session = await _authService.getSession();
       if (session != null) {
-        _sessionData = session;
-        _isLoggedIn = true;
-        print('[AUTH_PROVIDER] Session restored for ${session.username}');
+        print('[AUTH_PROVIDER] Session found, validating with server...');
+        
+        // Validate session with server
+        final isValidSession = await _authService.validateSession(
+          session.token, 
+          session.serverUrl
+        );
+        
+        if (isValidSession) {
+          _sessionData = session;
+          _isLoggedIn = true;
+          print('[AUTH_PROVIDER] Session restored and validated for ${session.username} ✅');
+        } else {
+          print('[AUTH_PROVIDER] Session invalid on server, clearing local session ❌');
+          await _authService.logout();
+          _sessionData = null;
+          _isLoggedIn = false;
+        }
+      } else {
+        print('[AUTH_PROVIDER] No session found in storage');
       }
     } catch (e) {
       print('[AUTH_PROVIDER] Error initializing: $e');
       _errorMessage = 'Error initializing session';
+      // Clear potentially corrupted session
+      await _authService.logout();
+      _sessionData = null;
+      _isLoggedIn = false;
     } finally {
       _setLoading(false);
     }
