@@ -1515,7 +1515,255 @@ class InvoiceService {
     }
   }
 
+  /// Gets information about an LNURL-withdraw voucher without claiming it
+  /// 
+  /// [lnurl] - LNURL-withdraw voucher code
+  /// 
+  /// Returns voucher information for user confirmation
+  Future<Map<String, dynamic>> getVoucherInfo({
+    required String lnurl,
+  }) async {
+    try {
+      _debugLog('[INVOICE_SERVICE] Getting LNURL-withdraw voucher info');
+      _debugLog('[INVOICE_SERVICE] LNURL: ${lnurl.substring(0, 20)}...');
+      
+      // Step 1: Decode LNURL to get the actual URL
+      final url = _decodeLNURL(lnurl);
+      _debugLog('[INVOICE_SERVICE] Decoded URL: $url');
+      
+      // Step 2: GET the voucher metadata
+      final metadataResponse = await _dio.get(url);
+      
+      if (metadataResponse.statusCode != 200) {
+        throw Exception('Error obteniendo metadata del voucher (${metadataResponse.statusCode})');
+      }
+      
+      final metadata = metadataResponse.data as Map<String, dynamic>;
+      _debugLog('[INVOICE_SERVICE] Voucher metadata: $metadata');
+      
+      // Step 3: Validate it's a withdraw request
+      if (metadata['tag'] != 'withdrawRequest') {
+        throw Exception('El código no es un voucher válido (tag: ${metadata['tag']})');
+      }
+      
+      // Step 4: Extract voucher details
+      final minWithdrawable = metadata['minWithdrawable'] as int;
+      final maxWithdrawable = metadata['maxWithdrawable'] as int;
+      final callback = metadata['callback'] as String;
+      final k1 = metadata['k1'] as String;
+      final defaultDescription = metadata['defaultDescription'] as String? ?? 'Voucher LNURL-withdraw';
+      
+      final minSats = minWithdrawable ~/ 1000;
+      final maxSats = maxWithdrawable ~/ 1000;
+      
+      _debugLog('[INVOICE_SERVICE] Voucher info - Min: $minSats sats, Max: $maxSats sats');
+      _debugLog('[INVOICE_SERVICE] Description: $defaultDescription');
+      
+      return {
+        'valid': true,
+        'minWithdrawable': minWithdrawable,
+        'maxWithdrawable': maxWithdrawable,
+        'minSats': minSats,
+        'maxSats': maxSats,
+        'callback': callback,
+        'k1': k1,
+        'description': defaultDescription,
+        'lnurl': lnurl,
+        // Check if it's a fixed amount or range
+        'isFixedAmount': minWithdrawable == maxWithdrawable,
+      };
+      
+    } catch (e) {
+      _debugLog('[INVOICE_SERVICE] Error obteniendo info de voucher: $e');
+      
+      // Analyze the error and throw a specific exception type
+      final errorAnalysis = _analyzeVoucherError(e);
+      throw VoucherException(errorAnalysis['type']!, errorAnalysis['technical']!);
+    }
+  }
+
+  /// Claims an LNURL-withdraw voucher after user confirmation
+  /// 
+  /// [voucherInfo] - Voucher information from getVoucherInfo
+  /// [adminKey] - Wallet admin key
+  /// [serverUrl] - LNBits server URL
+  /// [amountSats] - Amount to claim (within min/max range)
+  /// 
+  /// Returns claim result data
+  Future<Map<String, dynamic>> claimVoucher({
+    required Map<String, dynamic> voucherInfo,
+    required String adminKey,
+    required String serverUrl,
+    required int amountSats,
+  }) async {
+    try {
+      _debugLog('[INVOICE_SERVICE] Claiming LNURL-withdraw voucher');
+      _debugLog('[INVOICE_SERVICE] Amount to claim: $amountSats sats');
+      
+      // Validate amount is within voucher limits
+      final minSats = voucherInfo['minSats'] as int;
+      final maxSats = voucherInfo['maxSats'] as int;
+      
+      if (amountSats < minSats || amountSats > maxSats) {
+        throw Exception('Cantidad inválida. Debe estar entre $minSats y $maxSats sats');
+      }
+      
+      final callback = voucherInfo['callback'] as String;
+      final k1 = voucherInfo['k1'] as String;
+      final description = voucherInfo['description'] as String;
+      
+      // Step 1: Create an invoice for the requested amount
+      final invoice = await createInvoice(
+        serverUrl: serverUrl,
+        adminKey: adminKey,
+        amount: amountSats,
+        memo: description,
+      );
+      
+      _debugLog('[INVOICE_SERVICE] Created invoice for $amountSats sats');
+      _debugLog('[INVOICE_SERVICE] Invoice: ${invoice.paymentRequest.substring(0, 20)}...');
+      
+      // Step 2: Send the invoice to the callback to claim the voucher
+      final claimResponse = await _dio.get(
+        callback,
+        queryParameters: {
+          'k1': k1,
+          'pr': invoice.paymentRequest,
+        },
+      );
+      
+      if (claimResponse.statusCode != 200) {
+        throw Exception('Error reclamando voucher (${claimResponse.statusCode})');
+      }
+      
+      final claimResult = claimResponse.data as Map<String, dynamic>;
+      _debugLog('[INVOICE_SERVICE] Claim result: $claimResult');
+      
+      // Step 3: Check if the claim was successful
+      if (claimResult['status'] == 'OK') {
+        _debugLog('[INVOICE_SERVICE] ✅ Voucher claimed successfully');
+        
+        return {
+          'success': true,
+          'amount': amountSats,
+          'description': description,
+          'invoice_hash': invoice.paymentHash,
+          'invoice': invoice.paymentRequest,
+        };
+      } else {
+        final reason = claimResult['reason'] ?? 'Error desconocido';
+        throw Exception('Error del servidor: $reason');
+      }
+      
+    } catch (e) {
+      _debugLog('[INVOICE_SERVICE] Error reclamando voucher: $e');
+      
+      // Analyze the error and throw a specific exception type
+      final errorAnalysis = _analyzeVoucherError(e);
+      throw VoucherException(errorAnalysis['type']!, errorAnalysis['technical']!);
+    }
+  }
+
+  /// Analyzes the error response and returns a specific error type and message
+  /// This helps provide user-friendly error messages for different voucher errors
+  Map<String, String> _analyzeVoucherError(dynamic error) {
+    String errorType = 'generic';
+    String technicalMessage = error.toString().toLowerCase();
+    
+    // Check for DioException with response data
+    if (error is DioException) {
+      final statusCode = error.response?.statusCode;
+      final responseData = error.response?.data?.toString()?.toLowerCase() ?? '';
+      
+      _debugLog('[INVOICE_SERVICE] Analyzing error - Status: $statusCode, Data: $responseData');
+      
+      // Analyze by status code first
+      switch (statusCode) {
+        case 400:
+          if (responseData.contains('already') || responseData.contains('used') || responseData.contains('claimed')) {
+            errorType = 'already_claimed';
+          } else if (responseData.contains('invalid') || responseData.contains('malformed')) {
+            errorType = 'invalid_code';
+          } else if (responseData.contains('amount')) {
+            errorType = 'invalid_amount';
+          } else {
+            errorType = 'invalid_code';
+          }
+          break;
+          
+        case 404:
+          if (responseData.contains('expired') || responseData.contains('expire')) {
+            errorType = 'expired';
+          } else {
+            errorType = 'not_found';
+          }
+          break;
+          
+        case 429:
+          errorType = 'server_error'; // Rate limited
+          break;
+          
+        case 500:
+        case 502:
+        case 503:
+          errorType = 'server_error';
+          break;
+          
+        default:
+          if (error.type == DioExceptionType.connectionTimeout || 
+              error.type == DioExceptionType.receiveTimeout ||
+              error.type == DioExceptionType.connectionError) {
+            errorType = 'connection_error';
+          } else {
+            errorType = 'generic';
+          }
+      }
+      
+      // Additional content-based analysis
+      if (responseData.contains('insufficient') || responseData.contains('not enough')) {
+        errorType = 'insufficient_funds';
+      } else if (responseData.contains('expired') || responseData.contains('expire')) {
+        errorType = 'expired';
+      } else if (responseData.contains('already') || responseData.contains('used') || responseData.contains('claimed')) {
+        errorType = 'already_claimed';
+      } else if (responseData.contains('tag') && responseData.contains('null')) {
+        errorType = 'invalid_code';
+      }
+    } else {
+      // Analyze generic exceptions
+      if (technicalMessage.contains('already') || technicalMessage.contains('used') || technicalMessage.contains('claimed')) {
+        errorType = 'already_claimed';
+      } else if (technicalMessage.contains('expired') || technicalMessage.contains('expire')) {
+        errorType = 'expired';
+      } else if (technicalMessage.contains('not found') || technicalMessage.contains('404')) {
+        errorType = 'not_found';
+      } else if (technicalMessage.contains('connection') || technicalMessage.contains('network')) {
+        errorType = 'connection_error';
+      } else if (technicalMessage.contains('server') || technicalMessage.contains('500')) {
+        errorType = 'server_error';
+      } else if (technicalMessage.contains('invalid') || technicalMessage.contains('tag') || technicalMessage.contains('null')) {
+        errorType = 'invalid_code';
+      }
+    }
+    
+    return {
+      'type': errorType,
+      'technical': error.toString(),
+    };
+  }
+
   void dispose() {
     _dio.close();
   }
+}
+
+/// Custom exception for voucher-related errors with specific error types
+class VoucherException implements Exception {
+  final String type;
+  final String technicalMessage;
+
+  const VoucherException(this.type, this.technicalMessage);
+
+  @override
+  String toString() => 'VoucherException: $type - $technicalMessage';
 }

@@ -106,6 +106,60 @@
   "paste_invoice_placeholder": "Paste invoice, LNURL or address",
   "paste_button": "Paste",
   "scan_button": "Scan",
+  
+  "voucher_scan_title": "Scan Voucher",
+  "voucher_scan_instructions": "Point your camera at the LNURL-withdraw voucher QR code",
+  "voucher_scan_subtitle": "The app will automatically detect the voucher and allow you to claim it",
+  "voucher_scan_button": "Scan QR",
+  "voucher_tap_to_scan": "Tap to open camera",
+  "voucher_manual_input": "Enter code manually",
+  "voucher_processing": "Processing...",
+  "voucher_manual_input_hint": "Paste the LNURL-withdraw voucher code:",
+  "voucher_manual_input_placeholder": "lnurl1...",
+  "process_button": "Process",
+  
+  "voucher_detected_title": "Voucher Detected",
+  "voucher_fixed_amount": "Fixed amount:",
+  "voucher_amount_range": "Available range:",
+  "voucher_amount_to_claim": "Amount to claim:",
+  "voucher_min_max_hint": "Min: {min} sats • Max: {max} sats",
+  "@voucher_min_max_hint": {
+    "placeholders": {
+      "min": {"type": "int"},
+      "max": {"type": "int"}
+    }
+  },
+  "voucher_claim_button": "Claim Voucher",
+  "voucher_amount_invalid": "Invalid amount. Must be between {min} and {max} sats",
+  "@voucher_amount_invalid": {
+    "placeholders": {
+      "min": {"type": "int"},
+      "max": {"type": "int"}
+    }
+  },
+  
+  "voucher_claimed_title": "Voucher claimed!",
+  "voucher_claimed_subtitle": "The funds will appear in your wallet shortly.",
+  "voucher_invalid_code": "Invalid code",
+  "voucher_not_valid_lnurl": "The scanned code is not a valid LNURL-withdraw voucher.",
+  "voucher_processing_error": "Error processing voucher",
+  
+  "voucher_already_claimed": "Voucher already claimed",
+  "voucher_already_claimed_desc": "This voucher has already been used and cannot be claimed again.",
+  "voucher_expired": "Voucher expired",
+  "voucher_expired_desc": "This voucher has expired and is no longer valid.",
+  "voucher_not_found": "Voucher not found",
+  "voucher_not_found_desc": "This voucher could not be found or may have been removed.",
+  "voucher_server_error": "Server error",
+  "voucher_server_error_desc": "There was a problem with the voucher server. Please try again later.",
+  "voucher_connection_error": "Connection error",
+  "voucher_connection_error_desc": "Please check your internet connection and try again.",
+  "voucher_invalid_amount": "Invalid amount",
+  "voucher_invalid_amount_desc": "The voucher amount is not valid or has been corrupted.",
+  "voucher_insufficient_funds": "Insufficient funds",
+  "voucher_insufficient_funds_desc": "The voucher does not have enough funds available.",
+  "voucher_generic_error": "Unable to process voucher",
+  "voucher_generic_error_desc": "There was an unexpected error processing this voucher. Please try again or contact support.",
   "pay_button": "PAY",
   "processing_button": "PROCESSING...",
   "payment_instruction_text": "Paste a Lightning invoice, LNURL or address",
