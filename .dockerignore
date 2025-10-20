@@ -1,0 +1,53 @@
+# Flutter build outputs
+build/
+.dart_tool/
+.packages
+
+# IDE files
+.vscode/
+.idea/
+*.iml
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Git
+.git/
+.gitignore
+
+# Documentation
+README.md
+*.md
+
+# Docker files
+Dockerfile*
+docker-compose*
+.dockerignore
+
+# Logs
+*.log
+
+# Test files
+test/
+integration_test/
+
+# Coverage
+coverage/
+
+# Android specific
+android/app/upload-keystore.jks
+android/key.properties
+
+# iOS specific
+ios/Flutter/Flutter.framework
+ios/Flutter/Flutter.podspec
+ios/Pods/
+*.mobileprovision
+*.p12
+
+# Web specific (excluding the build output)
+web/*.js.map
+
+# Environment variables
+.env*
