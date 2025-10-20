@@ -1,0 +1,23 @@
+
+services:
+  lachispa-web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: lachispa-web
+    ports:
+      - "7777:80"
+    restart: unless-stopped
+    environment:
+      - NGINX_HOST=localhost
+      - NGINX_PORT=80
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.lachispa.rule=Host(`lachispa.local`)"
+      - "traefik.http.services.lachispa.loadbalancer.server.port=80"
+    networks:
+      - lachispa-network
+
+networks:
+  lachispa-network:
+    driver: bridge
